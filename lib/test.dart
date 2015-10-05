@@ -1,14 +1,18 @@
 ///
-/// Acts as a global replacement for the test package
+/// Acts as a global replacement for the test package to add (back) the solo and skip feature
 ///
 /// # Usage
 ///
 /// In your code replace
 ///
 ///     import 'package:test/test.dart';
+///
 /// with
 ///
 ///     import 'package:dev_test/test.dart';
+///
+/// solo_test, solo_group, skip_test, skip_group are marked as deprecated so that you don't commit code that
+/// might skip many needed tests
 ///
 library tekartik_dev_test.test;
 
@@ -56,6 +60,7 @@ void solo_test(String description, body(),
 /// Run the group solo temporarily
 /// mark as deprecated so that you don't checkin such code
 ///
+@deprecated
 void solo_group(String description, void body(),
         {String testOn,
         _test.Timeout timeout,
@@ -80,6 +85,24 @@ void skip_test(String description, body(),
         skip,
         Map<String, dynamic> onPlatform}) =>
     _declarer.test(description, body,
+        testOn: testOn,
+        timeout: timeout,
+        skip: skip,
+        onPlatform: onPlatform,
+        devSkip: true);
+
+///
+/// Skip the group temporarily
+/// mark as deprecated so that you don't checkin such code
+/// to permanently skip a group use the skip paremeter
+///
+@deprecated
+void skip_group(String description, void body(),
+        {String testOn,
+        _test.Timeout timeout,
+        skip,
+        Map<String, dynamic> onPlatform}) =>
+    _declarer.group(description, body,
         testOn: testOn,
         timeout: timeout,
         skip: skip,
