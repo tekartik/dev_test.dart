@@ -208,9 +208,11 @@ class Declarer {
         _printCallback("#", group.tearDown);
       }
       for (Item item in group.children) {
-        _printCallback("#", item);
-        if (item is Group) {
-          _print(level + 1, item);
+        if (item.devSkip != true) {
+          _printCallback("#", item);
+          if (item is Group) {
+            _print(level + 1, item);
+          }
         }
       }
     }
