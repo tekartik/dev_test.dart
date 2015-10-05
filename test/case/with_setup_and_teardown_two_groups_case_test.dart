@@ -22,7 +22,7 @@ main() {
       setUpCalled = false;
     });
   });
-  group('group1', () {
+  group('group2', () {
     bool setUpCalled = false;
     setUp(() {
       expect(setUpCalled, isFalse);

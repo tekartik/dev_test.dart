@@ -111,6 +111,11 @@ class Group extends Item {
   }
 }
 
+class Root extends Group {
+  @override
+  String toString() => "$type: root";
+}
+
 ///
 /// The test definition
 ///

@@ -13,7 +13,6 @@ void main() {
     test('root', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       SetUp setUp = declarer.setUp(null);
       Test test1 = declarer.test("test1", null);
       Test test2 = declarer.test("test2", null);
@@ -30,7 +29,6 @@ void main() {
     test('in_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       SetUp setUp = declarer.setUp(null);
       Test test1 = declarer.test("test1", null);
       Test test2 = declarer.test("test2", null);
@@ -46,7 +44,6 @@ void main() {
     test('solo_test', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       Test test1 = declarer.test("solo_test", null, devSolo: true);
       Test test2 = declarer.test("test", null);
       declarer.run();
@@ -57,7 +54,6 @@ void main() {
     test('solo_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       Group group1 = declarer.group("solo_group", null, devSolo: true);
       Group group2 = declarer.group("group", null);
       // Check that we indeed run lazily
@@ -73,7 +69,6 @@ void main() {
     test('test_in_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       Test test;
       Group group = declarer.group("group", () {
         test = declarer.test("test", null);
@@ -88,7 +83,6 @@ void main() {
     solo_test('solo_test_in_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       Test test;
       Test test2;
       Group firstGroup = declarer.group("first_group", null);
@@ -117,7 +111,6 @@ void main() {
     test('solo_test_in_sub_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      bool done = false;
       Test test;
       Group sub;
       Group group = declarer.group("group", () {
