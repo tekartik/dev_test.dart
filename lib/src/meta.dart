@@ -1,6 +1,7 @@
 library tekartik_dev_test.src.item;
 
 import 'package:test/test.dart' as _test;
+import 'package:collection/equality.dart';
 
 abstract class Callback {
   Group parent;
@@ -24,6 +25,15 @@ abstract class Callback {
 
   @override
   String toString() => '$type: $descriptions';
+
+  @override
+  int get hashCode => descriptions.length;
+
+  // This is for testing mainly
+  // 2 tests are the same if they have the same description
+  @override
+  bool operator ==(o) =>
+      const ListEquality().equals(descriptions, o.descriptions);
 
   void declare();
 }
@@ -57,6 +67,15 @@ abstract class Item extends Callback {
 
   bool devSkip;
   bool devSolo;
+
+  @override
+  String toString() {
+    String text = super.toString();
+    if (devSkip == true || devSolo == true) {
+      text += " (${devSolo == true ? "solo" : "skip"})";
+    }
+    return text;
+  }
 }
 
 class Group extends Item {

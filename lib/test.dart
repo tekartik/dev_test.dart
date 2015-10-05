@@ -45,16 +45,17 @@ List<String> get testDescriptions => _declarer.currentItem.descriptions;
 ///
 @deprecated
 void solo_test(String description, body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.test(description, body,
-        testOn: testOn,
-        timeout: timeout,
-        skip: skip,
-        onPlatform: onPlatform,
-        devSolo: true);
+    {String testOn,
+    _test.Timeout timeout,
+    skip,
+    Map<String, dynamic> onPlatform}) {
+  _declarer.test(description, body,
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      devSolo: true);
+}
 
 ///
 /// Run the group solo temporarily
@@ -62,16 +63,17 @@ void solo_test(String description, body(),
 ///
 @deprecated
 void solo_group(String description, void body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.group(description, body,
-        testOn: testOn,
-        timeout: timeout,
-        skip: skip,
-        onPlatform: onPlatform,
-        devSolo: true);
+    {String testOn,
+    _test.Timeout timeout,
+    skip,
+    Map<String, dynamic> onPlatform}) {
+  _declarer.group(description, body,
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      devSolo: true);
+}
 
 ///
 /// Skip the test temporarily
@@ -80,16 +82,17 @@ void solo_group(String description, void body(),
 ///
 @deprecated
 void skip_test(String description, body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.test(description, body,
-        testOn: testOn,
-        timeout: timeout,
-        skip: skip,
-        onPlatform: onPlatform,
-        devSkip: true);
+    {String testOn,
+    _test.Timeout timeout,
+    skip,
+    Map<String, dynamic> onPlatform}) {
+  _declarer.test(description, body,
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      devSkip: true);
+}
 
 ///
 /// Skip the group temporarily
@@ -98,16 +101,17 @@ void skip_test(String description, body(),
 ///
 @deprecated
 void skip_group(String description, void body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.group(description, body,
-        testOn: testOn,
-        timeout: timeout,
-        skip: skip,
-        onPlatform: onPlatform,
-        devSkip: true);
+    {String testOn,
+    _test.Timeout timeout,
+    skip,
+    Map<String, dynamic> onPlatform}) {
+  _declarer.group(description, body,
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      devSkip: true);
+}
 
 //
 // the base declarations
@@ -115,21 +119,23 @@ void skip_group(String description, void body(),
 
 // overriding  [_test.test]
 void test(String description, body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.test(description, body,
-        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+    {String testOn,
+    _test.Timeout timeout,
+    skip,
+    Map<String, dynamic> onPlatform}) {
+  _declarer.test(description, body,
+      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+}
 
 // overriding  [_test.group]
 void group(String description, void body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.group(description, body,
-        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+    {String testOn,
+    _test.Timeout timeout,
+    skip,
+    Map<String, dynamic> onPlatform}) {
+  _declarer.group(description, body,
+      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+}
 
 // overriding  [_test.setUp]
 void setUp(callback()) {

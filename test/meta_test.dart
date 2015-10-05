@@ -1,6 +1,6 @@
 library tekartik_dev_test.descriptions_test;
 
-import 'package:test/test.dart';
+import 'package:dev_test/test.dart';
 import 'package:dev_test/src/meta.dart';
 
 void main() {
@@ -44,6 +44,21 @@ void main() {
       expect(test.descriptions, ["my_group", "my_test"]);
       parent.description = "my_parent";
       expect(test.descriptions, ["my_parent", "my_group", "my_test"]);
+    });
+
+    test('equals', () {
+      Test test1 = new Test();
+      Test test2 = new Test();
+      expect(test1, test2);
+      test1.description = "test";
+      expect(test1, isNot(test2));
+      test2.description = "test";
+      expect(test1, test2);
+      Group group = new Group()..description = "group";
+      test1.parent = group;
+      expect(test1, isNot(test2));
+      test2.parent = group;
+      expect(test1, test2);
     });
   });
 }

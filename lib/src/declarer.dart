@@ -4,13 +4,20 @@ import 'package:test/test.dart' as _test;
 import 'dart:async';
 import 'meta.dart';
 
-// with true it prints add (our wrapped calls to test and group), declare (when it calls test group for real)
-// and run (when it runs the body)
-bool debug = false;
-
 class Declarer {
+  // with true it prints add (our wrapped calls to test and group), declare (when it calls test group for real)
+  // and run (when it runs the body)
+  bool debug = false;
+  bool dryRun = false;
+
+  final Group root = new Group();
+
   // curent group declared
-  var _group = new Group(); // root group has no parent
+  var _group;
+
+  Declarer() {
+    _group = root;
+  }
 
   // Current running item;
   Callback currentItem;
@@ -47,14 +54,14 @@ class Declarer {
     }
   }
 
-  void test(String description, body(),
+  Test test(String description, body(),
       {String testOn,
       _test.Timeout timeout,
       skip,
       Map<String, dynamic> onPlatform,
       bool devSkip,
       bool devSolo}) {
-    _add(new Test()
+    Test test = new Test()
       ..description = description
       ..body = body
       ..testOn = testOn
@@ -62,10 +69,12 @@ class Declarer {
       ..skip = skip
       ..onPlatform = onPlatform
       ..devSkip = devSkip == true
-      ..devSolo = devSolo == true);
+      ..devSolo = devSolo == true;
+    _add(test);
+    return test;
   }
 
-  void group(String description, void body(),
+  Group group(String description, void body(),
       {String testOn,
       _test.Timeout timeout,
       skip,
@@ -85,41 +94,96 @@ class Declarer {
     // wrap the body to make sure to call everything once before returning from the body
     body = group.body;
     void bodyWrapper() {
-      body();
+      // Let's allow for null for group body
+      if (body != null) {
+        body();
+      }
       run();
     }
     group.body = bodyWrapper;
 
     _add(group);
+    return group;
   }
 
-  void setUp(body()) {
+  SetUp setUp(body()) {
     SetUp setUp = new SetUp()..body = body;
     _wrapBody(setUp);
     _group.setUp = setUp;
+    return setUp;
   }
 
-  void tearDown(body()) {
+  TearDown tearDown(body()) {
     TearDown tearDown = new TearDown()..body = body;
     _wrapBody(tearDown);
     _group.tearDown = tearDown;
+    return tearDown;
   }
 
   _declare(Callback callback) {
     if (debug) {
       print("declare: ${callback}");
     }
-    callback.declare();
+    if (!dryRun) {
+      callback.declare();
+    } else if (callback is Group) {
+      // however for group we call the body
+      // this is used for testing
+      callback.body();
+    }
   }
 
-  void run() {
-    // If there is a solo test, skip the others
+  /// return true if it has solo
+  bool _fixSolo() {
     bool hasSolo = false;
     for (Item item in _group.children) {
       if (item.devSolo) {
         hasSolo = true;
+        // mark ourself as solo so that other group get skipped
+        _group.devSolo = true;
         break;
       }
+    }
+    _fixGroup(Group group) {
+      for (Item item in group.children) {
+        if (item.devSolo != true) {
+          item.devSkip = true;
+        }
+      }
+      // and parent recursively
+      // Somehow this only fails in a case unit test...
+      if (group.parent != null) {
+        _fixGroup(group.parent);
+      }
+    }
+    // Mark other items as skipped
+    if (_group.devSolo == true) {
+      _fixGroup(_group);
+    }
+
+    return hasSolo;
+  }
+
+  void run() {
+    // run all groups to find solo tests
+    // handle all tiem
+    for (Item item in _group.children) {
+      if (item is Group) {
+        // change the current group when calling group
+        Group _previousGroup = _group;
+        _group = item;
+        _declare(item);
+        _group = _previousGroup;
+      }
+    }
+
+    // If there is a solo test, skip the others
+    // also mark is parent as solo
+    _fixSolo();
+
+    // if need skip the group
+    if (_group.devSkip == true) {
+      return;
     }
 
     // setUp
@@ -133,20 +197,8 @@ class Declarer {
       if (item.devSkip) {
         continue;
       }
-      if (hasSolo && !item.devSolo) {
-        continue;
-      }
 
-      if (item is Group) {
-        // change the current group when calling group
-        Group _previousGroup = _group;
-        _group = item;
-        _declare(item);
-
-        // handle it recursively
-        //run();
-        _group = _previousGroup;
-      } else {
+      if (!(item is Group)) {
         // for test simply declare it
         _declare(item);
       }
