@@ -1,0 +1,7 @@
+name: dev_test
+version: 0.1.0
+author: Alexandre Roux @ Tekartik <alex@tekartik.com>
+homepage: https://github.com/alextekartik/dev_test.dart
+description: Add solo and skip feature on top of test package
+dependencies:
+  test: any
