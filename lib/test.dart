@@ -1,3 +1,15 @@
+///
+/// Acts as a global replacement for the test package
+///
+/// # Usage
+///
+/// In your code replace
+///
+///     import 'package:test/test.dart';
+/// with
+///
+///     import 'package:dev_test/test.dart';
+///
 library tekartik_dev_test.test;
 
 import 'package:test/test.dart' as _test;
@@ -22,22 +34,6 @@ Declarer get _declarer {
 /// Work also in setUp and tearDown callback
 ///
 List<String> get testDescriptions => _declarer.currentItem.descriptions;
-
-void test(String description, body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.test(description, body,
-        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
-
-void group(String description, void body(),
-        {String testOn,
-        _test.Timeout timeout,
-        skip,
-        Map<String, dynamic> onPlatform}) =>
-    _declarer.group(description, body,
-        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 
 ///
 /// Run the test solo temporarily
@@ -90,86 +86,34 @@ void skip_test(String description, body(),
         onPlatform: onPlatform,
         devSkip: true);
 
+//
+// the base declarations
+//
+
+// overriding  [_test.test]
+void test(String description, body(),
+        {String testOn,
+        _test.Timeout timeout,
+        skip,
+        Map<String, dynamic> onPlatform}) =>
+    _declarer.test(description, body,
+        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+
+// overriding  [_test.group]
+void group(String description, void body(),
+        {String testOn,
+        _test.Timeout timeout,
+        skip,
+        Map<String, dynamic> onPlatform}) =>
+    _declarer.group(description, body,
+        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+
+// overriding  [_test.setUp]
 void setUp(callback()) {
   _declarer.setUp(callback);
 }
 
+// overriding  [_test.tearDown]
 void tearDown(callback()) {
   _declarer.tearDown(callback);
 }
-
-/*
-
-void group(String description, void body(),
-           {String testOn,
-           _test.Timeout timeout,
-           skip,
-           Map<String, dynamic> onPlatform}) =>
-(new GroupDefinition()
-  ..description = description
-  ..body = body
-  ..testOn = testOn
-  ..timeout = timeout
-  ..skip = skip
-  ..onPlatform = onPlatform).add();
-
-@deprecated
-solo_test(String description, body(),
-          {String testOn,
-          _test.Timeout timeout,
-          skip,
-          Map<String, dynamic> onPlatform}) =>
-(new TestDefinition()
-  ..tmpSolo = true
-  ..description = description
-  ..body = body
-  ..testOn = testOn
-  ..timeout = timeout
-  ..skip = skip
-  ..onPlatform = onPlatform).add();
-
-@deprecated
-solo_group(String description, void body(),
-           {String testOn,
-           _test.Timeout timeout,
-           skip,
-           Map<String, dynamic> onPlatform}) =>
-(new GroupDefinition()
-  ..tmpSolo = true
-  ..description = description
-  ..body = body
-  ..testOn = testOn
-  ..timeout = timeout
-  ..skip = skip
-  ..onPlatform = onPlatform).add();
-
-@deprecated
-skip_test(String description, body(),
-          {String testOn,
-          _test.Timeout timeout,
-          skip,
-          Map<String, dynamic> onPlatform}) =>
-(new TestDefinition()
-  ..tmpSkip = true
-  ..description = description
-  ..body = body
-  ..testOn = testOn
-  ..timeout = timeout
-  ..skip = skip
-  ..onPlatform = onPlatform).add();
-
-@deprecated
-skip_group(String description, void body(),
-           {String testOn,
-           _test.Timeout timeout,
-           skip,
-           Map<String, dynamic> onPlatform}) =>
-(new GroupDefinition()
-  ..tmpSkip = true
-  ..description = description
-  ..body = body
-  ..testOn = testOn
-  ..timeout = timeout
-  ..skip = "temporarily disabled" // always skip
-  ..onPlatform = onPlatform).add();
-*/
