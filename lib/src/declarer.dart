@@ -32,35 +32,37 @@ class Declarer {
       }
       var result = body();
 
-      if (debug) {
-        if (result is Future) {
-          result.then((_) {
+      if (result is Future) {
+        result.then((_) {
+          if (debug) {
             _printCallback("adone: ", currentItem);
-          });
-        } else {
+          }
+          currentItem = null;
+        });
+      } else {
+        if (debug) {
           _printCallback("done: ", currentItem);
+          currentItem = null;
         }
       }
+
       return result;
     }
     callback.body = _bodyWrapper;
   }
 
-  _addTest(Test test) {
-    _wrapBody(test);
-    _group.add(test);
+  _addItem(Item item) {
+    _wrapBody(item);
+    _group.add(item);
     if (debug) {
       _printCallback("add: ", test);
     }
   }
 
   _addGroup(Group group) {
-    // wrap the body to make sure to call everything once before returning from the body
-
-    _group.add(group);
-    if (debug) {
-      _printCallback("add: ", group);
-    }
+    // For group this is different as we are going to call the body right away
+    // and create new body for when test.group is called for real
+    _addItem(group);
 
     // Let's allow for null for group body
     // change the current group when calling group
@@ -93,7 +95,7 @@ class Declarer {
       ..onPlatform = onPlatform
       ..devSkip = devSkip == true
       ..devSolo = devSolo == true;
-    _addTest(test);
+    _addItem(test);
     return test;
   }
 

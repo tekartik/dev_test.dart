@@ -35,7 +35,7 @@ Declarer get _declarer {
 
 ///
 /// return the current description int the following form: ['group', 'sub_group', 'test']
-/// Work also in setUp and tearDown callback
+/// Work also in setUp and tearDown callback but no
 ///
 List<String> get testDescriptions => _declarer.currentItem.descriptions;
 
