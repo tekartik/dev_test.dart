@@ -3,9 +3,11 @@ library tekartik_dev_test.src.meta;
 import 'package:test/test.dart' as _test;
 import 'package:collection/equality.dart';
 
+typedef _Body();
+
 abstract class Callback {
   Group parent;
-  Function body;
+  _Body body;
 
   /// test group setUp or tearDown
   String get type {
