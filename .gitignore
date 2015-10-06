@@ -16,3 +16,6 @@ pubspec.lock
 
 # IDE specific
 .idea/
+
+# dartdoc
+doc/api/

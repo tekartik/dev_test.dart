@@ -109,11 +109,10 @@ void main() {
     test('solo_test_in_sub_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      Test test;
       Group sub;
       Group group = declarer.group("group", () {
         sub = declarer.group("sub", () {
-          test = declarer.test("test", null, devSolo: true);
+          declarer.test("test", null, devSolo: true);
         });
       });
       Test other = declarer.test("other", null);

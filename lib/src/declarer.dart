@@ -308,8 +308,9 @@ class Declarer {
     if (skipTestCount > 0) {
       // Add a special test item
       Test report = new Test()
-        ..description = "[dev_test] ${skipTestCount} tests skipped"
-        ..skip = true;
+        ..description = "dev_test report"
+        ..skip =
+            "[dev_test] ${skipTestCount} test${skipTestCount > 1 ? "s" :""} skipped";
       group.add(report);
     }
   }
