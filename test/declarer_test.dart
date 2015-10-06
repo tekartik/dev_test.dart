@@ -72,14 +72,12 @@ void main() {
       declarer.group("group", () {
         test = declarer.test("test", null);
       });
-      expect(test, isNull);
       // Check that we indeed run lazily
       declarer.run();
-      expect(test, isNotNull);
       expect(test.descriptions, ['group', 'test']);
     });
 
-    solo_test('solo_test_in_group', () async {
+    test('solo_test_in_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
       Test test2;
@@ -89,9 +87,8 @@ void main() {
         test2 = declarer.test("test", null);
       });
       Test other = declarer.test("other", null);
-      Test other2;
       Group otherGroup = declarer.group("other_group", () {
-        other2 = declarer.test("other", null);
+        declarer.test("other", null);
       });
       // group should become solo
       expect(group.devSolo, isFalse);
