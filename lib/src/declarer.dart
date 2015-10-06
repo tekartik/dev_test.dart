@@ -194,37 +194,6 @@ class Declarer {
     }
   }
 
-  /// return true if it has solo
-  bool _fixSolo() {
-    bool hasSolo = false;
-    for (Item item in _group.children) {
-      if (item.devSolo) {
-        hasSolo = true;
-        // mark ourself as solo so that other group get skipped
-        _group.devSolo = true;
-        break;
-      }
-    }
-    _fixGroup(Group group) {
-      for (Item item in group.children) {
-        if (item.devSolo != true) {
-          item.devSkip = true;
-        }
-      }
-      // and parent recursively
-      // Somehow this only fails in a case unit test...
-      if (group.parent != null) {
-        _fixGroup(group.parent);
-      }
-    }
-    // Mark other items as skipped
-    if (_group.devSolo == true) {
-      _fixGroup(_group);
-    }
-
-    return hasSolo;
-  }
-
   _printTree(Group group) {
     _print(int level, Group group) {
       if (group.setUp != null) {
@@ -326,49 +295,5 @@ class Declarer {
 
     _declareGroup(root);
     return;
-
-    // run all groups to find solo tests
-    // handle all tiem
-    for (Item item in _group.children) {
-      if (item is Group) {
-        // change the current group when calling group
-        Group _previousGroup = _group;
-        _group = item;
-        _declare(item);
-        _group = _previousGroup;
-      }
-    }
-
-    // If there is a solo test, skip the others
-    // also mark is parent as solo
-    _fixSolo();
-
-    // if need skip the group
-    if (_group.devSkip == true) {
-      return;
-    }
-
-    // setUp
-    if (_group.setUp != null) {
-      _declare(_group.setUp);
-    }
-
-    // handle all tiem
-    for (Item item in _group.children) {
-      // skip any to skip item
-      if (item.devSkip) {
-        continue;
-      }
-
-      if (!(item is Group)) {
-        // for test simply declare it
-        _declare(item);
-      }
-    }
-
-    // tearDown
-    if (_group.tearDown != null) {
-      _declare(_group.tearDown);
-    }
   }
 }
