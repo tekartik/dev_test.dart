@@ -4,7 +4,7 @@
 
 [![Build Status](https://drone.io/github.com/alextekartik/dev_test.dart/status.png)](https://drone.io/github.com/alextekartik/dev_test.dart/latest)
 
-It acts as a global replacement for the test package to add (back) the solo and skip feature so that you can run/debug a filtered set of tests from the IDE without using `pub run test`.
+It is a layer on top of the `test` package that adds (back) the solo and skip feature so that you can run/debug a filtered set of tests from the IDE without having to use `pub run test -n xxx`.
 It remains however compatible the existing `test` package and tests can be run using `pub run test`. Make sure you have both `dev_test` and `test` as dependencies in your pubspec.yaml
 
 `solo_test`, `solo_group`, `skip_test`, `skip_group` are marked as deprecated so that you don't commit code (check the dart analysis result) that
