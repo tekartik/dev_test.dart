@@ -69,7 +69,7 @@ void main() {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
       Test test;
-      Group group = declarer.group("group", () {
+      declarer.group("group", () {
         test = declarer.test("test", null);
       });
       expect(test, isNull);
