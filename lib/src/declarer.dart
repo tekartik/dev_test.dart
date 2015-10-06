@@ -4,6 +4,18 @@ import 'package:test/test.dart' as _test;
 import 'dart:async';
 import 'meta.dart';
 
+///
+/// current item description
+/// abstract it so that developer do not get acces to any meta information
+/// other than descriptions
+///
+List<String> get currentTestDescriptions => _currentCallback.descriptions;
+
+Callback _currentCallback;
+
+///
+/// The declarer class handling the logic
+///
 class Declarer {
   // with true it prints add (our wrapped calls to test and group), declare (when it calls test group for real)
   // and run (when it runs the body)
@@ -20,7 +32,6 @@ class Declarer {
   }
 
   // Current running item;
-  Callback currentItem;
 
   // Stats
   int testCount;
@@ -30,16 +41,17 @@ class Declarer {
     Function body = callback.body;
     // Wrap the body to know the current running item
     _bodyWrapper() {
-      currentItem = callback;
+      Callback previousCallback = _currentCallback;
+      _currentCallback = callback;
       if (debug) {
-        _printCallback("run: ", currentItem);
+        _printCallback("run: ", _currentCallback);
       }
       if (body == null) {
         // only allow null body for dry run
         if (dryRun) {
           body = () {};
         } else {
-          throw "body() cannot be null for ${currentItem}";
+          throw "body() cannot be null for ${_currentCallback}";
         }
       }
       var result = body();
@@ -47,14 +59,14 @@ class Declarer {
       if (result is Future) {
         result.then((_) {
           if (debug) {
-            _printCallback("adone: ", currentItem);
+            _printCallback("adone: ", _currentCallback);
           }
-          currentItem = null;
+          _currentCallback = previousCallback;
         });
       } else {
         if (debug) {
-          _printCallback("done: ", currentItem);
-          currentItem = null;
+          _printCallback("done: ", _currentCallback);
+          _currentCallback = previousCallback;
         }
       }
 

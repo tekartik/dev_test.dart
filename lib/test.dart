@@ -27,7 +27,7 @@ Declarer get _declarer {
   if (__declarer == null) {
     __declarer = new Declarer();
     scheduleMicrotask(() {
-      __declarer.run();
+      devTestRun();
     });
   }
   return __declarer;
@@ -37,7 +37,7 @@ Declarer get _declarer {
 /// return the current description int the following form: ['group', 'sub_group', 'test']
 /// Work also in setUp and tearDown callback but no
 ///
-List<String> get testDescriptions => _declarer.currentItem.descriptions;
+List<String> get testDescriptions => currentTestDescriptions;
 
 ///
 /// Run the test solo temporarily
@@ -145,4 +145,17 @@ void setUp(callback()) {
 // overriding  [_test.tearDown]
 void tearDown(callback()) {
   _declarer.tearDown(callback);
+}
+
+///
+/// Add to force running the declarer before the scheduled microtask
+/// This is needed if you have dev_test test/group inside regular test/group
+/// Otherwise they will be run in a seperate group
+///
+devTestRun() {
+  if (__declarer != null) {
+    __declarer.run();
+    // declarer is set back to null
+    __declarer = null;
+  }
 }
