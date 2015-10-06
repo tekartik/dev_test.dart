@@ -30,6 +30,14 @@ class Declarer {
       if (debug) {
         _printCallback("run: ", currentItem);
       }
+      if (body == null) {
+        // only allow null body for dry run
+        if (dryRun) {
+          body = () {};
+        } else {
+          throw "body() cannot be null for ${currentItem}";
+        }
+      }
       var result = body();
 
       if (result is Future) {
