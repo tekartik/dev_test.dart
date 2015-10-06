@@ -3,7 +3,6 @@ library tekartik_dev_test.descriptions_test;
 import 'package:dev_test/test.dart';
 import 'package:dev_test/src/meta.dart';
 import 'package:dev_test/src/declarer.dart';
-import 'dart:async';
 
 void main() {
   // test descriptions
@@ -83,11 +82,10 @@ void main() {
     solo_test('solo_test_in_group', () async {
       Declarer declarer = new Declarer();
       declarer.dryRun = true;
-      Test test;
       Test test2;
       Group firstGroup = declarer.group("first_group", null);
       Group group = declarer.group("group", () {
-        test = declarer.test("test", null, devSolo: true);
+        declarer.test("test", null, devSolo: true);
         test2 = declarer.test("test", null);
       });
       Test other = declarer.test("other", null);

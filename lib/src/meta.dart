@@ -62,7 +62,17 @@ abstract class Item extends Callback {
 
   String testOn;
   _test.Timeout timeout;
-  var skip; // String or true if skipped
+  var _skip; // String or true if skipped
+  set skip(skip) => _skip = skip;
+  get skip {
+    if (_skip == false || _skip == null) {
+      if (devSkip) {
+        _skip = true;
+      }
+    }
+    return _skip;
+  }
+
   Map<String, dynamic> onPlatform;
 
   bool devSkip;

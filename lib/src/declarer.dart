@@ -22,6 +22,10 @@ class Declarer {
   // Current running item;
   Callback currentItem;
 
+  // Stats
+  int testCount;
+  int skipTestCount;
+
   void _wrapBody(Callback callback) {
     Function body = callback.body;
     // Wrap the body to know the current running item
@@ -63,7 +67,7 @@ class Declarer {
     _wrapBody(item);
     _group.add(item);
     if (debug) {
-      _printCallback("add: ", test);
+      _printCallback("add: ", item);
     }
   }
 
@@ -152,7 +156,7 @@ class Declarer {
     // handle all tiem
     for (Item item in group.children) {
       // skip any to skip item
-      if (item.devSkip) {
+      if (item.devSkip == true) {
         continue;
       }
 
@@ -246,8 +250,11 @@ class Declarer {
     print(sb.toString());
   }
 
-  /// Go through all groups
+  // Go through all groups
   _fixTree(Group group) {
+    testCount = 0;
+    skipTestCount = 0;
+
     if (debug) {
       _printCallback("fixing ", group);
     }
@@ -258,7 +265,7 @@ class Declarer {
         }
       }
 
-      /// any solo test?
+      // any solo test?
       bool hasSolo = false;
       for (Item item in group.children) {
         if (item.devSolo) {
@@ -269,19 +276,30 @@ class Declarer {
         }
       }
 
-      /// fix others
-      if (hasSolo) {
-        for (Item item in group.children) {
+      for (Item item in group.children) {
+        // fix others
+        if (hasSolo) {
           if (item.devSolo != true) {
             if (debug) {
               print("skipping ${item}");
             }
+            skipTestCount++;
             item.devSkip = true;
           }
+        } else if (item.devSkip == true) {
+          // stat
+          skipTestCount++;
         }
       }
     }
     _fix(group);
+    if (skipTestCount > 0) {
+      // Add a special test item
+      Test report = new Test()
+        ..description = "[dev_test] ${skipTestCount} tests skipped"
+        ..skip = true;
+      group.add(report);
+    }
   }
 
   void run() {
