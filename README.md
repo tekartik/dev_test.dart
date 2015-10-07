@@ -12,7 +12,13 @@ might skip many needed tests. Also running tests will report if any tests were s
 
 ## Usage
 
-In your code replace
+Your `pubspec.yaml` should contain the following dev_depencencies:
+
+    dev_dependencies:
+      test: any
+      dev_test: any
+  
+In your `xxxx_test.dart` files replace
 
     import 'package:test/test.dart';
 
