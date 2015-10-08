@@ -2,7 +2,6 @@
 library tekartik_dev_test.descriptions_test;
 
 import 'package:dev_test/test.dart';
-import 'package:dev_test/src/meta.dart';
 import 'package:tekartik_io_tools/pub_utils.dart';
 import 'package:tekartik_io_tools/process_utils.dart';
 import 'dart:mirrors';
