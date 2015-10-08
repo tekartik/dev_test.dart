@@ -1,7 +1,10 @@
 name: dev_test
-version: 0.4.5
+version: 0.4.6
 author: Alexandre Roux @ Tekartik <alex@tekartik.com>
 homepage: https://github.com/alextekartik/dev_test.dart
 description: Brings (back) the solo and skip features on top of the test package
 dependencies:
   test: any
+dev_dependencies:
+  tekartik_io_tools:
+    git: https://github.com/alextekartik/tekartik_io_tools.dart
