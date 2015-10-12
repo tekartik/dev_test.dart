@@ -105,20 +105,6 @@ abstract class Item extends Callback {
 class Group extends Item {
   Group();
 
-  SetUpAll _setUpAll;
-  SetUpAll get setUpAll => _setUpAll;
-  set setUpAll(SetUpAll callback) {
-    _setUpAll = callback;
-    callback.parent = this;
-  }
-
-  TearDownAll _tearDownAll;
-  TearDownAll get tearDownAll => _tearDownAll;
-  set tearDownAll(TearDownAll callback) {
-    _tearDownAll = callback;
-    callback.parent = this;
-  }
-
   Iterable<Group> get groups =>
       _children.where((callback) => callback is Group);
   Iterable<Item> get items => _children.where((callback) => callback is Item);

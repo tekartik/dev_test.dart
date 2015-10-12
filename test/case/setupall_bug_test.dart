@@ -1,11 +1,8 @@
+@Skip("bug in test 0.12.5")
 import 'package:test/test.dart';
 
 main() {
-  /*
-  setUpAll(() {
-  });
+  setUpAll(() {});
 
-  test('test', () {
-  });
-  */
+  test('test', () {});
 }

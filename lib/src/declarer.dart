@@ -162,31 +162,19 @@ class Declarer {
   SetUpAll setUpAll(body()) {
     SetUpAll setUpAll = new SetUpAll()..body = body;
     _wrapBody(setUpAll);
-    _group.setUpAll = setUpAll;
+    _group.add(setUpAll);
     return setUpAll;
   }
 
   TearDownAll tearDownAll(body()) {
     TearDownAll tearDownAll = new TearDownAll()..body = body;
     _wrapBody(tearDownAll);
-    _group.tearDownAll = tearDownAll;
+    _group.add(tearDownAll);
     return tearDownAll;
   }
 
+  // Call all the original declarations
   void _declareGroup(Group group) {
-    // setUpAll
-    if (group.setUpAll != null) {
-      _declare(group.setUpAll);
-    }
-
-    // setUp
-    /*
-    for (SetUp setUp in group.setUps) {
-        _declare(setUp);
-
-    }
-    */
-
     // handle all tiem
     for (Callback callback in group.children) {
       // handle group and test differently
@@ -199,11 +187,6 @@ class Declarer {
 
       // for test simply declare it
       _declare(callback);
-    }
-
-    // tearDownAll
-    if (group.tearDownAll != null) {
-      _declare(group.tearDownAll);
     }
   }
 

@@ -132,13 +132,15 @@ void main() {
     test('setUpAll', () {
       Declarer declarer = new Declarer()..dryRun = true;
       SetUpAll setUpAll = declarer.setUpAll(null);
-      expect(declarer.root.setUpAll, setUpAll);
+      SetUpAll setUpAll2 = declarer.setUpAll(null);
+      expect(declarer.root.children, [setUpAll, setUpAll2]);
     });
 
     test('tearDown', () {
       Declarer declarer = new Declarer()..dryRun = true;
       TearDownAll tearDownAll = declarer.tearDownAll(null);
-      expect(declarer.root.tearDownAll, tearDownAll);
+      TearDownAll tearDownAll2 = declarer.tearDownAll(null);
+      expect(declarer.root.children, [tearDownAll, tearDownAll2]);
     });
   });
 }
