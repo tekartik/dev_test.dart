@@ -33,7 +33,7 @@ void main() {
       Test test2 = declarer.test("test2", null);
       TearDown tearDown = declarer.tearDown(null);
       expect(declarer.root.children, [test1, test2]);
-      expect(declarer.root.setUp, setUp);
+      expect(declarer.root.setUps, [setUp]);
       expect(declarer.root.tearDown, tearDown);
       declarer.run();
       expect(test1, declarer.root.children[0]);
@@ -121,6 +121,30 @@ void main() {
       expect(group.devSolo, isTrue);
       expect(sub.devSolo, isTrue);
       expect(other.devSkip, isTrue);
+    });
+
+    solo_test('setUp', () {
+      Declarer declarer = new Declarer()..dryRun = true;
+      SetUp setUp = declarer.setUp(null);
+      expect(declarer.root.setUps, [setUp]);
+    });
+
+    solo_test('tearDown', () {
+      Declarer declarer = new Declarer()..dryRun = true;
+      TearDown tearDown = declarer.tearDown(null);
+      expect(declarer.root.tearDown, tearDown);
+    });
+
+    solo_test('setUpAll', () {
+      Declarer declarer = new Declarer()..dryRun = true;
+      SetUpAll setUpAll = declarer.setUpAll(null);
+      expect(declarer.root.setUpAll, setUpAll);
+    });
+
+    solo_test('tearDown', () {
+      Declarer declarer = new Declarer()..dryRun = true;
+      TearDownAll tearDownAll = declarer.tearDownAll(null);
+      expect(declarer.root.tearDownAll, tearDownAll);
     });
   });
 }

@@ -148,7 +148,7 @@ class Declarer {
   SetUp setUp(body()) {
     SetUp setUp = new SetUp()..body = body;
     _wrapBody(setUp);
-    _group.setUp = setUp;
+    _group.addSetUp(setUp);
     return setUp;
   }
 
@@ -159,10 +159,30 @@ class Declarer {
     return tearDown;
   }
 
+  SetUpAll setUpAll(body()) {
+    SetUpAll setUpAll = new SetUpAll()..body = body;
+    _wrapBody(setUpAll);
+    _group.setUpAll = setUpAll;
+    return setUpAll;
+  }
+
+  TearDownAll tearDownAll(body()) {
+    TearDownAll tearDownAll = new TearDownAll()..body = body;
+    _wrapBody(tearDownAll);
+    _group.tearDownAll = tearDownAll;
+    return tearDownAll;
+  }
+
   void _declareGroup(Group group) {
+    // setUpAll
+    if (group.setUpAll != null) {
+      _declare(group.setUpAll);
+    }
+
     // setUp
-    if (group.setUp != null) {
-      _declare(group.setUp);
+    for (SetUp setUp in group.setUps) {
+        _declare(setUp);
+
     }
 
     // handle all tiem
@@ -180,6 +200,11 @@ class Declarer {
     if (group.tearDown != null) {
       _declare(group.tearDown);
     }
+
+    // tearDownAll
+    if (group.tearDownAll != null) {
+      _declare(group.tearDownAll);
+    }
   }
 
   _declare(Callback callback) {
@@ -196,8 +221,8 @@ class Declarer {
 
   _printTree(Group group) {
     _print(int level, Group group) {
-      if (group.setUp != null) {
-        _printCallback("#", group.setUp);
+      for (SetUp setUp in group.setUps) {
+        _printCallback("#", setUp);
       }
       if (group.tearDown != null) {
         _printCallback("#", group.tearDown);

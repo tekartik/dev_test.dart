@@ -147,6 +147,16 @@ void tearDown(callback()) {
   _declarer.tearDown(callback);
 }
 
+// overriding  [_test.setUp]
+void setUpAll(callback()) {
+  _declarer.setUpAll(callback);
+}
+
+// overriding  [_test.tearDown]
+void tearDownAll(callback()) {
+  _declarer.tearDownAll(callback);
+}
+
 ///
 /// Add to force running the declarer before the scheduled microtask
 /// This is needed if you have dev_test test/group inside regular test/group

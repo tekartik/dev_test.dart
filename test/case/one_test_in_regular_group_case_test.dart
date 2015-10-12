@@ -6,6 +6,10 @@ main() {
     test('dev_test', () {
       expect(true, isTrue);
     });
+
+    // needed to close declaration
+    devTestRun();
+
     _test.test('test', () {
       expect(true, isTrue);
     });

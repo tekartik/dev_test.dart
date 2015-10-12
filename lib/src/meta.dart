@@ -52,6 +52,18 @@ class TearDown extends Callback {
   }
 }
 
+class SetUpAll extends Callback {
+  declare() {
+    _test.setUpAll(body);
+  }
+}
+
+class TearDownAll extends Callback {
+  declare() {
+    _test.tearDownAll(body);
+  }
+}
+
 abstract class Item extends Callback {
   String description;
   List<String> get descriptions {
@@ -93,17 +105,38 @@ abstract class Item extends Callback {
 class Group extends Item {
   Group();
 
+  final List<SetUp> setUps = [];
+  addSetUp(SetUp setUp) {
+    setUps.add(setUp);
+    setUp.parent = this;
+  }
+  /*
   SetUp _setUp;
   SetUp get setUp => _setUp;
   set setUp(SetUp callback) {
     _setUp = callback;
     callback.parent = this;
   }
+  */
 
   TearDown _tearDown;
   TearDown get tearDown => _tearDown;
   set tearDown(TearDown callback) {
     _tearDown = callback;
+    callback.parent = this;
+  }
+
+  SetUpAll _setUpAll;
+  SetUpAll get setUpAll => _setUpAll;
+  set setUpAll(SetUpAll callback) {
+    _setUpAll = callback;
+    callback.parent = this;
+  }
+
+  TearDownAll _tearDownAll;
+  TearDownAll get tearDownAll => _tearDownAll;
+  set tearDownAll(TearDownAll callback) {
+    _tearDownAll = callback;
     callback.parent = this;
   }
 
