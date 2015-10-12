@@ -3,4 +3,4 @@ dart:
   - stable
   - dev
 sudo: false
-script: pub run test
+script: pub run test -p vm -p content-shell
