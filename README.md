@@ -2,7 +2,7 @@
 
 `dev_test` brings (back) the solo and skip features on top of the `test` package
 
-[![Build Status](https://drone.io/github.com/alextekartik/dev_test.dart/status.png)](https://drone.io/github.com/alextekartik/dev_test.dart/latest)
+[![Build Status](https://travis-ci.org/alextekartik/dev_test.dart.svg?branch=master)](https://travis-ci.org/alextekartik/dev_test.dart)
 
 It is a layer on top of the `test` package that adds (back) the solo and skip feature so that you can run/debug a filtered set of tests from the IDE without having to use `pub run test -n xxx`.
 It remains however compatible the existing `test` package and tests can be run using `pub run test`. Make sure you have both `dev_test` and `test` as dependencies in your pubspec.yaml

@@ -1,5 +1,4 @@
 import 'package:dev_test/test.dart';
-import 'dart:async';
 
 main() async {
   test('regular_test', () {
