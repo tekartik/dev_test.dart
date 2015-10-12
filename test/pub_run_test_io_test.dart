@@ -13,35 +13,32 @@ class _TestUtils {
 
 String get testScriptPath => _TestUtils.scriptPath;
 String get pubPackageRoot => getPubPackageRootSync(testScriptPath);
+
+checkCaseTest(String name, int count) async {
+  PubPackage pkg = new PubPackage(pubPackageRoot);
+  RunResult runResult = await pkg.runTest(['test/case/${name}'],
+      platforms: ["vm"],
+      reporter: TestReporter.EXPANDED,
+      concurrency: 1,
+      connectIo: false);
+
+  expect(runResult.exitCode, 0);
+
+  // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
+  expect(runResult.out, contains("+${count}"));
+  expect(runResult.out, isNot(contains("+${count + 1}")));
+}
+
 void main() {
   group('pub_run_test_io', () {
-    test('runTest', () async {
-      PubPackage pkg = new PubPackage(pubPackageRoot);
-      // run the 2 tests
-      // - various_case_test.dart
-      // - various_regular_case_test.dart
-      // output should be the same
-      RunResult runResultDevTest = await pkg.runTest(
-          ['test/case/various_case_test.dart'],
-          platforms: ["vm"],
-          reporter: TestReporter.EXPANDED,
-          concurrency: 1);
-
-      expect(runResultDevTest.exitCode, 0);
-      RunResult runResultRegularTest = await pkg.runTest(
-          ['test/case/various_regular_case_test.dart'],
-          platforms: ["vm"],
-          reporter: TestReporter.EXPANDED,
-          concurrency: 1);
-
-      expect(runResultRegularTest.exitCode, 0);
-
-      // Actually order differs
-      // but it must both run exactly 9 test (look for +9) and not 10
-      expect(runResultDevTest.out, contains("+9"));
-      expect(runResultDevTest.out, isNot(contains("+10")));
-      expect(runResultRegularTest.out, contains("+9"));
-      expect(runResultRegularTest.out, isNot(contains("+10")));
+    test('cases', () {
+      checkCaseTest('one_solo_test_case_test.dart', 1);
+      checkCaseTest('one_skipped_test_case_test.dart', 1);
+      checkCaseTest('one_solo_test_in_group_case_test.dart', 1);
+    });
+    test('various', () async {
+      checkCaseTest('various_case_test.dart', 8);
+      checkCaseTest('various_regular_case_test.dart', 8);
     });
   });
 }

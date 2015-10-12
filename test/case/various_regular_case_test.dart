@@ -54,14 +54,4 @@ main() async {
   test('', () {
     expect(true, isTrue);
   });
-
-  // delayed definition
-  await new Future.delayed(new Duration(milliseconds: 1));
-
-  group('delayed_group', () {
-    test('test', () {
-      // only called when using pub run test
-      expect(true, isTrue);
-    });
-  });
 }
