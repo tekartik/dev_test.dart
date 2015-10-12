@@ -17,12 +17,8 @@ void main() {
       Test test2 = declarer.test("test2", null);
       Group group = declarer.group("group", null);
       TearDown tearDown = declarer.tearDown(null);
-      expect(declarer.root.children, [test1, test2, group]);
-      expect(declarer.root.setUp, setUp);
-      expect(declarer.root.tearDown, tearDown);
+      expect(declarer.root.children, [setUp, test1, test2, group, tearDown]);
       declarer.run();
-      expect(test1, declarer.root.children[0]);
-      expect(test2, declarer.root.children[1]);
     });
 
     test('in_group', () async {
@@ -32,12 +28,8 @@ void main() {
       Test test1 = declarer.test("test1", null);
       Test test2 = declarer.test("test2", null);
       TearDown tearDown = declarer.tearDown(null);
-      expect(declarer.root.children, [test1, test2]);
-      expect(declarer.root.setUps, [setUp]);
-      expect(declarer.root.tearDown, tearDown);
+      expect(declarer.root.children, [setUp, test1, test2, tearDown]);
       declarer.run();
-      expect(test1, declarer.root.children[0]);
-      expect(test2, declarer.root.children[1]);
     });
 
     test('solo_test', () async {
@@ -123,25 +115,27 @@ void main() {
       expect(other.devSkip, isTrue);
     });
 
-    solo_test('setUp', () {
+    test('setUp', () {
       Declarer declarer = new Declarer()..dryRun = true;
       SetUp setUp = declarer.setUp(null);
-      expect(declarer.root.setUps, [setUp]);
+      SetUp setUp2 = declarer.setUp(null);
+      expect(declarer.root.children, [setUp, setUp2]);
     });
 
-    solo_test('tearDown', () {
+    test('tearDown', () {
       Declarer declarer = new Declarer()..dryRun = true;
       TearDown tearDown = declarer.tearDown(null);
-      expect(declarer.root.tearDown, tearDown);
+      TearDown tearDown2 = declarer.tearDown(null);
+      expect(declarer.root.children, [tearDown, tearDown2]);
     });
 
-    solo_test('setUpAll', () {
+    test('setUpAll', () {
       Declarer declarer = new Declarer()..dryRun = true;
       SetUpAll setUpAll = declarer.setUpAll(null);
       expect(declarer.root.setUpAll, setUpAll);
     });
 
-    solo_test('tearDown', () {
+    test('tearDown', () {
       Declarer declarer = new Declarer()..dryRun = true;
       TearDownAll tearDownAll = declarer.tearDownAll(null);
       expect(declarer.root.tearDownAll, tearDownAll);

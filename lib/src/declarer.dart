@@ -148,14 +148,14 @@ class Declarer {
   SetUp setUp(body()) {
     SetUp setUp = new SetUp()..body = body;
     _wrapBody(setUp);
-    _group.addSetUp(setUp);
+    _group.add(setUp);
     return setUp;
   }
 
   TearDown tearDown(body()) {
     TearDown tearDown = new TearDown()..body = body;
     _wrapBody(tearDown);
-    _group.tearDown = tearDown;
+    _group.add(tearDown);
     return tearDown;
   }
 
@@ -180,25 +180,25 @@ class Declarer {
     }
 
     // setUp
+    /*
     for (SetUp setUp in group.setUps) {
         _declare(setUp);
 
     }
+    */
 
     // handle all tiem
-    for (Item item in group.children) {
-      // skip any to skip item
-      if (item.devSkip == true) {
-        continue;
+    for (Callback callback in group.children) {
+      // handle group and test differently
+      if (callback is Item) {
+        // skip any to skip item
+        if (callback.devSkip == true) {
+          continue;
+        }
       }
 
       // for test simply declare it
-      _declare(item);
-    }
-
-    // tearDown
-    if (group.tearDown != null) {
-      _declare(group.tearDown);
+      _declare(callback);
     }
 
     // tearDownAll
@@ -221,18 +221,16 @@ class Declarer {
 
   _printTree(Group group) {
     _print(int level, Group group) {
-      for (SetUp setUp in group.setUps) {
-        _printCallback("#", setUp);
-      }
-      if (group.tearDown != null) {
-        _printCallback("#", group.tearDown);
-      }
-      for (Item item in group.children) {
-        if (item.devSkip != true) {
-          _printCallback("#", item);
-          if (item is Group) {
-            _print(level + 1, item);
+      for (Callback callback in group.children) {
+        if (callback is Item) {
+          if (callback.devSkip == true) {
+            _printCallback("#", callback);
+            if (callback is Group) {
+              _print(level + 1, callback);
+            }
           }
+        } else {
+          _printCallback("#", callback);
         }
       }
     }
@@ -265,15 +263,16 @@ class Declarer {
       _printCallback("fixing ", group);
     }
     _fix(Group group) {
-      for (Item item in group.children) {
-        if (item is Group) {
-          _fix(item);
+      // Fix the group below first
+      for (Callback callback in group.groups) {
+        if (callback is Group) {
+          _fix(callback);
         }
       }
 
       // any solo test?
       bool hasSolo = false;
-      for (Item item in group.children) {
+      for (Item item in group.items) {
         if (item.devSolo) {
           hasSolo = true;
           // mark ourself as solo so that other group get skipped
@@ -282,7 +281,7 @@ class Declarer {
         }
       }
 
-      for (Item item in group.children) {
+      for (Item item in group.items) {
         // fix others
         if (hasSolo) {
           if (item.devSolo != true) {

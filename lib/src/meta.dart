@@ -105,27 +105,6 @@ abstract class Item extends Callback {
 class Group extends Item {
   Group();
 
-  final List<SetUp> setUps = [];
-  addSetUp(SetUp setUp) {
-    setUps.add(setUp);
-    setUp.parent = this;
-  }
-  /*
-  SetUp _setUp;
-  SetUp get setUp => _setUp;
-  set setUp(SetUp callback) {
-    _setUp = callback;
-    callback.parent = this;
-  }
-  */
-
-  TearDown _tearDown;
-  TearDown get tearDown => _tearDown;
-  set tearDown(TearDown callback) {
-    _tearDown = callback;
-    callback.parent = this;
-  }
-
   SetUpAll _setUpAll;
   SetUpAll get setUpAll => _setUpAll;
   set setUpAll(SetUpAll callback) {
@@ -140,12 +119,17 @@ class Group extends Item {
     callback.parent = this;
   }
 
-  List<Item> _children = [];
-  List<Item> get children => _children;
+  Iterable<Group> get groups =>
+      _children.where((callback) => callback is Group);
+  Iterable<Item> get items => _children.where((callback) => callback is Item);
 
-  add(Item item) {
-    _children.add(item);
-    item.parent = this;
+  List<Callback> _children = [];
+  List<Callback> get children => _children;
+
+  // can be an item or not
+  add(Callback callback) {
+    _children.add(callback);
+    callback.parent = this;
   }
 
   String get type => 'group';

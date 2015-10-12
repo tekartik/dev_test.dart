@@ -1,7 +1,7 @@
-import 'package:test/test.dart';
+@Skip("Currently hanging with test 0.12.5")
+import 'package:dev_test/test.dart';
 
 main() {
-  /*
   bool setUpAllCalled = false;
   bool tearDownAllCalled = false;
 
@@ -41,6 +41,4 @@ main() {
     expect(setUpAllCalled, isTrue);
     expect(tearDownAllCalled, isTrue);
   });
-  */
-
 }
