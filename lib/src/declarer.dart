@@ -3,6 +3,7 @@ library tekartik_dev_test.src.declare;
 import 'package:test/test.dart' as _test;
 import 'dart:async';
 import 'meta.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 ///
 /// current item description
@@ -25,7 +26,7 @@ class Declarer {
   final Root root = new Root();
 
   // curent group declared
-  var _group;
+  Group _group;
 
   Declarer() {
     _group = root;
@@ -118,7 +119,9 @@ class Declarer {
       ..skip = skip
       ..onPlatform = onPlatform
       ..devSkip = devSkip == true
-      ..devSolo = devSolo == true;
+      ..devSolo = devSolo == true
+      ..declareStackTrace = new Trace.current(2);
+
     _addItem(test);
     return test;
   }
@@ -138,7 +141,8 @@ class Declarer {
       ..skip = skip
       ..onPlatform = onPlatform
       ..devSkip = devSkip == true
-      ..devSolo = devSolo == true;
+      ..devSolo = devSolo == true
+      ..declareStackTrace = new Trace.current(2);
 
     _addGroup(group);
 
@@ -146,28 +150,36 @@ class Declarer {
   }
 
   SetUp setUp(body()) {
-    SetUp setUp = new SetUp()..body = body;
+    SetUp setUp = new SetUp()
+      ..body = body
+      ..declareStackTrace = new Trace.current(2);
     _wrapBody(setUp);
     _group.add(setUp);
     return setUp;
   }
 
   TearDown tearDown(body()) {
-    TearDown tearDown = new TearDown()..body = body;
+    TearDown tearDown = new TearDown()
+      ..body = body
+      ..declareStackTrace = new Trace.current(2);
     _wrapBody(tearDown);
     _group.add(tearDown);
     return tearDown;
   }
 
   SetUpAll setUpAll(body()) {
-    SetUpAll setUpAll = new SetUpAll()..body = body;
+    SetUpAll setUpAll = new SetUpAll()
+      ..body = body
+      ..declareStackTrace = new Trace.current(2);
     _wrapBody(setUpAll);
     _group.add(setUpAll);
     return setUpAll;
   }
 
   TearDownAll tearDownAll(body()) {
-    TearDownAll tearDownAll = new TearDownAll()..body = body;
+    TearDownAll tearDownAll = new TearDownAll()
+      ..body = body
+      ..declareStackTrace = new Trace.current(2);
     _wrapBody(tearDownAll);
     _group.add(tearDownAll);
     return tearDownAll;
@@ -195,7 +207,12 @@ class Declarer {
       _printCallback("declare: ", callback);
     }
     if (!dryRun) {
-      callback.declare();
+      try {
+        callback.declare();
+      } catch (e) {
+        throw new UnsupportedError(
+            "${e.toString()}\n${callback}\n${callback.declareStackTrace}");
+      }
     }
     if (debug) {
       _printCallback("done declare: ", callback);

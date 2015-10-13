@@ -8,6 +8,7 @@ typedef _Body();
 abstract class Callback {
   Group parent;
   _Body body;
+  var declareStackTrace;
 
   /// test group setUp or tearDown
   String get type {
