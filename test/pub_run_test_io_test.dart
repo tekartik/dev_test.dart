@@ -20,13 +20,14 @@ checkCaseTest(String name, int count) async {
       platforms: ["vm"],
       reporter: TestReporter.EXPANDED,
       concurrency: 1,
+      color: false,
       connectIo: false);
 
   expect(runResult.exitCode, 0);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
-  expect(runResult.out, contains("+${count}"));
-  expect(runResult.out, isNot(contains("+${count + 1}")));
+  expect(runResult.out, contains("+${count}:"));
+  expect(runResult.out, isNot(contains("+${count + 1}:")));
 }
 
 void main() {

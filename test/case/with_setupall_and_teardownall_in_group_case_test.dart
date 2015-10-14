@@ -1,4 +1,3 @@
-@Skip("Currently hanging with test 0.12.5")
 import 'package:dev_test/test.dart';
 
 main() {
