@@ -17,7 +17,8 @@
 library tekartik_dev_test.test;
 
 import 'package:test/test.dart' as _test;
-export 'package:test/test.dart' hide test, group, setUp, tearDown;
+export 'package:test/test.dart'
+    hide test, group, setUp, tearDown, setUpAll, tearDownAll;
 
 import 'src/declarer.dart';
 import 'dart:async';
