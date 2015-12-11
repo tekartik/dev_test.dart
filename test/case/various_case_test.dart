@@ -1,9 +1,10 @@
 import 'package:dev_test/test.dart';
 
-main() async {
+main() {
   test('regular_test', () {
     expect(true, isTrue);
   });
+
   group('regular_group', () {
     setUp(() {
       // expect is allowed in setUp
@@ -12,26 +13,8 @@ main() async {
     test('test', () {
       expect(true, isTrue);
     });
+  });
 
-    group('null', () {
-      // somehow null is allowed for setUp, tearDown...
-      tearDown(null);
-      setUp(null);
-    });
-  });
-  test('test', () {
-    group('group_in_test', () {
-      test('test', () {
-        // only called when using pub run test
-        expect(true, isTrue);
-      });
-    });
-    test('sub_test', () {
-      // only called when using pub run test
-      expect(true, isTrue);
-    });
-    expect(true, isTrue);
-  });
   group(null, () {
     group(null, () {
       test('test_in_null_group', () {
@@ -44,18 +27,51 @@ main() async {
       expect(testDescriptions, ['test_in_null_group']);
     });
   });
+
   group('', () {
     test('test_in_empty_group', () {
       expect(true, isTrue);
       expect(testDescriptions, ['', 'test_in_empty_group']);
     });
   });
-  test(null, () {
-    expect(true, isTrue);
-    expect(testDescriptions, []);
-  });
+
   test('', () {
     expect(true, isTrue);
     expect(testDescriptions, ['']);
   });
+
+  group('null', () {
+    // somehow null is allowed for setUp, tearDown...
+    tearDown(null);
+    setUp(null);
+  });
 }
+
+/*
+  //no longer working in test in sdk 1.13
+  //was testing group in a test
+  test('test', () {
+
+    group('group_in_test', () {
+      test('test', () {
+        // only called when using pub run test
+        expect(true, isTrue);
+      });
+    });
+
+    test('sub_test', () {
+      // only called when using pub run test
+      expect(true, isTrue);
+    });
+
+    expect(true, isTrue);
+  });
+  */
+/*
+  // no longer support 1.13, test name must not be null
+
+  test(null, () {
+    expect(true, isTrue);
+    expect(testDescriptions, []);
+  });
+  */
