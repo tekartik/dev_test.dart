@@ -18,7 +18,17 @@ library tekartik_dev_test.test;
 
 import 'package:test/test.dart' as _test;
 export 'package:test/test.dart'
-    hide test, solo_test, skip_test, group, solo_group, skip_group, setUp, tearDown, setUpAll, tearDownAll;
+    hide
+        test,
+        solo_test,
+        skip_test,
+        group,
+        solo_group,
+        skip_group,
+        setUp,
+        tearDown,
+        setUpAll,
+        tearDownAll;
 import 'src/test.dart' as _impl;
 
 ///
@@ -38,10 +48,7 @@ void solo_test(String description, body(),
     skip,
     Map<String, dynamic> onPlatform}) {
   _impl.solo_test(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform);
+      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 }
 
 ///
@@ -55,10 +62,7 @@ void solo_group(String description, void body(),
     skip,
     Map<String, dynamic> onPlatform}) {
   _impl.solo_group(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform);
+      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 }
 
 ///
@@ -73,10 +77,7 @@ void skip_test(String description, body(),
     skip,
     Map<String, dynamic> onPlatform}) {
   _impl.skip_test(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform);
+      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 }
 
 ///
@@ -91,10 +92,7 @@ void skip_group(String description, void body(),
     skip,
     Map<String, dynamic> onPlatform}) {
   _impl.skip_group(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform);
+      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 }
 
 //
