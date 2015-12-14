@@ -1,4 +1,5 @@
-import 'package:dev_test/test.dart';
+// Use src to prevent warnings
+import 'package:dev_test/src/test.dart';
 
 main() {
   skip_group('skipped_group', () {

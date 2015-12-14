@@ -1,4 +1,5 @@
-import 'package:dev_test/test.dart';
+// Use src to avoid warning
+import 'package:dev_test/src/test.dart';
 
 main() {
   skip_test('skipped_test', () {

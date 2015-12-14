@@ -1,6 +1,7 @@
 library tekartik_dev_test.test.one_group_case_test;
 
-import 'package:dev_test/test.dart';
+// Use src to avoid warning
+import 'package:dev_test/src/test.dart';
 
 main() {
   group('group', () {

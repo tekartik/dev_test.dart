@@ -19,82 +19,88 @@ library tekartik_dev_test.test;
 import 'package:test/test.dart' as _test;
 export 'package:test/test.dart'
     hide test, solo_test, skip_test, group, solo_group, skip_group, setUp, tearDown, setUpAll, tearDownAll;
-import 'src/test.dart' as _impl;
+import 'declarer.dart';
+import 'dart:async';
+
+Declarer __declarer;
+Declarer get _declarer {
+  if (__declarer == null) {
+    __declarer = new Declarer();
+    scheduleMicrotask(() {
+      devTestRun();
+    });
+  }
+  return __declarer;
+}
 
 ///
 /// return the current description int the following form: ['group', 'sub_group', 'test']
 /// Work also in setUp and tearDown callback but no
 ///
-List<String> get testDescriptions => _impl.testDescriptions;
+List<String> get testDescriptions => currentTestDescriptions;
 
 ///
 /// Run the test solo temporarily
-/// mark as deprecated so that you don't checkin such code
 ///
-@deprecated
 void solo_test(String description, body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
     Map<String, dynamic> onPlatform}) {
-  _impl.solo_test(description, body,
+  _declarer.test(description, body,
       testOn: testOn,
       timeout: timeout,
       skip: skip,
-      onPlatform: onPlatform);
+      onPlatform: onPlatform,
+      devSolo: true);
 }
 
 ///
 /// Run the group solo temporarily
-/// mark as deprecated so that you don't checkin such code
 ///
-@deprecated
 void solo_group(String description, void body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
     Map<String, dynamic> onPlatform}) {
-  _impl.solo_group(description, body,
+  _declarer.group(description, body,
       testOn: testOn,
       timeout: timeout,
       skip: skip,
-      onPlatform: onPlatform);
+      onPlatform: onPlatform,
+      devSolo: true);
 }
 
 ///
 /// Skip the test temporarily
-/// mark as deprecated so that you don't checkin such code
-/// to permanently skip a test use the skip paremeter
 ///
-@deprecated
 void skip_test(String description, body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
     Map<String, dynamic> onPlatform}) {
-  _impl.skip_test(description, body,
+  _declarer.test(description, body,
       testOn: testOn,
       timeout: timeout,
       skip: skip,
-      onPlatform: onPlatform);
+      onPlatform: onPlatform,
+      devSkip: true);
 }
 
 ///
 /// Skip the group temporarily
-/// mark as deprecated so that you don't checkin such code
-/// to permanently skip a group use the skip paremeter
 ///
-@deprecated
 void skip_group(String description, void body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
     Map<String, dynamic> onPlatform}) {
-  _impl.skip_group(description, body,
+  _declarer.group(description, body,
       testOn: testOn,
       timeout: timeout,
       skip: skip,
-      onPlatform: onPlatform);
+      onPlatform: onPlatform,
+      devSkip: true);
 }
 
 //
@@ -107,7 +113,7 @@ void test(String description, body(),
     _test.Timeout timeout,
     skip,
     Map<String, dynamic> onPlatform}) {
-  _impl.test(description, body,
+  _declarer.test(description, body,
       testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 }
 
@@ -117,28 +123,28 @@ void group(String description, void body(),
     _test.Timeout timeout,
     skip,
     Map<String, dynamic> onPlatform}) {
-  _impl.group(description, body,
+  _declarer.group(description, body,
       testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
 }
 
 // overriding  [_test.setUp]
 void setUp(callback()) {
-  _impl.setUp(callback);
+  _declarer.setUp(callback);
 }
 
 // overriding  [_test.tearDown]
 void tearDown(callback()) {
-  _impl.tearDown(callback);
+  _declarer.tearDown(callback);
 }
 
 // overriding  [_test.setUp]
 void setUpAll(callback()) {
-  _impl.setUpAll(callback);
+  _declarer.setUpAll(callback);
 }
 
 // overriding  [_test.tearDown]
 void tearDownAll(callback()) {
-  _impl.tearDownAll(callback);
+  _declarer.tearDownAll(callback);
 }
 
 ///
@@ -146,4 +152,10 @@ void tearDownAll(callback()) {
 /// This is needed if you have dev_test test/group inside regular test/group
 /// Otherwise they will be run in a seperate group
 ///
-devTestRun() => _impl.devTestRun();
+devTestRun() {
+  if (__declarer != null) {
+    __declarer.run();
+    // declarer is set back to null
+    __declarer = null;
+  }
+}
