@@ -14,7 +14,7 @@
 /// solo_test, solo_group, skip_test, skip_group are marked as deprecated so that you don't commit code that
 /// might skip many needed tests
 ///
-library tekartik_dev_test.test;
+library dev_test.src.test;
 
 import 'package:test/test.dart' as _test;
 export 'package:test/test.dart'

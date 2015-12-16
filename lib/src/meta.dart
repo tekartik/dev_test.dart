@@ -1,4 +1,4 @@
-library tekartik_dev_test.src.meta;
+library dev_test.src.meta;
 
 import 'package:test/test.dart' as _test;
 import 'package:collection/equality.dart';

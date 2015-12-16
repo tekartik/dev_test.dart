@@ -1,4 +1,4 @@
-library tekartik_dev_test.src.declare;
+library dev_test.src.declare;
 
 import 'package:test/test.dart' as _test;
 import 'dart:async';
