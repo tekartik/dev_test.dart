@@ -17,14 +17,15 @@ String get testScriptPath => _TestUtils.scriptPath;
 Future<Directory> get pubPackageDir =>
     getPubPackageDir(new Directory(testScriptPath));
 
-checkCaseTest(String name, int count) async {
+checkCaseTest(String name, int count, {String testNameFilter}) async {
   IoFsPubPackage pkg = new IoFsPubPackage(await pubPackageDir);
   ProcessResult runResult = await runCmd(pkg.pubCmd(pubRunTestArgs(
       args: ['test/case/${name}'],
       platforms: ["vm"],
       reporter: TestReporter.EXPANDED,
       concurrency: 1,
-      color: false))
+      color: false,
+      name: testNameFilter))
     ..connectStderr = false
     ..connectStdout = false);
 
@@ -43,8 +44,13 @@ void main() {
       await checkCaseTest('one_solo_test_in_group_case_test.dart', 1);
     });
     test('various', () async {
-      await checkCaseTest('various_case_test.dart', 6);
-      await checkCaseTest('various_regular_case_test.dart', 8);
+      await checkCaseTest('various_case_test.dart', 4);
+      await checkCaseTest('various_regular_case_test.dart', 5);
+    });
+    test('filter', () async {
+      await checkCaseTest('various_case_test.dart', 3, testNameFilter: 'test');
+      await checkCaseTest('various_regular_case_test.dart', 4,
+          testNameFilter: 'test');
     });
   });
 }

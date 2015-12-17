@@ -32,6 +32,9 @@ main() async {
     });
     expect(true, isTrue);
   });
+
+  /*
+  no more support with pub run test -n xxx
   group(null, () {
     group(null, () {
       test('test_in_null_group', () {
@@ -42,14 +45,21 @@ main() async {
       expect(true, isTrue);
     });
   });
+  */
+
   group('', () {
     test('test_in_empty_group', () {
       expect(true, isTrue);
     });
   });
+
+  /*
+  no more support with pub run test -n xxx
   test(null, () {
     expect(true, isTrue);
   });
+  */
+
   test('', () {
     expect(true, isTrue);
   });

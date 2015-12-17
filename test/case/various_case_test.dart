@@ -15,6 +15,7 @@ main() {
     });
   });
 
+  /*
   group(null, () {
     group(null, () {
       test('test_in_null_group', () {
@@ -27,6 +28,7 @@ main() {
       expect(testDescriptions, ['test_in_null_group']);
     });
   });
+  */
 
   group('', () {
     test('test_in_empty_group', () {
