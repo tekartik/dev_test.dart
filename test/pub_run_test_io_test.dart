@@ -22,7 +22,8 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
   ProcessResult runResult = await runCmd(pkg.pubCmd(pubRunTestArgs(
       args: ['test/case/${name}'],
       platforms: ["vm"],
-      reporter: TestReporter.EXPANDED,
+      //reporter: pubRunTestReporterJson,
+      reporter: pubRunTestReporterJson,
       concurrency: 1,
       color: false,
       name: testNameFilter))
@@ -32,8 +33,7 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
   expect(runResult.exitCode, 0);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
-  expect(runResult.stdout, contains("+${count}:"));
-  expect(runResult.stdout, isNot(contains("+${count + 1}:")));
+  expect(pubRunTestJsonSuccessCount(runResult.stdout), count);
 }
 
 void main() {
