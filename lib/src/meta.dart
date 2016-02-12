@@ -1,7 +1,7 @@
 library dev_test.src.meta;
 
 import 'package:test/test.dart' as _test;
-import 'package:collection/equality.dart';
+import 'package:collection/collection.dart';
 
 typedef _Body();
 
