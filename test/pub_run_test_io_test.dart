@@ -33,15 +33,18 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
   expect(runResult.exitCode, 0);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
-  expect(pubRunTestJsonSuccessCount(runResult.stdout), count);
+  expect(pubRunTestJsonSuccessCount(runResult.stdout), count,
+      reason: "$name $testNameFilter");
 }
 
 void main() {
   group('pub_run_test_io', () {
     test('cases', () async {
-      await checkCaseTest('one_solo_test_case_test.dart', 1);
-      await checkCaseTest('one_skipped_test_case_test.dart', 1);
-      await checkCaseTest('one_solo_test_in_group_case_test.dart', 1);
+      await checkCaseTest('one_solo_test_case_test.dart', 2); // report included
+      await checkCaseTest(
+          'one_skipped_test_case_test.dart', 2); // report included
+      await checkCaseTest(
+          'one_solo_test_in_group_case_test.dart', 2); // report included
     });
     test('various', () async {
       await checkCaseTest('various_case_test.dart', 4);

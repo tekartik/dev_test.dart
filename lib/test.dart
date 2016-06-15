@@ -18,17 +18,7 @@ library dev_test.test;
 
 import 'package:test/test.dart' as _test;
 export 'package:test/test.dart'
-    hide
-        test,
-        solo_test,
-        skip_test,
-        group,
-        solo_group,
-        skip_group,
-        setUp,
-        tearDown,
-        setUpAll,
-        tearDownAll;
+    hide test, group, setUp, tearDown, setUpAll, tearDownAll;
 import 'src/test.dart' as _impl;
 
 ///
