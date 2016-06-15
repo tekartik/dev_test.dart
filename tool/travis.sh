@@ -6,4 +6,4 @@ set -e
 dartanalyzer --fatal-warnings \
   lib/test.dart \
 
-pub run test -p vm,firefox
+pub run test -p vm,firefox -j 1
