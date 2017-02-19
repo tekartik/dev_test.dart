@@ -2,11 +2,10 @@
 library tekartik_dev_test.descriptions_test;
 
 import 'package:dev_test/test.dart';
-import 'package:tekartik_pub/pub_fs_io.dart';
+import 'package:tekartik_pub/io.dart';
 import 'package:process_run/cmd_run.dart';
 import 'dart:mirrors';
 import 'package:fs_shim/fs_io.dart';
-import 'dart:async';
 
 class _TestUtils {
   static final String scriptPath =
@@ -14,11 +13,9 @@ class _TestUtils {
 }
 
 String get testScriptPath => _TestUtils.scriptPath;
-Future<Directory> get pubPackageDir =>
-    getPubPackageDir(new Directory(testScriptPath));
 
 checkCaseTest(String name, int count, {String testNameFilter}) async {
-  IoFsPubPackage pkg = new IoFsPubPackage(await pubPackageDir);
+  PubPackage pkg = new PubPackage(getPubPackageRootSync(testScriptPath));
   ProcessResult runResult = await runCmd(pkg.pubCmd(pubRunTestArgs(
       args: ['test/case/${name}'],
       platforms: ["vm"],
@@ -26,9 +23,7 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
       reporter: pubRunTestReporterJson,
       concurrency: 1,
       color: false,
-      name: testNameFilter))
-    ..connectStderr = false
-    ..connectStdout = false);
+      name: testNameFilter)));
 
   expect(runResult.exitCode, 0);
 
