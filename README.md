@@ -32,3 +32,10 @@ might skip many needed tests.
 `testDescriptions` add information about the current running test (list of String naming the current group and test)
 
 `devTestRun` will be optionally needed if you have a mix of `test` and `dev_test` to make sure the declared tests or groups belongs to the correct group they are declared in
+
+## Testing
+
+### Testing with dartdevc
+
+    pub serve test --web-compiler=dartdevc --port=8079
+    pub run test -p chrome --pub-serve=8079

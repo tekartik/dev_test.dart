@@ -8,6 +8,7 @@ main() {
     await new Future.delayed(new Duration(milliseconds: 1));
     expect(testDescriptions, descriptions);
   }
+
   group('group', () {
     setUp(() async {
       await _checkDelayedDescription();

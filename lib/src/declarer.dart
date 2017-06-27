@@ -73,6 +73,7 @@ class Declarer {
 
       return result;
     }
+
     callback.body = _bodyWrapper;
   }
 
@@ -234,6 +235,7 @@ class Declarer {
         }
       }
     }
+
     _print(0, group);
   }
 
@@ -297,6 +299,7 @@ class Declarer {
         }
       }
     }
+
     _fix(group);
     if (skipTestCount > 0) {
       // Add a special test item
