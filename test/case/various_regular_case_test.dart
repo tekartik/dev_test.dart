@@ -20,17 +20,28 @@ main() async {
     });
   });
   test('test', () {
-    group('group_in_test', () {
-      test('test', () {
+    try {
+      group('group_in_test', () {
+        test('test', () {
+          // only called when using pub run test
+          expect(true, isTrue);
+        });
+      });
+      fail("should fail before");
+    } on StateError catch (_) {
+      // Bad state: Can't call group() once tests have begun running.
+      // ignore error of calling group from within a test
+    }
+    try {
+      test('sub_test', () {
         // only called when using pub run test
         expect(true, isTrue);
       });
-    });
-    test('sub_test', () {
-      // only called when using pub run test
-      expect(true, isTrue);
-    });
-    expect(true, isTrue);
+      fail("should fail before");
+    } on StateError catch (_) {
+      // Bad state: Can't call test() once tests have begun running.
+      // ignore error of calling group from within a test
+    }
   });
 
   /*
