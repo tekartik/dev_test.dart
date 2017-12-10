@@ -8,24 +8,16 @@ environment:
   sdk: '>=1.24.0 <2.0.0'
 
 dependencies:
-  test: '>=0.12.24+8'
-  collection: '>=1.4.0'
+  test: '>=0.12.29'
+  collection: '>=1.14.3'
 
 dev_dependencies:
   fs_shim: any
   browser: any
   tekartik_pub:
-#    path: ../pub.dart
     git: git://github.com/tekartik/pub.dart
-#    version: '>=0.3.0'
+    version: '>=0.6.2'
 
-# Allow test using pub serve compiler
-#transformers:
-#- test/pub_serve:
-#    $include: test/**_test.dart
-
-# Uncomment the following in sdk 1.24+ to make pub serve
-# use dartdevc (webdev.dartlang.org/tools/dartdevc).
 web:
   compiler:
     debug: dartdevc

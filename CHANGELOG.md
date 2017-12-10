@@ -1,3 +1,8 @@
+## 0.10.0
+
+* bug fix
+* dart 2.0.0 support
+
 ## 0.6.0
 
 * Add for multiple `setUp()`, `tearDown()`, `setUpAll()` and `tearDownAll()` in the same group
