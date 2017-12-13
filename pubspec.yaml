@@ -16,7 +16,7 @@ dev_dependencies:
   browser: any
   tekartik_pub:
     git: git://github.com/tekartik/pub.dart
-    version: '>=0.7.0'
+    version: '>=0.7.1'
 
 web:
   compiler:
