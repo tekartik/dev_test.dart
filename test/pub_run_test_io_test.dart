@@ -20,7 +20,7 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
       args: ['test/case/${name}'],
       platforms: ["vm"],
       //reporter: pubRunTestReporterJson,
-      reporter: pubRunTestReporterJson,
+      reporter: RunTestReporter.JSON,
       concurrency: 1,
       color: false,
       name: testNameFilter)));

@@ -1,5 +1,5 @@
 name: dev_test
-version: 0.10.0
+version: 0.10.1
 author: Tekartik <alex@tekartik.com>
 homepage: https://github.com/tekartik/dev_test.dart
 description: Brings (back) the solo and skip features on top of the test package
@@ -16,8 +16,13 @@ dev_dependencies:
   browser: any
   tekartik_pub:
     git: git://github.com/tekartik/pub.dart
-    version: '>=0.6.2'
+    version: '>=0.7.0'
 
 web:
   compiler:
     debug: dartdevc
+
+
+# dependency_overrides:
+#  tekartik_pub:
+#    path: ../pub.dart
