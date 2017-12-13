@@ -21,8 +21,3 @@ dev_dependencies:
 web:
   compiler:
     debug: dartdevc
-
-
-# dependency_overrides:
-#  tekartik_pub:
-#    path: ../pub.dart
