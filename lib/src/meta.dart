@@ -36,7 +36,7 @@ abstract class Callback {
   // 2 tests are the same if they have the same description
   @override
   bool operator ==(o) =>
-      const ListEquality().equals(descriptions, o.descriptions);
+      const ListEquality().equals(descriptions, o.descriptions as List<String>);
 
   void declare();
 }
@@ -67,6 +67,7 @@ class TearDownAll extends Callback {
 
 abstract class Item extends Callback {
   String description;
+
   List<String> get descriptions {
     List<String> descriptions = super.descriptions;
     if (description != null) {
@@ -79,6 +80,7 @@ abstract class Item extends Callback {
   _test.Timeout timeout;
   var _skip; // String or true if skipped
   set skip(skip) => _skip = skip;
+
   get skip {
     if (_skip == false || _skip == null) {
       if (devSkip) {
@@ -106,11 +108,14 @@ abstract class Item extends Callback {
 class Group extends Item {
   Group();
 
-  Iterable<Group> get groups =>
-      _children.where((callback) => callback is Group);
-  Iterable<Item> get items => _children.where((callback) => callback is Item);
+  List<Group> get groups =>
+      new List<Group>.from(_children.where((callback) => callback is Group));
+
+  List<Item> get items =>
+      new List<Item>.from(_children.where((callback) => callback is Item));
 
   List<Callback> _children = [];
+
   List<Callback> get children => _children;
 
   // can be an item or not
@@ -137,6 +142,7 @@ class Root extends Group {
 ///
 class Test extends Item {
   String get type => 'test';
+
   declare() {
     _test.test(description, body,
         testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);

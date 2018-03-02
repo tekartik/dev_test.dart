@@ -1,3 +1,7 @@
+## 0.11.0
+
+* `implicit-casts: false` support
+
 ## 0.10.0
 
 * bug fix

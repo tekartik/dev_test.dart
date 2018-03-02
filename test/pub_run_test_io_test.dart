@@ -28,7 +28,7 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
   expect(runResult.exitCode, 0);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
-  expect(pubRunTestJsonSuccessCount(runResult.stdout), count,
+  expect(pubRunTestJsonSuccessCount(runResult.stdout as String), count,
       reason: "$name $testNameFilter");
 }
 
