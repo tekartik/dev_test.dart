@@ -17,6 +17,8 @@ dev_dependencies:
   browser: any
   process_run: '>=0.5.6'
   tekartik_pub:
-    git: git://github.com/tekartik/pub.dart
+    git:
+      url: git://github.com/tekartik/pub.dart
+      ref: dart1
     version: '>=0.8.0'
 
