@@ -1,24 +1,16 @@
 @TestOn("vm")
-library tekartik_dev_test.descriptions_test;
+library tekartik_dev_test.pub_run_test_browser_test;
 
 import 'package:dev_test/test.dart';
 import 'package:tekartik_pub/io.dart';
 import 'package:process_run/cmd_run.dart';
-import 'dart:mirrors';
 import 'package:fs_shim/fs_io.dart';
 
-class _TestUtils {
-  static final String scriptPath =
-      (reflectClass(_TestUtils).owner as LibraryMirror).uri.toFilePath();
-}
-
-String get testScriptPath => _TestUtils.scriptPath;
-
 checkCaseTest(String name, int count, {String testNameFilter}) async {
-  PubPackage pkg = new PubPackage(getPubPackageRootSync(testScriptPath));
+  PubPackage pkg = new PubPackage('.');
   ProcessResult runResult = await runCmd(pkg.pubCmd(pubRunTestArgs(
       args: ['test/case/${name}'],
-      platforms: ["vm"],
+      platforms: ["chrome"],
       //reporter: pubRunTestReporterJson,
       reporter: RunTestReporter.JSON,
       concurrency: 1,
@@ -33,22 +25,22 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
 }
 
 void main() {
-  group('pub_run_test_io', () {
+  group('pub_run_browser_test', () {
     test('cases', () async {
       await checkCaseTest('one_solo_test_case_test.dart', 2); // report included
       await checkCaseTest(
           'one_skipped_test_case_test.dart', 2); // report included
       await checkCaseTest(
           'one_solo_test_in_group_case_test.dart', 2); // report included
-    });
+    }, timeout: new Timeout(new Duration(minutes: 2)));
     test('various', () async {
       await checkCaseTest('various_case_test.dart', 4);
       await checkCaseTest('various_regular_case_test.dart', 5);
-    });
+    }, timeout: new Timeout(new Duration(minutes: 2)));
     test('filter', () async {
       await checkCaseTest('various_case_test.dart', 3, testNameFilter: 'test');
       await checkCaseTest('various_regular_case_test.dart', 4,
           testNameFilter: 'test');
-    });
+    }, timeout: new Timeout(new Duration(minutes: 2)));
   });
 }
