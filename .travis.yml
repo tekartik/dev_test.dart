@@ -3,8 +3,7 @@ language: dart
 dart:
 #  - stable
   - dev
-sudo: false
-before_install:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+sudo: required
+before_script:
+  - source $(pub run chrome_travis:env_rc)
 script: ./tool/travis.sh
