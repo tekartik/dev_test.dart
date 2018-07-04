@@ -1,3 +1,7 @@
+## 0.12.0
+
+* dart2 only
+
 ## 0.11.0
 
 * `implicit-casts: false` support
