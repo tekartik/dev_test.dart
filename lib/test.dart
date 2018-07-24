@@ -14,7 +14,6 @@
 /// solo_test, solo_group, skip_test, skip_group are marked as deprecated so that you don't commit code that
 /// might skip many needed tests
 ///
-library dev_test.test;
 
 import 'package:test/test.dart' as _test;
 export 'package:test/test.dart'
