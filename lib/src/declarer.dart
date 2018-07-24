@@ -306,7 +306,7 @@ class Declarer {
       Test report = new Test()
         ..description = "dev_test report"
         ..skip =
-            "[dev_test] ${skipTestCount} test${skipTestCount > 1 ? "s" :""} skipped";
+            "[dev_test] ${skipTestCount} test${skipTestCount > 1 ? "s" : ""} skipped";
       group.add(report);
     }
   }
