@@ -14,7 +14,6 @@ dependencies:
 
 dev_dependencies:
   fs_shim: '>=0.9.0-dev.1'
-  browser: any
   process_run: '>=0.6.0'
   tekartik_pub:
     git:
