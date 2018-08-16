@@ -93,9 +93,14 @@ void test(String description, body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
+      @deprecated bool solo = false,
     Map<String, dynamic> onPlatform}) {
   _impl.test(description, body,
-      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      solo: solo);
 }
 
 // overriding  [_test.group]
@@ -103,9 +108,14 @@ void group(String description, void body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
+      @deprecated bool solo = false,
     Map<String, dynamic> onPlatform}) {
   _impl.group(description, body,
-      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      solo: solo);
 }
 
 // overriding  [_test.setUp]

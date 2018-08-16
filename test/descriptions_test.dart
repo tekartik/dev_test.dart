@@ -1,5 +1,7 @@
 library tekartik_dev_test.descriptions_test;
 
+import 'dart:async';
+
 import 'package:dev_test/test.dart';
 
 void main() {
@@ -29,5 +31,15 @@ void main() {
     test('three', () {
       expect(testDescriptions, ['sample', 'three']);
     });
+  });
+  // test that concurrent test won't affect the testDescriptions
+  group('multi', () {
+    for (int i = 0; i < 100; i++) {
+      test('test$i', () async {
+        expect(testDescriptions, ['multi', 'test$i']);
+        await new Future.delayed(new Duration(milliseconds: 5));
+        expect(testDescriptions, ['multi', 'test$i']);
+      });
+    }
   });
 }

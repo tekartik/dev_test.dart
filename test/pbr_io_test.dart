@@ -34,7 +34,7 @@ var longTimeout = new Timeout(new Duration(minutes: 4));
 void main() {
   group('pub_run_io_test', () {
     test('cases', () async {
-      await checkCaseTest('one_solo_test_case_test.dart', 2); // report included
+      await checkCaseTest('one_solo_test_case_test.dart', 1); // report included
       await checkCaseTest(
           'one_skipped_test_case_test.dart', 2); // report included
       await checkCaseTest(

@@ -25,12 +25,17 @@ import 'dart:async';
 Declarer __declarer;
 Declarer get _declarer {
   if (__declarer == null) {
-    __declarer = new Declarer();
+    __declarer = new DeclarerImpl();
     scheduleMicrotask(() {
       devTestRun();
     });
   }
   return __declarer;
+}
+
+set declarer(Declarer declarer) {
+  assert(__declarer == null, "set declarer before the first test declaration");
+  __declarer = declarer;
 }
 
 ///
@@ -52,7 +57,7 @@ void solo_test(String description, body(),
       timeout: timeout,
       skip: skip,
       onPlatform: onPlatform,
-      devSolo: true);
+      solo: true);
 }
 
 ///
@@ -68,7 +73,7 @@ void solo_group(String description, void body(),
       timeout: timeout,
       skip: skip,
       onPlatform: onPlatform,
-      devSolo: true);
+      solo: true);
 }
 
 ///
@@ -112,9 +117,16 @@ void test(String description, body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
+    bool solo = false,
+    @deprecated bool devSkip,
     Map<String, dynamic> onPlatform}) {
   _declarer.test(description, body,
-      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      solo: solo,
+      devSkip: devSkip);
 }
 
 // overriding  [_test.group]
@@ -122,9 +134,17 @@ void group(String description, void body(),
     {String testOn,
     _test.Timeout timeout,
     skip,
+    bool solo = false,
+    @deprecated bool devSolo,
+    @deprecated bool devSkip,
     Map<String, dynamic> onPlatform}) {
   _declarer.group(description, body,
-      testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      solo: solo,
+      devSkip: devSkip);
 }
 
 // overriding  [_test.setUp]
@@ -154,7 +174,9 @@ void tearDownAll(callback()) {
 ///
 devTestRun() {
   if (__declarer != null) {
-    __declarer.run();
+    // We no longer run the tests
+    // It is run during the
+    // (__declarer as DeclarerImpl).run();
     // declarer is set back to null
     __declarer = null;
   }

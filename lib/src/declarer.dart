@@ -17,7 +17,32 @@ Callback _currentCallback;
 ///
 /// The declarer class handling the logic
 ///
-class Declarer {
+abstract class Declarer {
+  void test(String description, body(),
+      {String testOn,
+      _test.Timeout timeout,
+      skip,
+      Map<String, dynamic> onPlatform,
+      bool solo = false,
+      bool devSkip});
+
+  void group(String description, void body(),
+      {String testOn,
+      _test.Timeout timeout,
+      skip,
+      bool solo = false,
+      Map<String, dynamic> onPlatform,
+      bool devSkip});
+
+  void setUp(body());
+
+  void tearDown(body());
+
+  void setUpAll(body());
+  void tearDownAll(body());
+}
+
+class DeclarerImpl implements Declarer {
   // with true it prints add (our wrapped calls to test and group), declare (when it calls test group for real)
   // and run (when it runs the body)
   bool debug = false;
@@ -28,7 +53,7 @@ class Declarer {
   // curent group declared
   Group _group;
 
-  Declarer() {
+  DeclarerImpl() {
     _group = root;
   }
 
@@ -37,6 +62,19 @@ class Declarer {
   // Stats
   int testCount;
   int skipTestCount;
+
+  void _wrapGroupBody(Group group) {
+    Function body = group.body;
+    // change the body then
+    group.body = () {
+      Group _previousGroup = _group;
+      _group = group;
+      if (body != null) {
+        body();
+      }
+      _group = _previousGroup;
+    };
+  }
 
   void _wrapBody(Callback callback) {
     Function body = callback.body;
@@ -85,33 +123,29 @@ class Declarer {
     }
   }
 
-  _addGroup(Group group) {
+  void _addTest(Test test) {
+    // For group this is different as we are going to call the body right away
+    // and create new body for when test.group is called for real
+    _addItem(test);
+  }
+
+  void _addGroup(Group group) {
     // For group this is different as we are going to call the body right away
     // and create new body for when test.group is called for real
     _addItem(group);
 
     // Let's allow for null for group body
     // change the current group when calling group
-    Group _previousGroup = _group;
-    _group = group;
-    if (group.body != null) {
-      group.body();
-    }
-    _group = _previousGroup;
-
-    // change the body then
-    group.body = () {
-      _declareGroup(group);
-    };
+    _wrapGroupBody(group);
   }
 
   Test test(String description, body(),
       {String testOn,
       _test.Timeout timeout,
       skip,
+      bool solo = false,
       Map<String, dynamic> onPlatform,
-      bool devSkip,
-      bool devSolo}) {
+      bool devSkip}) {
     Test test = new Test()
       ..description = description
       ..body = body
@@ -120,10 +154,16 @@ class Declarer {
       ..skip = skip
       ..onPlatform = onPlatform
       ..devSkip = devSkip == true
-      ..devSolo = devSolo == true
+      ..solo = solo
       ..declareStackTrace = new Trace.current(2);
 
-    _addItem(test);
+    _addTest(test);
+
+    // since test 1.0.0 declare it directly
+    if (!dryRun) {
+      test.declare();
+    }
+
     return test;
   }
 
@@ -131,21 +171,30 @@ class Declarer {
       {String testOn,
       _test.Timeout timeout,
       skip,
+      bool solo = false,
       Map<String, dynamic> onPlatform,
-      bool devSkip,
-      bool devSolo}) {
+      bool devSkip}) {
     Group group = new Group()
       ..description = description
       ..body = body
       ..testOn = testOn
       ..timeout = timeout
-      ..skip = skip
+      ..skip = devSkip ?? skip
       ..onPlatform = onPlatform
-      ..devSkip = devSkip == true
-      ..devSolo = devSolo == true
+      ..devSkip = devSkip ?? (skip != null && skip != false)
+      ..solo = solo
       ..declareStackTrace = new Trace.current(2);
 
     _addGroup(group);
+
+    // since test 1.0.0 declare it directly
+    if (!dryRun) {
+      group.declare();
+    } else {
+      if (group.body != null) {
+        group.body();
+      }
+    }
 
     return group;
   }
@@ -156,6 +205,12 @@ class Declarer {
       ..declareStackTrace = new Trace.current(2);
     _wrapBody(setUp);
     _group.add(setUp);
+
+    // since test 1.0.0 declare it directly
+    if (!dryRun) {
+      setUp.declare();
+    }
+
     return setUp;
   }
 
@@ -165,6 +220,12 @@ class Declarer {
       ..declareStackTrace = new Trace.current(2);
     _wrapBody(tearDown);
     _group.add(tearDown);
+
+    // since test 1.0.0 declare it directly
+    if (!dryRun) {
+      tearDown.declare();
+    }
+
     return tearDown;
   }
 
@@ -174,6 +235,12 @@ class Declarer {
       ..declareStackTrace = new Trace.current(2);
     _wrapBody(setUpAll);
     _group.add(setUpAll);
+
+    // since test 1.0.0 declare it directly
+    if (!dryRun) {
+      setUpAll.declare();
+    }
+
     return setUpAll;
   }
 
@@ -183,6 +250,12 @@ class Declarer {
       ..declareStackTrace = new Trace.current(2);
     _wrapBody(tearDownAll);
     _group.add(tearDownAll);
+
+    // since test 1.0.0 declare it directly
+    if (!dryRun) {
+      tearDownAll.declare();
+    }
+
     return tearDownAll;
   }
 
@@ -275,10 +348,10 @@ class Declarer {
       // any solo test?
       bool hasSolo = false;
       for (Item item in group.items) {
-        if (item.devSolo) {
+        if (item.solo) {
           hasSolo = true;
           // mark ourself as solo so that other group get skipped
-          group.devSolo = true;
+          group.solo = true;
           break;
         }
       }
@@ -286,7 +359,7 @@ class Declarer {
       for (Item item in group.items) {
         // fix others
         if (hasSolo) {
-          if (item.devSolo != true) {
+          if (item.solo != true) {
             if (debug) {
               print("skipping ${item}");
             }

@@ -1,7 +1,7 @@
 library dev_test.src.meta;
 
-import 'package:test/test.dart' as _test;
 import 'package:collection/collection.dart';
+import 'package:test/test.dart' as _test;
 
 typedef _Body();
 
@@ -90,16 +90,17 @@ abstract class Item extends Callback {
     return _skip;
   }
 
+  bool solo;
+
   Map<String, dynamic> onPlatform;
 
   bool devSkip;
-  bool devSolo;
 
   @override
   String toString() {
     String text = super.toString();
-    if (devSkip == true || devSolo == true) {
-      text += " (${devSolo == true ? "solo" : "skip"})";
+    if (devSkip == true || solo == true) {
+      text += " (${solo == true ? "solo" : "skip"})";
     }
     return text;
   }
@@ -128,7 +129,12 @@ class Group extends Item {
 
   declare() {
     _test.group(description, body,
-        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+        testOn: testOn,
+        timeout: timeout,
+        skip: skip,
+        onPlatform: onPlatform,
+        // ignore: deprecated_member_use
+        solo: solo);
   }
 }
 
@@ -145,6 +151,11 @@ class Test extends Item {
 
   declare() {
     _test.test(description, body,
-        testOn: testOn, timeout: timeout, skip: skip, onPlatform: onPlatform);
+        testOn: testOn,
+        timeout: timeout,
+        skip: skip,
+        onPlatform: onPlatform,
+        // ignore: deprecated_member_use
+        solo: solo);
   }
 }
