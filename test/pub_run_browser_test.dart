@@ -27,11 +27,11 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
 void main() {
   group('pub_run_browser_test', () {
     test('cases', () async {
-      await checkCaseTest('one_solo_test_case_test.dart', 2); // report included
+      await checkCaseTest('one_solo_test_case_test.dart', 1); // report included
       await checkCaseTest(
           'one_skipped_test_case_test.dart', 2); // report included
       await checkCaseTest(
-          'one_solo_test_in_group_case_test.dart', 2); // report included
+          'one_solo_test_in_group_case_test.dart', 1); // report included
     }, timeout: new Timeout(new Duration(minutes: 2)));
     test('various', () async {
       await checkCaseTest('various_case_test.dart', 4);
