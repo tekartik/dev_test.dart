@@ -6,7 +6,9 @@ main() {
     test('test', () {
       expect(true, isTrue);
     });
-  }, // ignore: deprecated_member_use
+  },
+      skip: false,
+      // ignore: deprecated_member_use
       solo: true);
   group('group', () {
     test('test', () {

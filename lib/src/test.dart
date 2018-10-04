@@ -25,7 +25,7 @@ import 'dart:async';
 Declarer __declarer;
 Declarer get _declarer {
   if (__declarer == null) {
-    __declarer = new DeclarerImpl();
+    __declarer = DeclarerImpl();
     scheduleMicrotask(() {
       devTestRun();
     });

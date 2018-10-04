@@ -7,13 +7,13 @@ import 'package:process_run/cmd_run.dart';
 import 'package:fs_shim/fs_io.dart';
 
 checkCaseTest(String name, int count, {String testNameFilter}) async {
-  PubPackage pkg = new PubPackage('.');
+  PubPackage pkg = PubPackage('.');
   ProcessResult runResult = await runCmd(pkg.pubCmd([
     'run',
     'build_runner',
     'test',
     '--'
-  ]..addAll(pubRunTestRunnerArgs(new TestRunnerArgs(
+  ]..addAll(pubRunTestRunnerArgs(TestRunnerArgs(
       args: ['test/case/${name}'],
       platforms: ["vm"],
       //reporter: pubRunTestReporterJson,
@@ -29,7 +29,7 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
       reason: "$name $testNameFilter");
 }
 
-var longTimeout = new Timeout(new Duration(minutes: 4));
+var longTimeout = Timeout(Duration(minutes: 4));
 
 void main() {
   group('pub_run_io_test', () {

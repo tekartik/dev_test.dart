@@ -110,10 +110,10 @@ class Group extends Item {
   Group();
 
   List<Group> get groups =>
-      new List<Group>.from(_children.where((callback) => callback is Group));
+      List<Group>.from(_children.where((callback) => callback is Group));
 
   List<Item> get items =>
-      new List<Item>.from(_children.where((callback) => callback is Item));
+      List<Item>.from(_children.where((callback) => callback is Item));
 
   List<Callback> _children = [];
 

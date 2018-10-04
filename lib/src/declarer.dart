@@ -48,7 +48,7 @@ class DeclarerImpl implements Declarer {
   bool debug = false;
   bool dryRun = false;
 
-  final Root root = new Root();
+  final Root root = Root();
 
   // curent group declared
   Group _group;
@@ -146,7 +146,7 @@ class DeclarerImpl implements Declarer {
       bool solo = false,
       Map<String, dynamic> onPlatform,
       bool devSkip}) {
-    Test test = new Test()
+    Test test = Test()
       ..description = description
       ..body = body
       ..testOn = testOn
@@ -155,7 +155,7 @@ class DeclarerImpl implements Declarer {
       ..onPlatform = onPlatform
       ..devSkip = devSkip == true
       ..solo = solo
-      ..declareStackTrace = new Trace.current(2);
+      ..declareStackTrace = Trace.current(2);
 
     _addTest(test);
 
@@ -174,7 +174,7 @@ class DeclarerImpl implements Declarer {
       bool solo = false,
       Map<String, dynamic> onPlatform,
       bool devSkip}) {
-    Group group = new Group()
+    Group group = Group()
       ..description = description
       ..body = body
       ..testOn = testOn
@@ -183,7 +183,7 @@ class DeclarerImpl implements Declarer {
       ..onPlatform = onPlatform
       ..devSkip = devSkip ?? (skip != null && skip != false)
       ..solo = solo
-      ..declareStackTrace = new Trace.current(2);
+      ..declareStackTrace = Trace.current(2);
 
     _addGroup(group);
 
@@ -200,9 +200,9 @@ class DeclarerImpl implements Declarer {
   }
 
   SetUp setUp(body()) {
-    SetUp setUp = new SetUp()
+    SetUp setUp = SetUp()
       ..body = body
-      ..declareStackTrace = new Trace.current(2);
+      ..declareStackTrace = Trace.current(2);
     _wrapBody(setUp);
     _group.add(setUp);
 
@@ -215,9 +215,9 @@ class DeclarerImpl implements Declarer {
   }
 
   TearDown tearDown(body()) {
-    TearDown tearDown = new TearDown()
+    TearDown tearDown = TearDown()
       ..body = body
-      ..declareStackTrace = new Trace.current(2);
+      ..declareStackTrace = Trace.current(2);
     _wrapBody(tearDown);
     _group.add(tearDown);
 
@@ -230,9 +230,9 @@ class DeclarerImpl implements Declarer {
   }
 
   SetUpAll setUpAll(body()) {
-    SetUpAll setUpAll = new SetUpAll()
+    SetUpAll setUpAll = SetUpAll()
       ..body = body
-      ..declareStackTrace = new Trace.current(2);
+      ..declareStackTrace = Trace.current(2);
     _wrapBody(setUpAll);
     _group.add(setUpAll);
 
@@ -245,9 +245,9 @@ class DeclarerImpl implements Declarer {
   }
 
   TearDownAll tearDownAll(body()) {
-    TearDownAll tearDownAll = new TearDownAll()
+    TearDownAll tearDownAll = TearDownAll()
       ..body = body
-      ..declareStackTrace = new Trace.current(2);
+      ..declareStackTrace = Trace.current(2);
     _wrapBody(tearDownAll);
     _group.add(tearDownAll);
 
@@ -284,7 +284,7 @@ class DeclarerImpl implements Declarer {
       try {
         callback.declare();
       } catch (e) {
-        throw new UnsupportedError(
+        throw UnsupportedError(
             "${e.toString()}\n${callback}\n${callback.declareStackTrace}");
       }
     }
@@ -320,7 +320,7 @@ class DeclarerImpl implements Declarer {
       level++;
       parent = parent.parent;
     }
-    StringBuffer sb = new StringBuffer();
+    StringBuffer sb = StringBuffer();
     for (int i = 0; i < level; i++) {
       sb.write("  ");
     }
@@ -376,7 +376,7 @@ class DeclarerImpl implements Declarer {
     _fix(group);
     if (skipTestCount > 0) {
       // Add a special test item
-      Test report = new Test()
+      Test report = Test()
         ..description = "dev_test report"
         ..skip =
             "[dev_test] ${skipTestCount} test${skipTestCount > 1 ? "s" : ""} skipped";

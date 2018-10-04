@@ -7,7 +7,7 @@ main() async {
     expect(true, isTrue);
   });
 
-  await new Future.delayed(new Duration());
+  await Future.delayed(Duration());
 
   // this should fail running dart directly
   test('test2', () {

@@ -10,7 +10,7 @@ void main() {
     setUp(() {});
 
     test('root', () async {
-      var declarer = new DeclarerImpl();
+      var declarer = DeclarerImpl();
       declarer.dryRun = true;
       SetUp setUp = declarer.setUp(null);
       Test test1 = declarer.test("test1", null);
@@ -22,7 +22,7 @@ void main() {
     });
 
     test('in_group', () async {
-      var declarer = new DeclarerImpl();
+      var declarer = DeclarerImpl();
       declarer.dryRun = true;
       SetUp setUp = declarer.setUp(null);
       Test test1 = declarer.test("test1", null);
@@ -33,7 +33,7 @@ void main() {
     });
 
     test('solo_test', () async {
-      var declarer = new DeclarerImpl()..dryRun = true;
+      var declarer = DeclarerImpl()..dryRun = true;
       declarer.dryRun = true;
       Test test1 = declarer.test("solo_test", null, solo: true);
       Test test2 = declarer.test("test", null);
@@ -43,7 +43,7 @@ void main() {
     });
 
     test('solo_group', () async {
-      var declarer = new DeclarerImpl();
+      var declarer = DeclarerImpl();
       declarer.dryRun = true;
       Group group1 = declarer.group("solo_group", null, solo: true);
       Group group2 = declarer.group("group", null);

@@ -5,7 +5,7 @@ main() {
   // check the description after a 1ms delay
   _checkDelayedDescription() async {
     var descriptions = testDescriptions;
-    await new Future.delayed(new Duration(milliseconds: 1));
+    await Future.delayed(Duration(milliseconds: 1));
     expect(testDescriptions, descriptions);
   }
 
