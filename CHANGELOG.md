@@ -1,3 +1,7 @@
+## 0.13.0
+
+* remove meta code allow code sharing with flutter
+
 ## 0.12.0
 
 * dart2 only
