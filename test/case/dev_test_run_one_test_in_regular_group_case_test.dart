@@ -9,7 +9,5 @@ main() {
     _test.test('test', () {
       expect(true, isTrue);
     });
-
-    devTestRun();
   });
 }

@@ -9,8 +9,6 @@ main() {
     _test.test('test1', () {
       expect(true, isTrue);
     });
-
-    devTestRun();
   });
 
   _test.group('other_regular_group', () {
@@ -32,7 +30,5 @@ main() {
     _test.test('test3', () {
       expect(true, isTrue);
     });
-
-    devTestRun();
   });
 }

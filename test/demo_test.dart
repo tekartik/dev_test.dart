@@ -1,4 +1,4 @@
-import 'package:dev_test/dev_test.dart';
+import 'package:dev_test/test.dart';
 
 main() {
   group('group', () {

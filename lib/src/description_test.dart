@@ -1,9 +1,18 @@
 // not flutter
-import 'package:dev_test/src/dev_test.dart' show Test;
-import 'package:test/test.dart' as _impl;
-import 'package:test/test.dart' show Timeout;
+import 'dart:async';
 
-class DartTest implements Test {
+import 'package:dev_test/src/dev_test.dart' show Test, WithTestDescriptions;
+import 'package:dev_test/test.dart' show Timeout;
+
+class WithDescriptionsTest implements Test, WithTestDescriptions {
+  final Test _impl;
+
+  @override
+  List<String> get testDescriptions => _currentDescriptions ?? _descriptions;
+
+  List<String> _currentDescriptions; // set when the test is ran
+  final List<String> _descriptions = [];
+  WithDescriptionsTest(this._impl);
   @override
   void test(String description, body(),
       {String testOn,
@@ -11,7 +20,19 @@ class DartTest implements Test {
       skip,
       @deprecated bool solo = false,
       Map<String, dynamic> onPlatform}) {
-    _impl.test(description, body,
+    List<String> descriptions = List.from(_descriptions)..add(description);
+    _impl.test(description, () {
+      _currentDescriptions = descriptions;
+      var result = body();
+      if (result is Future) {
+        return result.whenComplete(() {
+          _currentDescriptions = null;
+        });
+      } else {
+        _currentDescriptions = null;
+        return result;
+      }
+    },
         testOn: testOn,
         timeout: timeout,
         skip: skip,
@@ -27,7 +48,11 @@ class DartTest implements Test {
       skip,
       @deprecated bool solo = false,
       Map<String, dynamic> onPlatform}) {
-    _impl.group(description, body,
+    _impl.group(description, () {
+      _descriptions.add(description);
+      body();
+      _descriptions.removeLast();
+    },
         testOn: testOn,
         timeout: timeout,
         skip: skip,
