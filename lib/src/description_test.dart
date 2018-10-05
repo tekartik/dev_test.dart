@@ -22,16 +22,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       Map<String, dynamic> onPlatform}) {
     List<String> descriptions = List.from(_descriptions)..add(description);
     _impl.test(description, () {
-      _currentDescriptions = descriptions;
-      var result = body();
-      if (result is Future) {
-        return result.whenComplete(() {
-          _currentDescriptions = null;
-        });
-      } else {
-        _currentDescriptions = null;
-        return result;
-      }
+      return _wrap(descriptions, body);
     },
         testOn: testOn,
         timeout: timeout,
@@ -62,27 +53,56 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
 // overriding  [_test.setUp]
-  void setUp(callback()) {
-    _impl.setUp(callback);
+  void setUp(body()) {
+    List<String> descriptions = List.from(_descriptions);
+    _impl.setUp(() {
+      return _wrap(descriptions, body);
+    });
   }
 
 // overriding  [_test.tearDown]
-  void tearDown(callback()) {
-    _impl.tearDown(callback);
+  void tearDown(body()) {
+    List<String> descriptions = List.from(_descriptions);
+    _impl.tearDown(() {
+      return _wrap(descriptions, body);
+    });
   }
 
 // overriding  [_test.setUp]
-  void setUpAll(callback()) {
-    _impl.setUpAll(callback);
+  void setUpAll(body()) {
+    List<String> descriptions = List.from(_descriptions);
+    _impl.setUpAll(() {
+      return _wrap(descriptions, body);
+    });
   }
 
 // overriding  [_test.tearDown]
-  void tearDownAll(callback()) {
-    _impl.tearDownAll(callback);
+  void tearDownAll(body()) {
+    List<String> descriptions = List.from(_descriptions);
+    _impl.tearDownAll(() {
+      return _wrap(descriptions, body);
+    });
   }
 
   @override
   void expect(actual, matcher, {String reason, skip}) {
     _impl.expect(actual, matcher, reason: reason, skip: skip);
+  }
+
+  _wrap(List<String> descriptions, Function() body) {
+    _currentDescriptions = descriptions;
+    var result;
+    try {
+      result = body();
+    } finally {
+      if (result is Future) {
+        return result.whenComplete(() {
+          _currentDescriptions = null;
+        });
+      } else {
+        _currentDescriptions = null;
+        return result;
+      }
+    }
   }
 }
