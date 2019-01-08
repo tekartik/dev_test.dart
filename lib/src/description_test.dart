@@ -8,7 +8,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   final Test _impl;
 
   @override
-  List<String> get testDescriptions => _currentDescriptions ?? _descriptions;
+  List<String> get testDescriptions =>
+      List.from(_currentDescriptions ?? _descriptions);
 
   List<String> _currentDescriptions; // set when the test is ran
   final List<String> _descriptions = [];
@@ -92,8 +93,12 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   _wrap(List<String> descriptions, Function() body) {
     _currentDescriptions = descriptions;
     var result;
+    var error;
     try {
       result = body();
+    } catch (e) {
+      error = e;
+      rethrow;
     } finally {
       if (result is Future) {
         return result.whenComplete(() {
@@ -102,7 +107,11 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       } else {
         _currentDescriptions = null;
         // do not return anything here
-        // or it will not make the test failed return result;
+        // or it will not make the test failed
+        // print(error);
+        if (error == null) {
+          return result;
+        }
       }
     }
   }
