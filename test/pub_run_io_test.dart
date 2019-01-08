@@ -6,18 +6,27 @@ import 'package:tekartik_pub/io.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:fs_shim/fs_io.dart';
 
-checkCaseTest(String name, int count, {String testNameFilter}) async {
+checkCaseTest(String name, int count,
+    {String testNameFilter, int expectedExitCode = 0}) async {
   PubPackage pkg = PubPackage('.');
-  ProcessResult runResult = await runCmd(pkg.pubCmd(pubRunTestArgs(
-      args: ['test/case/${name}'],
-      platforms: ["vm"],
+  var cmd = pkg.pubCmd(pubRunTestArgs(
+      args: [
+        'test/case/${name}', /*'--pub-serve=0', '--pause-after-load'*/
+      ],
+      platforms: [
+        "vm"
+      ],
       //reporter: pubRunTestReporterJson,
       reporter: RunTestReporter.JSON,
       concurrency: 1,
       color: false,
-      name: testNameFilter)));
+      name: testNameFilter));
 
-  expect(runResult.exitCode, 0);
+  // needed to prevent debugging
+  cmd.runInShell = true;
+  ProcessResult runResult = await runCmd(cmd);
+
+  expect(runResult.exitCode, expectedExitCode);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
   expect(pubRunTestJsonSuccessCount(runResult.stdout as String), count,
@@ -42,6 +51,19 @@ void main() {
       await checkCaseTest('various_case_test.dart', 3, testNameFilter: 'test');
       await checkCaseTest('various_regular_case_test.dart', 4,
           testNameFilter: 'test');
+    }, timeout: longTimeout);
+    /*
+    test('failure', () async {
+      var newFile = File('test/case/simple_failure_test.dart');
+      try {
+        await newFile.delete();
+      } catch (_) {}
+      await File('test/case/simple_failure_test_.dart').copy(newFile.path);
+      await checkCaseTest('simple_failure_test.dart', 0, expectedExitCode: 1);
+    }, timeout: longTimeout);
+    */
+    test('failure', () async {
+      await checkCaseTest('simple_failure_test_.dart', 0, expectedExitCode: 1);
     }, timeout: longTimeout);
   });
 }

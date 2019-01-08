@@ -101,7 +101,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
         });
       } else {
         _currentDescriptions = null;
-        return result;
+        // do not return anything here
+        // or it will not make the test failed return result;
       }
     }
   }
