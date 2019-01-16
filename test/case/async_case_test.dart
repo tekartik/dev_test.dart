@@ -1,9 +1,10 @@
-import 'package:dev_test/test.dart';
 import 'dart:async';
 
-main() {
+import 'package:dev_test/test.dart';
+
+void main() {
   // check the description after a 1ms delay
-  _checkDelayedDescription() async {
+  Future _checkDelayedDescription() async {
     var descriptions = testDescriptions;
     await Future.delayed(Duration(milliseconds: 1));
     expect(testDescriptions, descriptions);

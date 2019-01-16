@@ -1,12 +1,14 @@
 @TestOn("vm")
 library tekartik_dev_test.pub_run_test_browser_test;
 
-import 'package:dev_test/test.dart';
-import 'package:tekartik_pub/io.dart';
-import 'package:process_run/cmd_run.dart';
-import 'package:fs_shim/fs_io.dart';
+import 'dart:async';
 
-checkCaseTest(String name, int count, {String testNameFilter}) async {
+import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs_io.dart';
+import 'package:process_run/cmd_run.dart';
+import 'package:tekartik_pub/io.dart';
+
+Future checkCaseTest(String name, int count, {String testNameFilter}) async {
   PubPackage pkg = PubPackage('.');
   ProcessResult runResult = await runCmd(pkg.pubCmd([
     'run',
@@ -17,7 +19,7 @@ checkCaseTest(String name, int count, {String testNameFilter}) async {
       args: ['test/case/${name}'],
       platforms: ["chrome"],
       //reporter: pubRunTestReporterJson,
-      reporter: RunTestReporter.JSON,
+      reporter: RunTestReporter.json,
       concurrency: 1,
       color: false,
       name: testNameFilter)))));

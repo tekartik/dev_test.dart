@@ -21,6 +21,7 @@ class DartTest implements Test {
   }
 
 // overriding  [_test.group]
+  @override
   void group(String description, void body(),
       {String testOn,
       Timeout timeout,
@@ -37,21 +38,25 @@ class DartTest implements Test {
   }
 
 // overriding  [_test.setUp]
+  @override
   void setUp(callback()) {
     _impl.setUp(callback);
   }
 
 // overriding  [_test.tearDown]
+  @override
   void tearDown(callback()) {
     _impl.tearDown(callback);
   }
 
 // overriding  [_test.setUp]
+  @override
   void setUpAll(callback()) {
     _impl.setUpAll(callback);
   }
 
 // overriding  [_test.tearDown]
+  @override
   void tearDownAll(callback()) {
     _impl.tearDownAll(callback);
   }

@@ -1,7 +1,7 @@
 @Skip("Currently hanging with test 0.12.5")
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   bool setUpAll1Called = false;
   bool setUpAll2Called = false;
   bool tearDownAll1Called = false;

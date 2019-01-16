@@ -1,8 +1,8 @@
-import 'package:dev_test/test.dart';
-
 import 'dart:async';
 
-main() async {
+import 'package:dev_test/test.dart';
+
+void main() async {
   test('test1', () {
     expect(true, isTrue);
   });

@@ -3,7 +3,7 @@ library tekartik_dev_test.test.one_group_case_test;
 // Use src to avoid warning
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   group('group', () {
     test('test', () {
       expect(true, isTrue);

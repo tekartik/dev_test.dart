@@ -1,6 +1,8 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 
-main() async {
+Future main() async {
   test('regular_test', () {
     expect(true, isTrue);
   });

@@ -1,5 +1,9 @@
 library dev_test;
 
+export 'package:matcher/matcher.dart';
+export 'package:test/test.dart'
+    hide expect, test, group, setUp, tearDown, setUpAll, tearDownAll;
+
 export 'src/dev_test.dart'
     show
         // redefined
@@ -20,6 +24,3 @@ export 'src/dev_test.dart'
         skip_test,
         // ignore: deprecated_member_use
         skip_group;
-export 'package:matcher/matcher.dart';
-export 'package:test/test.dart'
-    hide expect, test, group, setUp, tearDown, setUpAll, tearDownAll;

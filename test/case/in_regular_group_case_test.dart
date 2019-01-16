@@ -1,7 +1,7 @@
 import 'package:dev_test/test.dart';
 import 'package:test/test.dart' as _test;
 
-main() {
+void main() {
   _test.group('regular_group', () {
     test('dev_test1', () {
       expect(true, isTrue);

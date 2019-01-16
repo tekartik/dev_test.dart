@@ -1,6 +1,6 @@
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   bool setUpCalled = false;
   setUp(() {
     expect(setUpCalled, isFalse);

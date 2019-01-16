@@ -1,7 +1,7 @@
 // Use src to avoid warning
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   // ignore: deprecated_member_use
   solo_group('solo_group', () {
     test('test', () {

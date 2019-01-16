@@ -1,7 +1,7 @@
 // Use src to avoid warning
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   group('first_group', () {
     test('test', () {
       fail("test in regular group should be skipped");

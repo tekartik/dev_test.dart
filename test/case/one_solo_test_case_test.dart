@@ -1,7 +1,7 @@
 // Use src to avoid warning
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   test('test', () {
     fail("regular test should be skipped");
   });

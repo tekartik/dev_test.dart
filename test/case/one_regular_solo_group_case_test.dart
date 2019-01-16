@@ -1,7 +1,7 @@
 // Use src to avoid warning
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   group('solo_group', () {
     test('test', () {
       expect(true, isTrue);

@@ -1,6 +1,6 @@
 import 'package:dev_test/test.dart';
 
-main() {
+void main() {
   bool setUp1Called = false;
   bool setUp2Called = false;
   bool tearDown1Called = false;

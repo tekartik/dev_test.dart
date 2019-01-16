@@ -106,12 +106,14 @@ void expect(actual, matcher, {String reason, skip}) {
 /// mark as deprecated so that you don't checkin such code
 ///
 @deprecated
-void solo_test(String description, body(),
-    {String testOn,
-    Timeout timeout,
-    skip,
-    @deprecated bool solo = false,
-    Map<String, dynamic> onPlatform}) {
+void
+// ignore: non_constant_identifier_names
+    solo_test(String description, body(),
+        {String testOn,
+        Timeout timeout,
+        skip,
+        @deprecated bool solo = false,
+        Map<String, dynamic> onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -126,12 +128,14 @@ void solo_test(String description, body(),
 /// mark as deprecated so that you don't checkin such code
 ///
 @deprecated
-void solo_group(String description, void body(),
-    {String testOn,
-    Timeout timeout,
-    skip,
-    @deprecated bool solo = false,
-    Map<String, dynamic> onPlatform}) {
+void
+// ignore: non_constant_identifier_names
+    solo_group(String description, void body(),
+        {String testOn,
+        Timeout timeout,
+        skip,
+        @deprecated bool solo = false,
+        Map<String, dynamic> onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -146,12 +150,14 @@ void solo_group(String description, void body(),
 /// to permanently skip a test use the skip paremeter
 ///
 @deprecated
-void skip_test(String description, body(),
-    {String testOn,
-    Timeout timeout,
-    skip,
-    @deprecated bool solo = false,
-    Map<String, dynamic> onPlatform}) {
+void
+// ignore: non_constant_identifier_names
+    skip_test(String description, body(),
+        {String testOn,
+        Timeout timeout,
+        skip,
+        @deprecated bool solo = false,
+        Map<String, dynamic> onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -167,12 +173,14 @@ void skip_test(String description, body(),
 /// to permanently skip a group use the skip paremeter
 ///
 @deprecated
-void skip_group(String description, void body(),
-    {String testOn,
-    Timeout timeout,
-    skip,
-    @deprecated bool solo = false,
-    Map<String, dynamic> onPlatform}) {
+void
+// ignore: non_constant_identifier_names
+    skip_group(String description, void body(),
+        {String testOn,
+        Timeout timeout,
+        skip,
+        @deprecated bool solo = false,
+        Map<String, dynamic> onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,

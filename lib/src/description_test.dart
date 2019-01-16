@@ -13,7 +13,9 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
   List<String> _currentDescriptions; // set when the test is ran
   final List<String> _descriptions = [];
+
   WithDescriptionsTest(this._impl);
+
   @override
   void test(String description, body(),
       {String testOn,
@@ -34,6 +36,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
 // overriding  [_test.group]
+  @override
   void group(String description, void body(),
       {String testOn,
       Timeout timeout,
@@ -54,6 +57,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
 // overriding  [_test.setUp]
+  @override
   void setUp(body()) {
     List<String> descriptions = List.from(_descriptions);
     _impl.setUp(() {
@@ -62,6 +66,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
 // overriding  [_test.tearDown]
+  @override
   void tearDown(body()) {
     List<String> descriptions = List.from(_descriptions);
     _impl.tearDown(() {
@@ -70,6 +75,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
 // overriding  [_test.setUp]
+  @override
   void setUpAll(body()) {
     List<String> descriptions = List.from(_descriptions);
     _impl.setUpAll(() {
@@ -78,6 +84,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
 // overriding  [_test.tearDown]
+  @override
   void tearDownAll(body()) {
     List<String> descriptions = List.from(_descriptions);
     _impl.tearDownAll(() {
@@ -90,7 +97,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
     _impl.expect(actual, matcher, reason: reason, skip: skip);
   }
 
-  _wrap(List<String> descriptions, Function() body) {
+  dynamic _wrap(List<String> descriptions, Function() body) {
     _currentDescriptions = descriptions;
     var result;
     var error;
@@ -101,18 +108,15 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       rethrow;
     } finally {
       if (result is Future) {
-        return result.whenComplete(() {
+        result = result.whenComplete(() {
           _currentDescriptions = null;
         });
       } else {
         _currentDescriptions = null;
-        // do not return anything here
-        // or it will not make the test failed
-        // print(error);
-        if (error == null) {
-          return result;
-        }
       }
+    }
+    if (error == null) {
+      return result;
     }
   }
 }

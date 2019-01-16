@@ -1,28 +1,31 @@
 @TestOn("vm")
 library tekartik_dev_test.descriptions_test;
 
-import 'package:dev_test/test.dart';
-import 'package:tekartik_pub/io.dart';
-import 'package:process_run/cmd_run.dart';
-import 'package:fs_shim/fs_io.dart';
+import 'dart:async';
 
-checkCaseTest(String name, int count,
+import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs_io.dart';
+import 'package:process_run/cmd_run.dart';
+import 'package:tekartik_pub/io.dart';
+
+Future checkCaseTest(String name, int count,
     {String testNameFilter, int expectedExitCode = 0}) async {
   PubPackage pkg = PubPackage('.');
   var cmd = pkg.pubCmd(pubRunTestArgs(
       args: [
-        'test/case/${name}', /*'--pub-serve=0', '--pause-after-load'*/
+        'test/case/${name}',
+        /*'--pub-serve=1234', '--no-retry', '--pub-serve=0', '--pause-after-load'*/
       ],
       platforms: [
         "vm"
       ],
       //reporter: pubRunTestReporterJson,
-      reporter: RunTestReporter.JSON,
+      reporter: RunTestReporter.json,
       concurrency: 1,
       color: false,
       name: testNameFilter));
 
-  // needed to prevent debugging
+  // needed to prevent debugging on Windows
   cmd.runInShell = true;
   ProcessResult runResult = await runCmd(cmd);
 
@@ -34,6 +37,7 @@ checkCaseTest(String name, int count,
 }
 
 var longTimeout = Timeout(Duration(minutes: 4));
+
 void main() {
   group('pub_run_io_test', () {
     test('cases', () async {
