@@ -2,7 +2,7 @@
 import 'package:dev_test/test.dart';
 
 void main() {
-  // ignore: deprecated_member_use
+  // ignore: deprecated_member_use, deprecated_member_use_from_same_package
   solo_group('solo_group', () {
     test('test', () {
       expect(true, isTrue);

@@ -8,7 +8,7 @@ void main() {
     });
   },
       skip: false,
-      // ignore: deprecated_member_use
+      // ignore: deprecated_member_use, deprecated_member_use_from_same_package
       solo: true);
   group('group', () {
     test('test', () {
