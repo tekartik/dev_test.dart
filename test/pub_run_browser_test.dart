@@ -8,10 +8,12 @@ import 'package:fs_shim/fs_io.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:tekartik_pub/io.dart';
 
+import 'test_utils.dart';
+
 Future checkCaseTest(String name, int count, {String testNameFilter}) async {
   PubPackage pkg = PubPackage('.');
   ProcessResult runResult = await runCmd(pkg.pubCmd(pubRunTestArgs(
-      args: ['test/case/${name}'],
+      args: [caseNamePath(name)],
       platforms: ["chrome"],
       //reporter: pubRunTestReporterJson,
       reporter: RunTestReporter.json,

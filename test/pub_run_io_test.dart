@@ -8,12 +8,14 @@ import 'package:fs_shim/fs_io.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:tekartik_pub/io.dart';
 
+import 'test_utils.dart';
+
 Future checkCaseTest(String name, int count,
     {String testNameFilter, int expectedExitCode = 0}) async {
   PubPackage pkg = PubPackage('.');
   var cmd = pkg.pubCmd(pubRunTestArgs(
       args: [
-        'test/case/${name}',
+        caseNamePath(name),
         /*'--pub-serve=1234', '--no-retry', '--pub-serve=0', '--pause-after-load'*/
       ],
       platforms: [
