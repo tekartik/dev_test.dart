@@ -1,5 +1,3 @@
-library dev_test;
-
 export 'package:matcher/matcher.dart';
 export 'package:test/test.dart'
     hide expect, test, group, setUp, tearDown, setUpAll, tearDownAll;

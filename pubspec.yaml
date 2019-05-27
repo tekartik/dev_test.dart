@@ -15,6 +15,7 @@ dependencies:
 
 dev_dependencies:
   fs_shim: '>=0.9.0-dev.1'
+  path:
   process_run: '>=0.10.1'
   tekartik_pub:
     git:
