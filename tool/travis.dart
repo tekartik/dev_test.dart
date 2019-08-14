@@ -3,13 +3,14 @@ import 'package:process_run/shell.dart';
 Future main() async {
   var shell = Shell();
 
-  await shell.run('''
-# Analyze code
-dartanalyzer --fatal-warnings --fatal-infos .
+  for (var dir in ['dev_test']) {
+    shell = shell.pushd(dir);
+    await shell.run('''
 
-# Run tests
-pub run test -p vm -j 1
-pub run test -p chrome -j 1 test/multiplatform
-pub run build_runner test -- -p chrome -j 1 test/multiplatform
-''');
+pub get
+dart tool/travis.dart
+
+    ''');
+    shell = shell.popd();
+  }
 }
