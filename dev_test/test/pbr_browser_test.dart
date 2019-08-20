@@ -34,14 +34,16 @@ Future checkCaseTest(String name, int count, {String testNameFilter}) async {
       reason: "$name $testNameFilter");
 }
 
-var longTimeout = Timeout(Duration(minutes: 4));
+var longTimeout = Timeout(Duration(minutes: 10));
 
 void main() {
   group('pub_run_browser_test', () {
     test('cases', () async {
       await checkCaseTest('one_solo_test_case_test.dart', 1); // report included
+
       await checkCaseTest(
           'one_skipped_test_case_test.dart', 2); // report included
+
       await checkCaseTest(
           'one_solo_test_in_group_case_test.dart', 1); // report included
     }, timeout: longTimeout);

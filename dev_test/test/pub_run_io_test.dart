@@ -27,7 +27,7 @@ Future checkCaseTest(String name, int count,
     caseNamePath(name)
   ]);
   ProcessResult runResult = await runCmd(cmd);
-  print('exitCode: ${runResult.exitCode}');
+  // print('exitCode: ${runResult.exitCode}');
   expect(runResult.exitCode, expectedExitCode);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'

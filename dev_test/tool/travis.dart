@@ -8,7 +8,7 @@ Future main() async {
 dartanalyzer --fatal-warnings --fatal-infos .
 
 # Run tests
-pub run test -p vm -j 1
+pub run test -p vm -j 1 -r expanded -r expanded
 pub run test -p chrome -j 1 test/multiplatform
 pub run build_runner test -- -p chrome -j 1 test/multiplatform
 ''');

@@ -9,12 +9,8 @@ void main() {
   group('sample', () {
     List<String> testDescriptionsInGroup = testDescriptions;
 
-    print(testDescriptionsInGroup);
     setUp(() {
-      print(testDescriptions);
-      print(testDescriptionsInGroup);
       expect(testDescriptions, ['sample']);
-      print(1);
       expect(testDescriptionsInGroup, testDescriptions);
     });
     test('one', () async {
