@@ -40,15 +40,15 @@ void main() {
           'one_skipped_test_case_test.dart', 2); // report included
       await checkCaseTest(
           'one_solo_test_in_group_case_test.dart', 1); // report included
-    }, timeout: Timeout(Duration(minutes: 2)));
+    }, timeout: const Timeout(Duration(minutes: 2)));
     test('various', () async {
       await checkCaseTest('various_case_test.dart', 4);
       await checkCaseTest('various_regular_case_test.dart', 5);
-    }, timeout: Timeout(Duration(minutes: 2)));
+    }, timeout: const Timeout(Duration(minutes: 2)));
     test('filter', () async {
       await checkCaseTest('various_case_test.dart', 3, testNameFilter: 'test');
       await checkCaseTest('various_regular_case_test.dart', 4,
           testNameFilter: 'test');
-    }, timeout: Timeout(Duration(minutes: 2)));
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 }

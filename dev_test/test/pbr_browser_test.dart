@@ -34,7 +34,7 @@ Future checkCaseTest(String name, int count, {String testNameFilter}) async {
       reason: "$name $testNameFilter");
 }
 
-var longTimeout = Timeout(Duration(minutes: 10));
+var longTimeout = const Timeout(Duration(minutes: 10));
 
 void main() {
   group('pub_run_browser_test', () {
