@@ -20,6 +20,3 @@ pubspec.lock
 
 # dartdoc
 doc/api/
-
-# local only
-local.*

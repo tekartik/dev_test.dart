@@ -7,10 +7,10 @@ void main() async {
     expect(true, isTrue);
   });
 
-  await Future.delayed(Duration());
+  await Future.delayed(const Duration());
 
   // this should fail running dart directly
-  test('test2', () {
+  setUpAll(() {
     fail("should not execute");
   });
 }

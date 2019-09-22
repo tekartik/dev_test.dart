@@ -1,32 +1,18 @@
-name: dev_test
-version: 0.13.1+1
+name: dev_test_repo
+version: 0.1.0
 author: Tekartik <alex@tekartik.com>
 homepage: https://github.com/tekartik/dev_test.dart
-description: Brings (back) the solo and skip features on top of the test package
+description: dev_test Repo
+publish_to: none
 
 environment:
-  sdk: '>=2.1.0-dev <3.0.0'
-
-dependencies:
-  test: '>=1.3.0 <3.0.0'
-  matcher: '>=0.12.3+1 <2.0.0'
-  collection: '>=1.14.10 <3.0.0'
-  stack_trace: '>=1.9.2 <3.0.0'
+  sdk: '>=2.4.0-dev <3.0.0'
 
 dev_dependencies:
-  fs_shim: '>=0.9.0-dev.1'
-  path:
-  process_run: '>=0.10.1'
-  tekartik_pub:
-    git:
-      url: git://github.com/tekartik/pub.dart
-      ref: dart2
-    version: '>=0.8.2'
+  pedantic: '>=1.4.0 <3.0.0'
+  process_run: '>=0.10.0+1'
   chrome_travis:
     git:
       url: git://github.com/tekartik/chrome_travis.dart
       ref: dart2
     version: '>=0.1.4'
-  build_runner: '>=0.9.0'
-  build_test: '>=0.10.2'
-  build_web_compilers: '>=0.4.0'

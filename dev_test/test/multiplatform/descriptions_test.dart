@@ -9,12 +9,8 @@ void main() {
   group('sample', () {
     List<String> testDescriptionsInGroup = testDescriptions;
 
-    print(testDescriptionsInGroup);
     setUp(() {
-      print(testDescriptions);
-      print(testDescriptionsInGroup);
       expect(testDescriptions, ['sample']);
-      print(1);
       expect(testDescriptionsInGroup, testDescriptions);
     });
     test('one', () async {
@@ -41,7 +37,7 @@ void main() {
     for (int i = 0; i < 100; i++) {
       test('test$i', () async {
         expect(testDescriptions, ['multi', 'test$i']);
-        await Future.delayed(Duration(milliseconds: 5));
+        await Future.delayed(const Duration(milliseconds: 5));
         expect(testDescriptions, ['multi', 'test$i']);
       });
     }
