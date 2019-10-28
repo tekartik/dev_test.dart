@@ -43,7 +43,7 @@ void main() {
     test('cases', () async {
       await checkCaseTest('one_solo_test_case_test.dart', 1); // report included
       await checkCaseTest(
-          'one_skipped_test_case_test.dart', 2); // report included
+          'one_skipped_test_case_test.dart', 1); // report included
       await checkCaseTest(
           'one_solo_test_in_group_case_test.dart', 1); // report included
     }, timeout: longTimeout);

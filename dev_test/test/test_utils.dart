@@ -37,8 +37,11 @@ int pubRunTestJsonSuccessCount(String stdout) {
         if (map['testID'] != null) {
           //print('1 $map');
           if ((map['result'] == 'success') && (map['hidden'] != true)) {
-            //print('2 $map');
-            count++;
+            // Handle skipped
+            // {"testID":3,"result":"success","skipped":true,"hidden":false,"type":"testDone","time":789}
+            if (map['skipped'] != true) {
+              count++;
+            }
           }
         }
       }
