@@ -28,6 +28,8 @@ Future checkCaseTest(String name, int count,
   ]);
   ProcessResult runResult = await runCmd(cmd);
   // print('exitCode: ${runResult.exitCode}');
+  // devPrint(cmd);
+  // devPrint('stdout: ${runResult.stdout}');
   expect(runResult.exitCode, expectedExitCode);
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
@@ -42,7 +44,7 @@ void main() {
     test('cases', () async {
       await checkCaseTest('one_solo_test_case_test.dart', 1); // report included
       await checkCaseTest(
-          'one_skipped_test_case_test.dart', 2); // report included
+          'one_skipped_test_case_test.dart', 1); // report included
       await checkCaseTest(
           'one_solo_test_in_group_case_test.dart', 1); // report included
     }, timeout: longTimeout);

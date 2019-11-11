@@ -6,4 +6,8 @@ dart:
 sudo: required
 before_script:
   - source $(pub run chrome_travis:env_rc)
-script: dart ./tool/travis.dart
+script:
+  - dart ./tool/travis.dart
+matrix:
+  allow_failures:
+    - dart: dev
