@@ -3,8 +3,8 @@ import 'package:dev_test/test.dart';
 
 void main() {
   //bool setUpCalled = false;
-  bool setUpAllCalled = false;
-  bool tearDownAllCalled = false;
+  var setUpAllCalled = false;
+  var tearDownAllCalled = false;
 
   setUpAll(() {
     setUpAllCalled = true;

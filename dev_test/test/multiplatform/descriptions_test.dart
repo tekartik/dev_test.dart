@@ -7,7 +7,7 @@ import 'package:dev_test/test.dart';
 void main() {
   // test descriptions
   group('sample', () {
-    List<String> testDescriptionsInGroup = testDescriptions;
+    final testDescriptionsInGroup = testDescriptions;
 
     setUp(() {
       expect(testDescriptions, ['sample']);
@@ -18,7 +18,7 @@ void main() {
     });
 
     group('sub', () {
-      List<String> testDescriptionsInSub = testDescriptions;
+      final testDescriptionsInSub = testDescriptions;
       setUp(() {
         expect(testDescriptions, ['sample', 'sub']);
         expect(testDescriptionsInSub, testDescriptions);
@@ -34,7 +34,7 @@ void main() {
   });
   // test that concurrent test won't affect the testDescriptions
   group('multi', () {
-    for (int i = 0; i < 100; i++) {
+    for (var i = 0; i < 100; i++) {
       test('test$i', () async {
         expect(testDescriptions, ['multi', 'test$i']);
         await Future.delayed(const Duration(milliseconds: 5));

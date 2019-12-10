@@ -5,7 +5,7 @@ import 'package:test/test.dart' show Timeout;
 
 class DartTest implements Test {
   @override
-  void test(String description, body(),
+  void test(String description, dynamic Function() body,
       {String testOn,
       Timeout timeout,
       skip,
@@ -22,7 +22,7 @@ class DartTest implements Test {
 
 // overriding  [_test.group]
   @override
-  void group(String description, void body(),
+  void group(String description, void Function() body,
       {String testOn,
       Timeout timeout,
       skip,
@@ -39,25 +39,25 @@ class DartTest implements Test {
 
 // overriding  [_test.setUp]
   @override
-  void setUp(callback()) {
+  void setUp(Function() callback) {
     _impl.setUp(callback);
   }
 
 // overriding  [_test.tearDown]
   @override
-  void tearDown(callback()) {
+  void tearDown(Function() callback) {
     _impl.tearDown(callback);
   }
 
 // overriding  [_test.setUp]
   @override
-  void setUpAll(callback()) {
+  void setUpAll(Function() callback) {
     _impl.setUpAll(callback);
   }
 
 // overriding  [_test.tearDown]
   @override
-  void tearDownAll(callback()) {
+  void tearDownAll(Function() callback) {
     _impl.tearDownAll(callback);
   }
 

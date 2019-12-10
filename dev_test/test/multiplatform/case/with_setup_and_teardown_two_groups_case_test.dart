@@ -2,7 +2,7 @@ import 'package:dev_test/test.dart';
 
 void main() {
   group('group1', () {
-    bool setUpCalled = false;
+    var setUpCalled = false;
     setUp(() {
       expect(setUpCalled, isFalse);
       setUpCalled = true;
@@ -23,7 +23,7 @@ void main() {
     });
   });
   group('group2', () {
-    bool setUpCalled = false;
+    var setUpCalled = false;
     setUp(() {
       expect(setUpCalled, isFalse);
       setUpCalled = true;

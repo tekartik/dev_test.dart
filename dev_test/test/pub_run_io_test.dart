@@ -1,10 +1,9 @@
-@TestOn("vm")
+@TestOn('vm')
 library tekartik_dev_test.descriptions_test;
 
 import 'dart:async';
 
 import 'package:dev_test/test.dart';
-import 'package:fs_shim/fs_io.dart';
 import 'package:process_run/cmd_run.dart';
 
 import 'test_utils.dart';
@@ -26,7 +25,7 @@ Future checkCaseTest(String name, int count,
     if (testNameFilter != null) ...['-n', testNameFilter],
     caseNamePath(name)
   ]);
-  ProcessResult runResult = await runCmd(cmd);
+  final runResult = await runCmd(cmd);
   // print('exitCode: ${runResult.exitCode}');
   // devPrint(cmd);
   // devPrint('stdout: ${runResult.stdout}');
@@ -34,7 +33,7 @@ Future checkCaseTest(String name, int count,
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
   expect(pubRunTestJsonSuccessCount(runResult.stdout as String), count,
-      reason: "$name $testNameFilter");
+      reason: '$name $testNameFilter');
 }
 
 var longTimeout = const Timeout(Duration(minutes: 4));

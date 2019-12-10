@@ -11,6 +11,6 @@ void main() async {
 
   // this should fail running dart directly
   group('group2', () {
-    fail("should not execute");
+    fail('should not execute');
   });
 }

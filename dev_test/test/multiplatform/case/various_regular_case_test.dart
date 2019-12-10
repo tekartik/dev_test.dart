@@ -29,7 +29,7 @@ Future main() async {
           expect(true, isTrue);
         });
       });
-      fail("should fail before");
+      fail('should fail before');
     } on StateError catch (_) {
       // Bad state: Can't call group() once tests have begun running.
       // ignore error of calling group from within a test
@@ -39,7 +39,7 @@ Future main() async {
         // only called when using pub run test
         expect(true, isTrue);
       });
-      fail("should fail before");
+      fail('should fail before');
     } on StateError catch (_) {
       // Bad state: Can't call test() once tests have begun running.
       // ignore error of calling group from within a test
