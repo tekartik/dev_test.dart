@@ -1,7 +1,7 @@
 language: dart
 dart:
-  - 2.4.0
   - stable
+  - 2.6.1
   - dev
 sudo: required
 before_script:
