@@ -1,8 +1,8 @@
 import 'package:dev_test/test.dart';
 
 void main() {
-  bool setUpAllCalled = false;
-  bool tearDownAllCalled = false;
+  var setUpAllCalled = false;
+  var tearDownAllCalled = false;
 
   setUpAll(() {
     expect(setUpAllCalled, isFalse);

@@ -1,11 +1,11 @@
-@Skip("Currently hanging with test 0.12.5")
+@Skip('Currently hanging with test 0.12.5')
 import 'package:dev_test/test.dart';
 
 void main() {
-  bool setUpAll1Called = false;
-  bool setUpAll2Called = false;
-  bool tearDownAll1Called = false;
-  bool tearDownAll2Called = false;
+  var setUpAll1Called = false;
+  var setUpAll2Called = false;
+  var tearDownAll1Called = false;
+  var tearDownAll2Called = false;
 
   setUpAll(() {
     expect(setUpAll1Called, isFalse);

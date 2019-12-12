@@ -1,17 +1,16 @@
-@TestOn("vm")
+@TestOn('vm')
 library tekartik_dev_test.pub_run_test_browser_test;
 
 import 'dart:async';
 
 import 'package:dev_test/test.dart';
-import 'package:fs_shim/fs_io.dart';
 import 'package:process_run/cmd_run.dart';
 
 import 'test_utils.dart';
 
 Future checkCaseTest(String name, int count, {String testNameFilter}) async {
   // $ pub run build_runner test -- -r json -j 1 --no-color -p chrome test/multiplatform/case/one_solo_test_case_test.dart
-  ProcessResult runResult = await runCmd(ProcessCmd('pub', [
+  final runResult = await runCmd(ProcessCmd('pub', [
     'run',
     'build_runner',
     'test',
@@ -31,7 +30,7 @@ Future checkCaseTest(String name, int count, {String testNameFilter}) async {
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
   expect(pubRunTestJsonSuccessCount(runResult.stdout as String), count,
-      reason: "$name $testNameFilter");
+      reason: '$name $testNameFilter');
 }
 
 var longTimeout = const Timeout(Duration(minutes: 10));

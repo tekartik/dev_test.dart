@@ -9,7 +9,7 @@ String caseNamePath(String name) {
 /// result must be run with reporter:json
 bool pubRunTestJsonIsSuccess(String stdout) {
   try {
-    Map map = json.decode(LineSplitter.split(stdout).last) as Map;
+    var map = json.decode(LineSplitter.split(stdout).last) as Map;
     return map['success'] as bool;
   } catch (_) {
     return false;
@@ -19,8 +19,8 @@ bool pubRunTestJsonIsSuccess(String stdout) {
 int pubRunTestJsonSuccessCount(String stdout) {
   //int _warn;
   //print('# ${processResultToDebugString(result)}');
-  int count = 0;
-  for (String line in LineSplitter.split(stdout)) {
+  var count = 0;
+  for (var line in LineSplitter.split(stdout)) {
     try {
       var map = json.decode(line);
       //print(map);
@@ -62,8 +62,8 @@ int pubRunTestJsonSuccessCount(String stdout) {
 {"success":false,"type":"done","time":348}
  */
 int pubRunTestJsonFailureCount(String stdout) {
-  int count = 0;
-  for (String line in LineSplitter.split(stdout)) {
+  var count = 0;
+  for (var line in LineSplitter.split(stdout)) {
     try {
       var map = json.decode(line);
       //print(map);

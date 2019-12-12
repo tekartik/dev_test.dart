@@ -1,10 +1,10 @@
 import 'package:dev_test/test.dart';
 
 void main() {
-  bool setUp1Called = false;
-  bool setUp2Called = false;
-  bool tearDown1Called = false;
-  bool tearDown2Called = false;
+  var setUp1Called = false;
+  var setUp2Called = false;
+  var tearDown1Called = false;
+  var tearDown2Called = false;
 
   setUp(() {
     expect(setUp1Called, isFalse);

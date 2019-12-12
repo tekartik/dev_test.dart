@@ -10,7 +10,7 @@ void main() {
   });
   group('group', () {
     test('test', () {
-      fail("regular test should be skipped");
+      fail('regular test should be skipped');
     });
   });
 }

@@ -3,7 +3,7 @@ import 'package:dev_test/test.dart';
 
 void main() {
   test('test', () {
-    fail("regular test should be skipped");
+    fail('regular test should be skipped');
   });
   test('solo_test', () {
     expect(true, isTrue);

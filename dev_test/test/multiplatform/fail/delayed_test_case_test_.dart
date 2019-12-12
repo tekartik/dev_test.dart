@@ -11,6 +11,6 @@ void main() async {
 
   // this should fail running dart directly
   test('test2', () {
-    fail("should not execute");
+    fail('should not execute');
   });
 }

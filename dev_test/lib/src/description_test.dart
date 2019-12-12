@@ -17,13 +17,13 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   WithDescriptionsTest(this._impl);
 
   @override
-  void test(String description, body(),
+  void test(String description, Function() body,
       {String testOn,
       Timeout timeout,
       skip,
       @deprecated bool solo = false,
       Map<String, dynamic> onPlatform}) {
-    List<String> descriptions = List.from(_descriptions)..add(description);
+    var descriptions = List<String>.from(_descriptions)..add(description);
     _impl.test(description, () {
       return _wrap(descriptions, body);
     },
@@ -37,7 +37,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.group]
   @override
-  void group(String description, void body(),
+  void group(String description, void Function() body,
       {String testOn,
       Timeout timeout,
       skip,
@@ -58,8 +58,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.setUp]
   @override
-  void setUp(body()) {
-    List<String> descriptions = List.from(_descriptions);
+  void setUp(Function() body) {
+    final descriptions = List<String>.from(_descriptions);
     _impl.setUp(() {
       return _wrap(descriptions, body);
     });
@@ -67,8 +67,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.tearDown]
   @override
-  void tearDown(body()) {
-    List<String> descriptions = List.from(_descriptions);
+  void tearDown(Function() body) {
+    final descriptions = List<String>.from(_descriptions);
     _impl.tearDown(() {
       return _wrap(descriptions, body);
     });
@@ -76,8 +76,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.setUp]
   @override
-  void setUpAll(body()) {
-    List<String> descriptions = List.from(_descriptions);
+  void setUpAll(Function() body) {
+    final descriptions = List<String>.from(_descriptions);
     _impl.setUpAll(() {
       return _wrap(descriptions, body);
     });
@@ -85,8 +85,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.tearDown]
   @override
-  void tearDownAll(body()) {
-    List<String> descriptions = List.from(_descriptions);
+  void tearDownAll(Function() body) {
+    final descriptions = List<String>.from(_descriptions);
     _impl.tearDownAll(() {
       return _wrap(descriptions, body);
     });

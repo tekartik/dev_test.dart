@@ -11,7 +11,7 @@ List<String> get testDescriptions =>
         : ['dev_test'];
 
 abstract class Test {
-  void test(String description, body(),
+  void test(String description, Function() body,
       {String testOn,
       Timeout timeout,
       skip,
@@ -19,7 +19,7 @@ abstract class Test {
       Map<String, dynamic> onPlatform});
 
 // overriding  [_test.group]
-  void group(String description, void body(),
+  void group(String description, void Function() body,
       {String testOn,
       Timeout timeout,
       skip,
@@ -27,16 +27,16 @@ abstract class Test {
       Map<String, dynamic> onPlatform});
 
 // overriding  [_test.setUp]
-  void setUp(callback());
+  void setUp(Function() callback);
 
 // overriding  [_test.tearDown]
-  void tearDown(callback());
+  void tearDown(Function() callback);
 
 // overriding  [_test.setUp]
-  void setUpAll(callback());
+  void setUpAll(Function() callback);
 
 // overriding  [_test.tearDown]
-  void tearDownAll(callback());
+  void tearDownAll(Function() callback);
 
   void expect(actual, matcher, {String reason, skip});
 }
@@ -45,7 +45,7 @@ abstract class WithTestDescriptions {
   List<String> get testDescriptions;
 }
 
-void test(String description, body(),
+void test(String description, Function() body,
     {String testOn,
     Timeout timeout,
     skip,
@@ -61,7 +61,7 @@ void test(String description, body(),
 }
 
 // overriding  [_test.group]
-void group(String description, void body(),
+void group(String description, void Function() body,
     {String testOn,
     Timeout timeout,
     skip,
@@ -76,22 +76,22 @@ void group(String description, void body(),
 }
 
 // overriding  [_test.setUp]
-void setUp(callback()) {
+void setUp(Function() callback) {
   testImplementation.setUp(callback);
 }
 
 // overriding  [_test.tearDown]
-void tearDown(callback()) {
+void tearDown(Function() callback) {
   testImplementation.tearDown(callback);
 }
 
 // overriding  [_test.setUp]
-void setUpAll(callback()) {
+void setUpAll(Function() callback) {
   testImplementation.setUpAll(callback);
 }
 
 // overriding  [_test.tearDown]
-void tearDownAll(callback()) {
+void tearDownAll(Function() callback) {
   testImplementation.tearDownAll(callback);
 }
 
@@ -108,7 +108,7 @@ void expect(actual, matcher, {String reason, skip}) {
 @deprecated
 void
 // ignore: non_constant_identifier_names
-    solo_test(String description, body(),
+    solo_test(String description, Function() body,
         {String testOn,
         Timeout timeout,
         skip,
@@ -130,7 +130,7 @@ void
 @deprecated
 void
 // ignore: non_constant_identifier_names
-    solo_group(String description, void body(),
+    solo_group(String description, void Function() body,
         {String testOn,
         Timeout timeout,
         skip,
@@ -152,7 +152,7 @@ void
 @deprecated
 void
 // ignore: non_constant_identifier_names
-    skip_test(String description, body(),
+    skip_test(String description, Function() body,
         {String testOn,
         Timeout timeout,
         skip,
@@ -175,7 +175,7 @@ void
 @deprecated
 void
 // ignore: non_constant_identifier_names
-    skip_group(String description, void body(),
+    skip_group(String description, void Function() body,
         {String testOn,
         Timeout timeout,
         skip,
