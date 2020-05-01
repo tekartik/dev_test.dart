@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
 import 'package_impl.dart';
@@ -14,7 +13,7 @@ final String _pubspecYaml = 'pubspec.yaml';
 Future<bool> isPubPackageRoot(String dirPath) async {
   var pubspecYamlPath = join(dirPath, _pubspecYaml);
   // ignore: avoid_slow_async_io
-  return FileSystemEntity.isFile(pubspecYamlPath);
+  return io.FileSystemEntity.isFile(pubspecYamlPath);
 }
 
 bool isPubPackageRootSync(String dirPath) {

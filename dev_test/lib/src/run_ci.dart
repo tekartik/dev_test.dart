@@ -72,7 +72,10 @@ Future ioPackageRunCi(String path) async {
   ''');
 
     var options = <String>['vm'];
-    if (pubspecYamlHasAnyDependencies(pubspecMap, ['build_web_compilers'])) {
+
+    var isWeb =
+        pubspecYamlHasAnyDependencies(pubspecMap, ['build_web_compilers']);
+    if (isWeb) {
       options.add('chrome');
     }
     await shell.run('''
@@ -80,11 +83,13 @@ Future ioPackageRunCi(String path) async {
     pub run test -p ${options.join(',')}
     ''');
 
-    if (pubspecYamlHasAnyDependencies(pubspecMap, ['build_runner'])) {
-      await shell.run('''
+    if (isWeb) {
+      if (pubspecYamlHasAnyDependencies(pubspecMap, ['build_runner'])) {
+        await shell.run('''
       # Build runner test
       pub run build_runner test -p chrome
       ''');
+      }
     }
   }
 }
