@@ -78,6 +78,7 @@ Future ioPackageRunCi(String path) async {
     if (isWeb) {
       options.add('chrome');
     }
+
     await shell.run('''
     # Test
     pub run test -p ${options.join(',')}
@@ -87,7 +88,7 @@ Future ioPackageRunCi(String path) async {
       if (pubspecYamlHasAnyDependencies(pubspecMap, ['build_runner'])) {
         await shell.run('''
       # Build runner test
-      pub run build_runner test -p chrome
+      pub run build_runner test -- -p chrome
       ''');
       }
     }
