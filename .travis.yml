@@ -1,10 +1,12 @@
 language: dart
 dart:
   - stable
-  - 2.6.1
+  - 2.8.4
+  - beta
   - dev
 sudo: required
 before_script:
+  - pub run chrome_travis:init
   - source $(pub run chrome_travis:env_rc)
 script:
   - dart ./tool/travis.dart
