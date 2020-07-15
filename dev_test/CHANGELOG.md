@@ -1,4 +1,4 @@
-## 0.13.2-dev.3
+## 0.13.2
 
 * Add `ioPackageRunCi` to run common dart flutter package test
 
