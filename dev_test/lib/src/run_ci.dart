@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dev_test/src/package_impl.dart';
 import 'package:dev_test/src/pub_io.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 Future main(List<String> arguments) async {
@@ -16,6 +17,9 @@ Future main(List<String> arguments) async {
   path ??= Directory.current.path;
   await ioPackageRunCi(path);
 }
+
+/// true if flutter is supported
+final isNodeSupported = whichSync('node') != null;
 
 /// Run basic tests on dart/flutter package
 ///
@@ -77,6 +81,12 @@ Future ioPackageRunCi(String path) async {
         pubspecYamlHasAnyDependencies(pubspecMap, ['build_web_compilers']);
     if (isWeb) {
       options.add('chrome');
+    }
+    // Add node for standard run test
+    var isNode =
+        pubspecYamlHasAnyDependencies(pubspecMap, ['build_node_compilers']);
+    if (isNode && isNodeSupported) {
+      options.add('node');
     }
 
     await shell.run('''

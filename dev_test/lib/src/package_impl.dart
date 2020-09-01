@@ -30,7 +30,7 @@ bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
   bool _hasDependencies(String kind, String dependency) {
     var dependencies = yaml[kind] as Map;
     if (dependencies != null) {
-      if (dependencies[dependency] != null) {
+      if (dependencies.containsKey(dependency)) {
         return true;
       }
     }
