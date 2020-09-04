@@ -1,3 +1,4 @@
+@TestOn('vm')
 import 'package:dev_test/test.dart';
 import 'package:dev_test/src/mixin/package.dart';
 

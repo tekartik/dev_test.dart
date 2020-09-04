@@ -1,3 +1,4 @@
+@TestOn('vm')
 import 'package:dev_test/src/map_utils.dart';
 import 'package:dev_test/test.dart';
 

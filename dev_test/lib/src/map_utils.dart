@@ -1,5 +1,3 @@
-library tekartik_utils.map_utils;
-
 import 'list_utils.dart';
 
 /// content from mapSrc is merge into mapDst overriding it if needed
