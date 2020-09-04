@@ -20,3 +20,6 @@ pubspec.lock
 
 # dartdoc
 doc/api/
+
+# local file
+local_*

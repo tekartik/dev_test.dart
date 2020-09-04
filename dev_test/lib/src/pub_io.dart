@@ -3,7 +3,8 @@ import 'dart:io' as io;
 
 import 'package:path/path.dart';
 
-import 'package_impl.dart';
+import 'mixin/package.dart';
+import 'package/package.dart';
 
 final String _pubspecYaml = 'pubspec.yaml';
 
@@ -22,8 +23,8 @@ bool isPubPackageRootSync(String dirPath) {
 }
 
 Future<bool> isFlutterPackageRoot(String dirPath) async {
-  var map = await getPubspecYamlMap(dirPath);
-  return pubspecYamlIsFlutterPackageRoot(map);
+  var map = await pathGetPubspecYamlMap(dirPath);
+  return pubspecYamlSupportsFlutter(map);
 }
 
 /// throws if no project found
