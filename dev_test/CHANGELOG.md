@@ -1,6 +1,6 @@
-## 0.13.2
+## 0.13.3
 
-* Add `ioPackageRunCi` to run common dart flutter package test
+* Add `ioPackageRunCi` to run common dart/flutter package test, node test and nnbd tests.
 
 ## 0.13.1+1
 
