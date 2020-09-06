@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
+import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -23,6 +24,28 @@ Future main(List<String> arguments) async {
 /// true if flutter is supported
 final isNodeSupported = whichSync('node') != null;
 
+Future<List<String>> topLevelDir(String dir) async {
+  var list = <String>[];
+  await Directory(dir).list(recursive: false).listen((event) {
+    if (event is Directory) {
+      list.add(basename(event.path));
+    }
+  }).asFuture();
+  return list;
+}
+
+List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build'];
+
+List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
+      if (element.startsWith('.')) {
+        return false;
+      }
+      if (_forbiddenDirs.contains(element)) {
+        return false;
+      }
+      return true;
+    }).toList(growable: false);
+
 /// Run basic tests on dart/flutter package
 ///
 /// Dart:
@@ -36,6 +59,9 @@ Future ioPackageRunCi(String path) async {
   var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
 
   var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
+  var supportsNnbdExperiment =
+      analysisOptionsSupportsNnbdExperiment(analysisOptionsMap);
+
   if (!sdkBoundaries.match(dartVersion)) {
     stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
     return;
@@ -59,10 +85,23 @@ Future ioPackageRunCi(String path) async {
 
   // Formatting change in 2.9 with hashbang first line
   if (dartVersion >= Version(2, 9, 0, pre: '0')) {
-    await shell.run('''
+    try {
+      var dirs = await topLevelDir(path);
+      await shell.run('''
       # Formatting
-      dartfmt -n --set-exit-if-changed .
+      dartfmt -n --set-exit-if-changed ${filterDartDirs(dirs).join(' ')}
     ''');
+    } catch (e) {
+      // Sometimes we allow formatting errors...
+
+      // if (supportsNnbdExperiment) {
+      //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
+      //} else {
+      //
+
+      // but in general no!
+      rethrow;
+    }
   }
 
   if (isFlutterPackage) {
@@ -78,8 +117,6 @@ Future ioPackageRunCi(String path) async {
       flutter test --no-pub
     ''');
   } else {
-    var supportsNnbdExperiment =
-        analysisOptionsSupportsNnbdExperiment(analysisOptionsMap);
     var dartExtraOptions = '';
     var dartRunExtraOptions = '';
     if (supportsNnbdExperiment) {
@@ -119,6 +156,14 @@ Future ioPackageRunCi(String path) async {
       var isNode = pubspecYamlSupportsNode(pubspecMap);
       if (isNode && isNodeSupported) {
         options.add('node');
+
+        await nodeTestCheck(path);
+        // Workaround issue about complaining old pubspec on node...
+        // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+        await shell.run('''
+          # Get dependencies
+          pub get --offline
+    ''');
       }
 
       await shell.run('''
@@ -134,6 +179,14 @@ Future ioPackageRunCi(String path) async {
       ''');
         }
       }
+    }
+  }
+}
+
+Future nodeTestCheck(String dir) async {
+  if ((File(join(dir, 'package.json')).existsSync())) {
+    if (!(Directory(join(dir, 'node_modules')).existsSync())) {
+      await run('npm install');
     }
   }
 }
