@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dev_test/src/node_support.dart';
@@ -25,9 +26,12 @@ Future main(List<String> arguments) async {
 /// true if flutter is supported
 final isNodeSupported = whichSync('node') != null;
 
+/// List the top level dirs
 Future<List<String>> topLevelDir(String dir) async {
   var list = <String>[];
-  await Directory(dir).list(recursive: false).listen((event) {
+  await Directory(dir)
+      .list(recursive: false, followLinks: false)
+      .listen((event) {
     if (event is Directory) {
       list.add(basename(event.path));
     }
@@ -37,15 +41,49 @@ Future<List<String>> topLevelDir(String dir) async {
 
 List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build'];
 
-List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
-      if (element.startsWith('.')) {
-        return false;
+/// True if a dir has at least one dart file
+Future<bool> hasDartFiles(String dir) async {
+  var dirs = <String>[];
+  var hasOneDartFile = false;
+  await Directory(dir)
+      .list(recursive: false, followLinks: false)
+      .listen((event) {
+    if (event is Directory) {
+      dirs.add(basename(event.path));
+    } else if (extension(event.path) == '.dart') {
+      hasOneDartFile = true;
+      //subscription.cancel();
+    }
+  }).asFuture();
+  if (!hasOneDartFile) {
+    for (var subDir in dirs) {
+      if (await hasDartFiles(join(dir, subDir))) {
+        hasOneDartFile = true;
+        break;
       }
-      if (_forbiddenDirs.contains(element)) {
-        return false;
-      }
-      return true;
-    }).toList(growable: false);
+    }
+  }
+  return hasOneDartFile;
+}
+
+/// Only return sub dirs that contains dart files
+Future<List<String>> filterDartDirs(String path) async {
+  var dirs = await topLevelDir(path);
+  var sanitized = <String>[];
+  for (var dir in dirs) {
+    if (dir.startsWith('.')) {
+      continue;
+    }
+    if (_forbiddenDirs.contains(dir)) {
+      continue;
+    }
+    if (!await hasDartFiles(join(path, dir))) {
+      continue;
+    }
+    sanitized.add(dir);
+  }
+  return sanitized;
+}
 
 /// Run basic tests on dart/flutter package
 ///
@@ -53,6 +91,7 @@ List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
 /// ```
 /// ```
 Future ioPackageRunCi(String path) async {
+  print('run_ci: $path');
   var shell = Shell(workingDirectory: path);
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
@@ -84,13 +123,13 @@ Future ioPackageRunCi(String path) async {
     ''');
   }
 
+  var filteredDartDirs = (await filterDartDirs(path)).join(' ');
   // Formatting change in 2.9 with hashbang first line
   if (dartVersion >= Version(2, 9, 0, pre: '0')) {
     try {
-      var dirs = await topLevelDir(path);
       await shell.run('''
       # Formatting
-      dartfmt -n --set-exit-if-changed ${filterDartDirs(dirs).join(' ')}
+      dartfmt -n --set-exit-if-changed $filteredDartDirs
     ''');
     } catch (e) {
       // Sometimes we allow formatting errors...
@@ -131,7 +170,7 @@ Future ioPackageRunCi(String path) async {
       if (dartVersion >= Version(2, 10, 0, pre: '92')) {
         await shell.run('''
       # Analyze code
-      dartanalyzer $dartExtraOptions --fatal-warnings --fatal-infos .
+      dartanalyzer $dartExtraOptions --fatal-warnings --fatal-infos $filteredDartDirs
   ''');
 
         await shell.run('''
@@ -144,7 +183,7 @@ Future ioPackageRunCi(String path) async {
     } else {
       await shell.run('''
       # Analyze code
-      dartanalyzer --fatal-warnings --fatal-infos .
+      dartanalyzer --fatal-warnings --fatal-infos $filteredDartDirs
   ''');
 
       var options = <String>['vm'];
