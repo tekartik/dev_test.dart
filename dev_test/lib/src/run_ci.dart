@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dev_test/src/node_support.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
 import 'package:path/path.dart';
@@ -179,14 +180,6 @@ Future ioPackageRunCi(String path) async {
       ''');
         }
       }
-    }
-  }
-}
-
-Future nodeTestCheck(String dir) async {
-  if ((File(join(dir, 'package.json')).existsSync())) {
-    if (!(Directory(join(dir, 'node_modules')).existsSync())) {
-      await run('npm install');
     }
   }
 }
