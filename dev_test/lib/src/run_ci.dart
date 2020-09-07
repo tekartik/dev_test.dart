@@ -123,13 +123,14 @@ Future ioPackageRunCi(String path) async {
     ''');
   }
 
-  var filteredDartDirs = (await filterDartDirs(path)).join(' ');
+  var filteredDartDirs = await filterDartDirs(path);
+  var filteredDartDirsArg = filteredDartDirs.join(' ');
   // Formatting change in 2.9 with hashbang first line
   if (dartVersion >= Version(2, 9, 0, pre: '0')) {
     try {
       await shell.run('''
       # Formatting
-      dartfmt -n --set-exit-if-changed $filteredDartDirs
+      dartfmt -n --set-exit-if-changed $filteredDartDirsArg
     ''');
     } catch (e) {
       // Sometimes we allow formatting errors...
@@ -170,7 +171,7 @@ Future ioPackageRunCi(String path) async {
       if (dartVersion >= Version(2, 10, 0, pre: '92')) {
         await shell.run('''
       # Analyze code
-      dartanalyzer $dartExtraOptions --fatal-warnings --fatal-infos $filteredDartDirs
+      dartanalyzer $dartExtraOptions --fatal-warnings --fatal-infos $filteredDartDirsArg
   ''');
 
         await shell.run('''
@@ -183,40 +184,43 @@ Future ioPackageRunCi(String path) async {
     } else {
       await shell.run('''
       # Analyze code
-      dartanalyzer --fatal-warnings --fatal-infos $filteredDartDirs
+      dartanalyzer --fatal-warnings --fatal-infos $filteredDartDirsArg
   ''');
 
-      var options = <String>['vm'];
+      // Test?
+      if (filteredDartDirs.contains('test')) {
+        var platforms = <String>['vm'];
 
-      var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-      if (isWeb) {
-        options.add('chrome');
-      }
-      // Add node for standard run test
-      var isNode = pubspecYamlSupportsNode(pubspecMap);
-      if (isNode && isNodeSupported) {
-        options.add('node');
+        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+        if (isWeb) {
+          platforms.add('chrome');
+        }
+        // Add node for standard run test
+        var isNode = pubspecYamlSupportsNode(pubspecMap);
+        if (isNode && isNodeSupported) {
+          platforms.add('node');
 
-        await nodeTestCheck(path);
-        // Workaround issue about complaining old pubspec on node...
-        // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
-        await shell.run('''
+          await nodeTestCheck(path);
+          // Workaround issue about complaining old pubspec on node...
+          // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+          await shell.run('''
           # Get dependencies
           pub get --offline
     ''');
-      }
+        }
 
-      await shell.run('''
+        await shell.run('''
     # Test
-    pub run test -p ${options.join(',')}
+    pub run test -p ${platforms.join(',')}
     ''');
 
-      if (isWeb) {
-        if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-          await shell.run('''
+        if (isWeb) {
+          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+            await shell.run('''
       # Build runner test
       pub run build_runner test -- -p chrome
       ''');
+          }
         }
       }
     }
