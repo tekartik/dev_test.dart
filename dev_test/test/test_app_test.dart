@@ -32,7 +32,9 @@ void main() {
         path: path,
         template: 'package',
       );
-    }, skip: !isFlutterSupportedSync);
+    },
+        skip: !isFlutterSupportedSync,
+        timeout: const Timeout(Duration(minutes: 5)));
     test('io app', () async {
       var path = join(topDir, 'test_io_app');
       await generateAndRunCi(path: path, template: 'console-simple');
