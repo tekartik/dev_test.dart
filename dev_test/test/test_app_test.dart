@@ -22,7 +22,9 @@ void main() {
           template: 'app',
           // Temp issue in template!
           noAnalyze: true);
-    }, skip: !isFlutterSupportedSync);
+    },
+        skip: !isFlutterSupportedSync,
+        timeout: const Timeout(Duration(minutes: 5)));
 
     test('flutter package', () async {
       var path = join(topDir, 'test_flutter_package');
