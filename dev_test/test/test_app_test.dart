@@ -2,6 +2,7 @@
 library dev_test.test.test_app_test;
 
 import 'package:dev_test/dev_test.dart';
+import 'package:process_run/dartbin.dart';
 
 import 'test_app.dart';
 
@@ -14,7 +15,7 @@ void main() {
     test('flutter', () async {
       var path = join(topDir, 'test_flutter_app');
       await flutterGenerateAndRunCi(path: path);
-    });
+    }, skip: !isFlutterSupportedSync);
     test('io app', () async {
       var path = join(topDir, 'test_io_app');
       await generateAndRunCi(path: path, stagehandTemplate: 'console-simple');
