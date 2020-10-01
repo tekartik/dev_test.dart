@@ -1,5 +1,3 @@
-library tekartik_utils.map_utils;
-
 import 'list_utils.dart';
 
 /// content from mapSrc is merge into mapDst overriding it if needed
@@ -104,6 +102,19 @@ void dumpMap(Map map) {
 
 T mapValueFromParts<T>(Map map, Iterable<String> parts) =>
     getPartsMapValue(map, parts);
+
+/// true if the key exists even if the value is null
+bool mapPartsExists<T>(Map map, Iterable<String> parts) {
+  assert(parts.isNotEmpty);
+  var lastMap =
+      getPartsMapValue(map, parts.toList().sublist(0, parts.length - 1));
+  if (lastMap is Map) {
+    if (lastMap.containsKey(parts.last)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 T getPartsMapValue<T>(Map map, Iterable<String> parts) {
   dynamic value = map;

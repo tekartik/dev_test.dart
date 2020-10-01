@@ -35,6 +35,22 @@ might skip many needed tests.
 
 ## Testing
 
+### IO utility
+
+There is convenient way to run a validation test on your package:
+
+```
+# Once only
+pub global activate dev_test
+
+# Run common validation test (analyzer, format, test) on your package (and nested packages)
+pub global run dev_test:run_ci
+
+# Run common validation tests on another package (and nested packages)
+pub global run dev_test:run_ci <path>
+
+```
+
 ### Testing with dartdevc
 
     pub serve test --web-compiler=dartdevc --port=8079

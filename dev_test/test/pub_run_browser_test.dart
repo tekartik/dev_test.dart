@@ -24,7 +24,7 @@ Future checkCaseTest(String name, int count, {String testNameFilter}) async {
     caseNamePath(name)
   ]));
 
-  expect(runResult.exitCode, 0);
+  expect(runResult.exitCode, 0, reason: '$name $testNameFilter');
 
   // but it must both run exactly 'count' test (look for +'count') and not 'count + 1'
   expect(pubRunTestJsonSuccessCount(runResult.stdout as String), count,

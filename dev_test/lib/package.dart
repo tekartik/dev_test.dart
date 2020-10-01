@@ -1,1 +1,1 @@
-export 'src/run_ci.dart' show ioPackageRunCi;
+export 'src/run_ci.dart' show packageRunCi, ioPackageRunCi;
