@@ -4,12 +4,15 @@ import 'dart:io';
 import 'package:dev_test/src/node_support.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
 
+import 'import.dart';
 import 'mixin/package.dart';
+import 'package/recursive_pub_path.dart';
 
 Future main(List<String> arguments) async {
   String path;
@@ -20,26 +23,27 @@ Future main(List<String> arguments) async {
     }
   }
   path ??= Directory.current.path;
-  await ioPackageRunCi(path);
+  await packageRunCi(path);
 }
 
 /// true if flutter is supported
 final isNodeSupported = whichSync('node') != null;
 
-/// List the top level dirs
-Future<List<String>> topLevelDir(String dir) async {
+/// List the top level dirs basenames
+Future<List<String>> topLevelDirs(String dir) async {
   var list = <String>[];
   await Directory(dir)
       .list(recursive: false, followLinks: false)
       .listen((event) {
-    if (event is Directory) {
+    if (isDirectoryNotLinkSynk(event.path)) {
+      // devPrint('adding top ${basename(event.path)}');
       list.add(basename(event.path));
     }
   }).asFuture();
   return list;
 }
 
-List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build'];
+List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build', 'deploy'];
 
 /// True if a dir has at least one dart file
 Future<bool> hasDartFiles(String dir) async {
@@ -67,31 +71,121 @@ Future<bool> hasDartFiles(String dir) async {
 }
 
 /// Only return sub dirs that contains dart files
-Future<List<String>> filterDartDirs(String path) async {
-  var dirs = await topLevelDir(path);
+///
+/// Return top level are relative
+Future<List<String>> filterTopLevelDartDirs(String path) async {
+  var dirs = await topLevelDirs(path);
   var sanitized = <String>[];
-  for (var dir in dirs) {
-    if (dir.startsWith('.')) {
+  for (var dirname in dirs) {
+    var dirPath = path == '.' ? dirname : join(path, dirname);
+    if (dirname.startsWith('.')) {
       continue;
     }
-    if (_forbiddenDirs.contains(dir)) {
+    if (_forbiddenDirs.contains(dirname)) {
       continue;
     }
-    if (!await hasDartFiles(join(path, dir))) {
+    // Ignore nested-projects
+    if (await isPubPackageRoot(dirPath)) {
       continue;
     }
-    sanitized.add(dir);
+    if (!await hasDartFiles(dirPath)) {
+      continue;
+    }
+    sanitized.add(dirname);
   }
   return sanitized;
 }
 
+/*
+/// find the path at the top level that contains dart file
+/// and does not contain sub project
+Future<List<String>> findTargetDartDirectories(String dir) async {
+  var targets = <String>[];
+  for (var entity in await Directory(dir).list(followLinks: false).toList()) {
+    var entityBasename = basename(entity.path);
+    var subDir = join(dir, entityBasename);
+    if (isDirectoryNotLinkSynk(subDir)) {
+      bool _isToBeIgnored(String baseName) {
+        if (_blackListedTargets.contains(baseName)) {
+          return true;
+        }
+
+        if (baseName.startsWith('.')) {
+          return true;
+        }
+
+        return false;
+      }
+
+      if (!_isToBeIgnored(entityBasename) &&
+          !(await isPubPackageRoot(subDir))) {
+        var paths = (await recursiveDartEntities(subDir))
+            .map((path) => join(subDir, path))
+            .toList(growable: false);
+
+        if (containsPubPackage(paths)) {
+          continue;
+        }
+        if (!containsDartFiles(paths)) {
+          continue;
+        }
+        targets.add(entityBasename);
+      }
+
+      //devPrint(entities);
+    }
+  }
+  // devPrint('targets: $targets');
+  return targets;
+}
+*/
+
+/// Kept for compatibility
+///
+/// use [packageRunCi] instead
+Future<void> ioPackageRunCi(String path) => packageRunCi(path);
+
 /// Run basic tests on dart/flutter package
 ///
-/// Dart:
+/// if [recursive] is true, it also find dart/flutter package recursively
+///
+///
 /// ```
 /// ```
-Future ioPackageRunCi(String path) async {
-  print('run_ci: $path');
+Future packageRunCi(String path,
+    {bool recursive,
+    bool noFormat,
+    bool noAnalyze,
+    bool noTest,
+    bool verbose}) async {
+  recursive ??= false;
+  noFormat ??= false;
+  noAnalyze ??= false;
+  noTest ??= false;
+
+  if (recursive) {
+    await recursiveActions([path], verbose: verbose, action: (dir) async {
+      await singlePackageRunCi(dir,
+          noTest: noTest, noFormat: noFormat, noAnalyze: noAnalyze);
+    });
+  } else {
+    await singlePackageRunCi(path,
+        noAnalyze: noAnalyze, noFormat: noFormat, noTest: noTest);
+  }
+}
+
+/// Run basic tests on dart/flutter package
+///
+/// if [recursive] is true, it also find dart/flutter package recursively
+///
+///
+/// ```
+/// ```
+Future singlePackageRunCi(String path,
+    {@required bool noFormat,
+    @required bool noAnalyze,
+    @required bool noTest}) async {
+  print('# package: $path');
   var shell = Shell(workingDirectory: path);
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
@@ -123,40 +217,47 @@ Future ioPackageRunCi(String path) async {
     ''');
   }
 
-  var filteredDartDirs = await filterDartDirs(path);
+  var filteredDartDirs = await filterTopLevelDartDirs(path);
   var filteredDartDirsArg = filteredDartDirs.join(' ');
-  // Formatting change in 2.9 with hashbang first line
-  if (dartVersion >= Version(2, 9, 0, pre: '0')) {
-    try {
-      await shell.run('''
+
+  if (!noFormat) {
+    // Formatting change in 2.9 with hashbang first line
+    if (dartVersion >= Version(2, 9, 0, pre: '0')) {
+      try {
+        await shell.run('''
       # Formatting
       dartfmt -n --set-exit-if-changed $filteredDartDirsArg
     ''');
-    } catch (e) {
-      // Sometimes we allow formatting errors...
+      } catch (e) {
+        // Sometimes we allow formatting errors...
 
-      // if (supportsNnbdExperiment) {
-      //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
-      //} else {
-      //
+        // if (supportsNnbdExperiment) {
+        //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
+        //} else {
+        //
 
-      // but in general no!
-      rethrow;
+        // but in general no!
+        rethrow;
+      }
     }
   }
 
   if (isFlutterPackage) {
-    await shell.run('''
+    if (!noAnalyze) {
+      await shell.run('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
+    }
 
-    // 'test', '--no-pub'
-    // Flutter way
-    await shell.run('''
+    if (!noTest) {
+      // 'test', '--no-pub'
+      // Flutter way
+      await shell.run('''
       # Test
       flutter test --no-pub
     ''');
+    }
   } else {
     var dartExtraOptions = '';
     var dartRunExtraOptions = '';
@@ -169,62 +270,70 @@ Future ioPackageRunCi(String path) async {
 
       // Only io test for now
       if (dartVersion >= Version(2, 10, 0, pre: '92')) {
-        await shell.run('''
+        if (!noAnalyze) {
+          await shell.run('''
       # Analyze code
       dartanalyzer $dartExtraOptions --fatal-warnings --fatal-infos $filteredDartDirsArg
   ''');
+        }
 
-        await shell.run('''
+        if (!noTest) {
+          await shell.run('''
     # Test
     pub run $dartRunExtraOptions test -p vm
     ''');
-      } else {
-        stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
+        } else {
+          stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
+        }
       }
     } else {
-      await shell.run('''
+      if (!noAnalyze) {
+        await shell.run('''
       # Analyze code
       dartanalyzer --fatal-warnings --fatal-infos $filteredDartDirsArg
   ''');
+      }
 
       // Test?
-      if (filteredDartDirs.contains('test')) {
-        var platforms = <String>['vm'];
+      if (!noTest) {
+        if (filteredDartDirs.contains('test')) {
+          var platforms = <String>['vm'];
 
-        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-        if (isWeb) {
-          platforms.add('chrome');
-        }
-        // Add node for standard run test
-        var isNode = pubspecYamlSupportsNode(pubspecMap);
-        if (isNode && isNodeSupported) {
-          platforms.add('node');
+          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+          if (isWeb) {
+            platforms.add('chrome');
+          }
+          // Add node for standard run test
+          var isNode = pubspecYamlSupportsNode(pubspecMap);
+          if (isNode && isNodeSupported) {
+            platforms.add('node');
 
-          await nodeTestCheck(path);
-          // Workaround issue about complaining old pubspec on node...
-          // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
-          await shell.run('''
+            await nodeTestCheck(path);
+            // Workaround issue about complaining old pubspec on node...
+            // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+            await shell.run('''
           # Get dependencies
           pub get --offline
     ''');
-        }
+          }
 
-        await shell.run('''
+          await shell.run('''
     # Test
     pub run test -p ${platforms.join(',')}
     ''');
 
-        if (isWeb) {
-          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-            if (dartVersion >= Version(2, 10, 0, pre: '110') &&
-                isRunningOnTravis) {
-              stderr.writeln(
-                  '\'pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
-            } else {
-              await shell.run('''
+          if (isWeb) {
+            if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+              if (dartVersion >= Version(2, 10, 0, pre: '110') &&
+                  isRunningOnTravis) {
+                stderr.writeln(
+                    '\'pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
+              } else {
+                await shell.run('''
       # Build runner test
       pub run build_runner test -- -p chrome
       ''');
+              }
             }
           }
         }
