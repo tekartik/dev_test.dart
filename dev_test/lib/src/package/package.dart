@@ -22,26 +22,45 @@ Iterable<String> pubspecYamlGetDependenciesPackageName(Map yaml) {
 Version pubspecLockGetVersion(Map yaml, String packageName) =>
     Version.parse(yaml['packages'][packageName]['version'] as String);
 
-bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
-  bool _hasDependencies(String kind, String dependency) {
-    var dependencies = yaml[kind] as Map;
-    if (dependencies != null) {
-      if (dependencies.containsKey(dependency)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  for (var dependency in dependencies) {
-    if (_hasDependencies('dependencies', dependency) ||
-        _hasDependencies('dev_dependencies', dependency) ||
-        _hasDependencies('dependency_overrides', dependency)) {
+bool _hasKindDependency(Map yaml, String kind, String dependency) {
+  var dependencies = yaml[kind] as Map;
+  if (dependencies != null) {
+    if (dependencies.containsKey(dependency)) {
       return true;
     }
   }
-
   return false;
+}
+
+bool _hasDependency(Map yaml, String dependency) {
+  for (var kind in [
+    'dependencies',
+    'dev_dependencies',
+    'dependency_overrides'
+  ]) {
+    if (_hasKindDependency(yaml, kind, dependency)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
+  for (var dependency in dependencies) {
+    if (_hasDependency(yaml, dependency)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool pubspecYamlHasAllDependencies(Map yaml, List<String> dependencies) {
+  for (var dependency in dependencies) {
+    if (!_hasDependency(yaml, dependency)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool pubspecYamlSupportsFlutter(Map map) =>

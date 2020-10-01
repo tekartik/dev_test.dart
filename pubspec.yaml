@@ -6,7 +6,7 @@ description: dev_test Repo
 publish_to: none
 
 environment:
-  sdk: '>=2.6.0 <3.0.0'
+  sdk: '>=2.10.0-0 <3.0.0'
 
 dev_dependencies:
   pedantic: '>=1.4.0 <3.0.0'
