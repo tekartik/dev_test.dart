@@ -152,7 +152,7 @@ environment:
 
     test('recursivePubPath', () async {
       expect(await recursivePubPath(['.', '..']), ['.', '..']);
-      expect(await recursivePubPath(['..', '.']), ['..', '.']);
+      expect(await recursivePubPath(['..', '.']), ['.', '..']);
       expect(await recursivePubPath(['..']), ['..', '../dev_test']);
 
       expect(await recursivePubPath(['.']), ['.']);
@@ -161,7 +161,7 @@ environment:
     test('filterTopLevelDartDirs', () async {
       expect(await filterTopLevelDartDirs('..'), ['tool']);
       expect(await filterTopLevelDartDirs('.'),
-          ['example', 'lib', 'test', 'tool', 'bin']);
+          ['bin', 'example', 'lib', 'test', 'tool']);
     });
 
     test('recursiveActions', () async {

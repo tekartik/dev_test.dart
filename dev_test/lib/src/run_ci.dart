@@ -93,7 +93,7 @@ Future<List<String>> filterTopLevelDartDirs(String path) async {
     }
     sanitized.add(dirname);
   }
-  return sanitized;
+  return sanitized..sort();
 }
 
 /*

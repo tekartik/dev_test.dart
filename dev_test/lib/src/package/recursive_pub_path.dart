@@ -125,7 +125,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
     }
   }
 
-  return removeDuplicates(pubDirs);
+  return removeDuplicates(pubDirs)..sort();
 }
 
 List<String> removeDuplicates(List<String> dirs) {
