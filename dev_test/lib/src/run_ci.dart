@@ -216,6 +216,10 @@ Future ioPackageRunCi(String path) async {
 
         if (isWeb) {
           if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+            if (dartVersion >= Version(2, 10, 0) && isRunningOnTravis) {
+              stderr.writeln(
+                  '\'pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
+            }
             await shell.run('''
       # Build runner test
       pub run build_runner test -- -p chrome
@@ -226,3 +230,5 @@ Future ioPackageRunCi(String path) async {
     }
   }
 }
+
+bool get isRunningOnTravis => Platform.environment['TRAVIS'] == 'true';
