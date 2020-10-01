@@ -1,7 +1,8 @@
-## 0.13.3+7
+## 0.13.3+8
 
-* Add `ioPackageRunCi` to run common dart/flutter package test, node test and nnbd tests.
-* Skipped `pub run build_runner test -- -p chrome` on travis for ioPackageRunCi
+* Add `packageRunCi` to run common dart/flutter package test, node test and nnbd tests.
+* Skipped `dart pub run build_runner test -- -p chrome` on travis for ioPackageRunCi
+* Add `run_ci` executable, usable with `dart pub global run dev_test:run_ci`
 
 ## 0.13.1+1
 
