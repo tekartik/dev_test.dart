@@ -6,6 +6,8 @@ import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart';
+import 'package:process_run/cmd_run.dart'
+    show getFlutterBinChannel, dartChannelStable;
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -160,12 +162,14 @@ Future packageRunCi(String path,
     bool noTest,
     bool noBuild,
     bool verbose,
+    bool pubUpgrade,
     int poolSize}) async {
   recursive ??= false;
   noFormat ??= false;
   noAnalyze ??= false;
   noTest ??= false;
   noBuild ??= false;
+  pubUpgrade ??= false;
 
   if (recursive) {
     await recursiveActions([path], verbose: verbose, poolSize: poolSize,
@@ -174,14 +178,16 @@ Future packageRunCi(String path,
           noTest: noTest,
           noFormat: noFormat,
           noAnalyze: noAnalyze,
-          noBuild: noBuild);
+          noBuild: noBuild,
+          pubUpgrade: pubUpgrade);
     });
   } else {
     await singlePackageRunCi(path,
         noAnalyze: noAnalyze,
         noFormat: noFormat,
         noTest: noTest,
-        noBuild: noBuild);
+        noBuild: noBuild,
+        pubUpgrade: pubUpgrade);
   }
 }
 
@@ -191,7 +197,8 @@ Future singlePackageRunCi(String path,
     {@required bool noFormat,
     @required bool noAnalyze,
     @required bool noTest,
-    @required bool noBuild}) async {
+    @required bool noBuild,
+    @required bool pubUpgrade}) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
 
@@ -212,16 +219,17 @@ Future singlePackageRunCi(String path,
       stderr.writeln('flutter not supported for package in $path');
       return;
     }
-    // Flutter way
-    await shell.run('''
-    # Get dependencies
-    flutter pub get
-    ''');
+    if (pubUpgrade) {
+      await shell.run('flutter pub upgrade');
+    } else {
+      await shell.run('flutter pub get');
+    }
   } else {
-    await shell.run('''
-    # Get dependencies
-    pub get
-    ''');
+    if (pubUpgrade) {
+      await shell.run('dart pub upgrade');
+    } else {
+      await shell.run('dqrt pub get');
+    }
   }
 
   var filteredDartDirs = await filterTopLevelDartDirs(path);
@@ -263,9 +271,12 @@ Future singlePackageRunCi(String path,
       # Test
       flutter test --no-pub
     ''');
+    }
+    if (!noBuild) {
+      /// Try building web if possible
 
-      if (!noBuild) {
-        /// Try building web if possible
+      /// requires at least beta
+      if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           await checkAndActivatePackage('webdev');
           await shell.run('flutter build web');
@@ -386,4 +397,18 @@ Future<List<String>> getInstalledGlobalPackages() async {
         lines.map((line) => line.split(' ')[0]).toList(growable: true);
   }
   return _installedGlobalPackages;
+}
+
+bool _flutterWebEnabled;
+Future<bool> flutterEnableWeb() async {
+  if (_flutterWebEnabled == null) {
+    /// requires at least beta
+    if (await getFlutterBinChannel() != dartChannelStable) {
+      await run('flutter config --enable-web');
+      _flutterWebEnabled = true;
+    } else {
+      _flutterWebEnabled = false;
+    }
+  }
+  return _flutterWebEnabled;
 }
