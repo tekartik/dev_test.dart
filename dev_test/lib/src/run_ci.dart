@@ -349,10 +349,14 @@ Future singlePackageRunCi(String path,
 
           if (isWeb) {
             if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-              if (dartVersion >= Version(2, 10, 0, pre: '110') &&
-                  isRunningOnTravis) {
-                stderr.writeln(
-                    '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
+              if (dartVersion >= Version(2, 10, 0, pre: '110')) {
+                if (isRunningOnTravis) {
+                  stderr.writeln(
+                      '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
+                } else {
+                  stderr.writeln(
+                      '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
+                }
               } else {
                 await shell.run('''
       # Build runner test
