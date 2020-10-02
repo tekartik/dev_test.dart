@@ -6,7 +6,12 @@ import 'package:path/path.dart';
 import 'package:yaml/yaml.dart';
 
 Future<Map<String, dynamic>> pathGetYaml(String path) async {
-  var content = await File(path).readAsString();
+  String content;
+  try {
+    content = await File(path).readAsString();
+  } catch (_) {
+    return null;
+  }
   return (loadYaml(content) as Map)?.cast<String, dynamic>();
 }
 

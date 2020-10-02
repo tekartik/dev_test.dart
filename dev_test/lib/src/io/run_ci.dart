@@ -18,6 +18,8 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('no-format', help: 'No format test', negatable: false)
     ..addFlag('no-test', help: 'No test ran', negatable: false)
     ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
+    ..addFlag('no-build', help: 'No build performed', negatable: false)
+    ..addFlag('pub-upgrade', help: 'Run pub-upgrade first', negatable: false)
     ..addOption('concurrency',
         abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
     ..addFlag('recursive',
@@ -43,6 +45,8 @@ Future<void> main(List<String> arguments) async {
   var noTest = result['no-test'] as bool;
   var noAnalyze = result['no-analyze'] as bool;
   var recursive = result['recursive'] as bool;
+  var noBuild = result['no-build'] as bool;
+  var pubUpgrade = result['pub-upgrade'] as bool;
   var poolSize = int.tryParse('concurrency');
 
   var paths = result.rest.isEmpty ? ['.'] : result.rest;
@@ -50,12 +54,20 @@ Future<void> main(List<String> arguments) async {
     await recursiveActions(paths, verbose: verbose, poolSize: poolSize,
         action: (dir) async {
       await singlePackageRunCi(dir,
-          noTest: noTest, noFormat: noFormat, noAnalyze: noAnalyze);
+          noTest: noTest,
+          noFormat: noFormat,
+          noAnalyze: noAnalyze,
+          noBuild: noBuild,
+          pubUpgrade: pubUpgrade);
     });
   } else {
     for (var path in paths) {
       await singlePackageRunCi(path,
-          noTest: noTest, noFormat: noFormat, noAnalyze: noAnalyze);
+          noTest: noTest,
+          noFormat: noFormat,
+          noAnalyze: noAnalyze,
+          noBuild: noBuild,
+          pubUpgrade: pubUpgrade);
     }
   }
   // var pubspecYaml = pathGetPubspecYamlMap(packageDir)

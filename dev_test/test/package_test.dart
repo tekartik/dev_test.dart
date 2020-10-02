@@ -1,4 +1,8 @@
 @TestOn('vm')
+library dev_test.test.package_test;
+
+import 'dart:io';
+
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
@@ -153,7 +157,8 @@ environment:
     test('recursivePubPath', () async {
       expect(await recursivePubPath(['.', '..']), ['.', '..']);
       expect(await recursivePubPath(['..', '.']), ['.', '..']);
-      expect(await recursivePubPath(['..']), ['..', '../dev_test']);
+      expect(await recursivePubPath(['..']),
+          ['..', Platform.isWindows ? '..\\dev_test' : '../dev_test']);
 
       expect(await recursivePubPath(['.']), ['.']);
     });
@@ -175,7 +180,7 @@ environment:
       await recursiveActions(['..'], action: (src) {
         list.add(src);
       });
-      expect(list, ['..', '../dev_test']);
+      expect(list, ['..', Platform.isWindows ? '..\\dev_test' : '../dev_test']);
       list = <String>[];
       await recursiveActions(['.', '..'], action: (src) {
         list.add(src);
