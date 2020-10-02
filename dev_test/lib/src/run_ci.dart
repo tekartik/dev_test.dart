@@ -228,7 +228,7 @@ Future singlePackageRunCi(String path,
     if (pubUpgrade) {
       await shell.run('dart pub upgrade');
     } else {
-      await shell.run('dqrt pub get');
+      await shell.run('dart pub get');
     }
   }
 
