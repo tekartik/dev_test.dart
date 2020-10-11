@@ -19,7 +19,13 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('no-test', help: 'No test ran', negatable: false)
     ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
     ..addFlag('no-build', help: 'No build performed', negatable: false)
-    ..addFlag('pub-upgrade', help: 'Run pub-upgrade first', negatable: false)
+    ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
+    ..addFlag('format', help: 'Format only', negatable: false)
+    ..addFlag('test', help: 'Test only', negatable: false)
+    ..addFlag('analyze', help: 'Analyze only', negatable: false)
+    ..addFlag('build', help: 'Build only', negatable: false)
+    ..addFlag('pub-get', help: 'Get only', negatable: false)
+    ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
     ..addOption('concurrency',
         abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
     ..addFlag('recursive',
@@ -44,30 +50,47 @@ Future<void> main(List<String> arguments) async {
   var noFormat = result['no-format'] as bool;
   var noTest = result['no-test'] as bool;
   var noAnalyze = result['no-analyze'] as bool;
-  var recursive = result['recursive'] as bool;
   var noBuild = result['no-build'] as bool;
-  var pubUpgrade = result['pub-upgrade'] as bool;
+  var noPubGet = result['no-pub-get'] as bool;
+
+  var formatOnly = result['format'] as bool;
+  var testOnly = result['test'] as bool;
+  var analyzeOnly = result['analyze'] as bool;
+  var buildOnly = result['build'] as bool;
+  var pubGetOnly = result['pub-get'] as bool;
+  var pubUpgradeOnly = result['pub-upgrade'] as bool;
+
+  var recursive = result['recursive'] as bool;
+
   var poolSize = int.tryParse('concurrency');
 
   var paths = result.rest.isEmpty ? ['.'] : result.rest;
+
+  Future _runDir(String dir) async {
+    await singlePackageRunCi(
+      dir,
+      noTest: noTest,
+      noFormat: noFormat,
+      noAnalyze: noAnalyze,
+      noBuild: noBuild,
+      noPubGet: noPubGet,
+      formatOnly: formatOnly,
+      testOnly: testOnly,
+      buildOnly: buildOnly,
+      analyzeOnly: analyzeOnly,
+      pubGetOnly: pubGetOnly,
+      pubUpgradeOnly: pubUpgradeOnly,
+    );
+  }
+
   if (recursive) {
     await recursiveActions(paths, verbose: verbose, poolSize: poolSize,
         action: (dir) async {
-      await singlePackageRunCi(dir,
-          noTest: noTest,
-          noFormat: noFormat,
-          noAnalyze: noAnalyze,
-          noBuild: noBuild,
-          pubUpgrade: pubUpgrade);
+      await _runDir(dir);
     });
   } else {
     for (var path in paths) {
-      await singlePackageRunCi(path,
-          noTest: noTest,
-          noFormat: noFormat,
-          noAnalyze: noAnalyze,
-          noBuild: noBuild,
-          pubUpgrade: pubUpgrade);
+      await _runDir(path);
     }
   }
   // var pubspecYaml = pathGetPubspecYamlMap(packageDir)
