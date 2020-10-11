@@ -161,6 +161,7 @@ Future packageRunCi(String path,
     bool noAnalyze,
     bool noTest,
     bool noBuild,
+    bool noPubGet,
     bool verbose,
     bool pubUpgrade,
     int poolSize}) async {
@@ -179,7 +180,7 @@ Future packageRunCi(String path,
           noFormat: noFormat,
           noAnalyze: noAnalyze,
           noBuild: noBuild,
-          pubUpgrade: pubUpgrade);
+          noPubGet: noPubGet);
     });
   } else {
     await singlePackageRunCi(path,
@@ -187,7 +188,7 @@ Future packageRunCi(String path,
         noFormat: noFormat,
         noTest: noTest,
         noBuild: noBuild,
-        pubUpgrade: pubUpgrade);
+        noPubGet: noPubGet);
   }
 }
 
@@ -198,9 +199,17 @@ Future singlePackageRunCi(String path,
     @required bool noAnalyze,
     @required bool noTest,
     @required bool noBuild,
-    @required bool pubUpgrade}) async {
+    @required bool noPubGet,
+    bool pubUpgrade,
+    bool formatOnly,
+    bool analyzeOnly,
+    bool testOnly,
+    bool buildOnly,
+    bool pubGetOnly,
+    bool pubUpgradeOnly}) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
+  var noPubGetOrUpgrade = false;
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
   var analysisOptionsMap = await pathGetAnalysisOptionsYamlMap(path);
@@ -214,21 +223,49 @@ Future singlePackageRunCi(String path,
     stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
     return;
   }
+
   if (isFlutterPackage) {
     if (!isFlutterSupportedSync) {
       stderr.writeln('flutter not supported for package in $path');
       return;
     }
-    if (pubUpgrade) {
-      await shell.run('flutter pub upgrade');
+  }
+
+  formatOnly ??= false;
+  buildOnly ??= false;
+  testOnly ??= false;
+  analyzeOnly ??= false;
+  pubGetOnly ??= false;
+  pubUpgradeOnly ??= false;
+  pubUpgrade ??= false;
+
+  if (formatOnly ||
+      buildOnly ||
+      testOnly ||
+      analyzeOnly ||
+      pubGetOnly ||
+      pubUpgradeOnly) {
+    noTest = !testOnly;
+    noBuild = !buildOnly;
+    noAnalyze = !analyzeOnly;
+    noFormat = !formatOnly;
+    noPubGetOrUpgrade = !pubGetOnly && !pubUpgradeOnly;
+    pubUpgrade = pubUpgradeOnly;
+  }
+
+  if (!noPubGetOrUpgrade) {
+    if (isFlutterPackage) {
+      if (pubUpgrade) {
+        await shell.run('flutter pub upgrade');
+      } else {
+        await shell.run('flutter pub get');
+      }
     } else {
-      await shell.run('flutter pub get');
-    }
-  } else {
-    if (pubUpgrade) {
-      await shell.run('dart pub upgrade');
-    } else {
-      await shell.run('dart pub get');
+      if (pubUpgrade) {
+        await shell.run('dart pub upgrade');
+      } else {
+        await shell.run('dart pub get');
+      }
     }
   }
 
