@@ -85,7 +85,7 @@ void main() {
         await _runCi();
       }
     }, timeout: const Timeout(Duration(minutes: 10)));
-  }, skip: !isFlutterSupportedSync && !isRunningOnTravis);
+  }, skip: !isFlutterSupportedSync || isRunningOnTravis);
   // TODO @alex find a better to know the flutter build status
 
   group(
