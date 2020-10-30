@@ -38,7 +38,7 @@ void main() {
     test('io app', () async {
       var path = join(topDir, 'test_io_app');
       await dartGenerateAndRunCi(path: path, template: 'console-simple');
-    });
+    }, timeout: const Timeout(Duration(minutes: 5)));
     test('web app', () async {
       var path = join(topDir, 'test_web_app');
       await dartGenerateAndRunCi(path: path, template: 'web-simple');
@@ -46,6 +46,6 @@ void main() {
     test('dart package', () async {
       var path = join(topDir, 'test_package');
       await dartGenerateAndRunCi(path: path, template: 'package-simple');
-    });
+    }, timeout: const Timeout(Duration(minutes: 5)));
   });
 }
