@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_test/src/mixin/package.dart';
@@ -9,14 +10,71 @@ import 'package:process_run/which.dart';
 
 /// Returns true if added
 Future<bool> pathPubspecAddDependency(String dir, String dependency,
-    {String dependencyLine}) async {
+    {List<String> dependencyLines}) async {
   var map = await pathGetPubspecYamlMap(dir);
   if (!pubspecYamlHasAnyDependencies(map, [dependency])) {
-    var file = File(join(dir, 'pubspec.yaml'));
-    var content = await file.readAsString();
-    content =
-        _pubspecStringAddDependency(content, dependencyLine ?? '$dependency:');
-    await file.writeAsString(content);
+    var content = _loadPubspecContent(dir);
+    content = _pubspecStringAddDependency(content, dependency,
+        dependencyLines: dependencyLines);
+    await _writePubspecContent(dir, content);
+    return true;
+  }
+  return false;
+}
+
+Iterable<String> _loadPubspecContentLines(String dir) {
+  return LineSplitter.split(_loadPubspecContent(dir));
+}
+
+String _loadPubspecContent(String dir) {
+  var file = File(join(dir, 'pubspec.yaml'));
+  return file.readAsStringSync();
+}
+
+Future<void> _writePubspecContent(String dir, String content) async {
+  var file = File(join(dir, 'pubspec.yaml'));
+  return await file.writeAsString(content);
+}
+
+// Null if not a dependency, formatted on a single line with depencency prefix or
+// multiple lines
+Future<List<String>> pathPubspecGetDependencyLines(
+    String dir, String dependency) async {
+  var map = await pathGetPubspecYamlMap(dir);
+
+  var lines = <String>[];
+  if (pubspecYamlHasAnyDependencies(map, [dependency])) {
+    var readLines = _loadPubspecContentLines(dir).toList();
+    String headerLine;
+    var foundHeader = false;
+    for (var i = 0; i < readLines.length; i++) {
+      var line = readLines[i];
+      if (foundHeader) {
+        if (line.startsWith('    ')) {
+          lines.add(line.substring(4));
+        } else {
+          break;
+        }
+      } else if (line.startsWith('  $dependency:')) {
+        headerLine = line..trim();
+        foundHeader = true;
+      }
+    }
+    if (lines.isEmpty) {
+      lines.add(headerLine);
+    }
+    return lines;
+  }
+  return null;
+}
+
+// Returns true if removed
+Future<bool> pathPubspecRemoveDependency(String dir, String dependency) async {
+  var map = await pathGetPubspecYamlMap(dir);
+  if (pubspecYamlHasAnyDependencies(map, [dependency])) {
+    var content = _loadPubspecContent(dir);
+    content = _pubspecStringRemoveDependency(content, dependency);
+    await _writePubspecContent(dir, content);
     return true;
   }
   return false;
@@ -24,9 +82,57 @@ Future<bool> pathPubspecAddDependency(String dir, String dependency,
 
 /// Add a dependency in a brut force way
 ///
-String _pubspecStringAddDependency(String content, String dependencyLine) {
-  return content.replaceAllMapped(RegExp(r'^dependencies:$', multiLine: true),
-      (match) => 'dependencies:\n  $dependencyLine');
+String _pubspecStringAddDependency(String content, String dependency,
+    {List<String> dependencyLines}) {
+  var lines = LineSplitter.split(content).toList();
+  var index = lines.indexOf('dependencies:');
+  if (index < 0) {
+    // The template might create it commented out
+    index = lines.indexOf('#dependencies:');
+    if (index < 0) {
+      lines.add('\ndependencies:');
+      index = lines.length;
+    } else {
+      lines[index] = 'dependencies:';
+      index = index + 1;
+    }
+  } else {
+    index = index + 1;
+  }
+  lines.insert(index, '  $dependency:');
+  if (dependencyLines != null) {
+    for (var line in dependencyLines) {
+      lines.insert(++index, '    $line');
+    }
+  }
+  return lines.join('\n');
+}
+
+/// Remove a dependency in a brut force way
+///
+String _pubspecStringRemoveDependency(String content, String dependency) {
+  var lines = LineSplitter.split(content).toList();
+  int deleteStartIndex;
+  int deleteEndIndex;
+  var readLines = lines;
+  for (var i = 0; i < readLines.length; i++) {
+    var line = readLines[i];
+    if (deleteStartIndex != null) {
+      if (line.startsWith('  ')) {
+        deleteEndIndex++;
+      } else {
+        break;
+      }
+    } else if (line.startsWith('  $dependency:')) {
+      deleteStartIndex = i;
+      deleteEndIndex = i + 1;
+    }
+  }
+  if (deleteStartIndex != null) {
+    lines.removeRange(deleteStartIndex, deleteEndIndex);
+  }
+
+  return lines.join('\n');
 }
 
 String _flutterChannel;

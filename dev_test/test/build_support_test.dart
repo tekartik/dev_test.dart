@@ -1,8 +1,9 @@
 @TestOn('vm')
 import 'dart:io';
 
-import 'package:dev_test/package.dart';
 import 'package:dev_test/build_support.dart';
+import 'package:dev_test/package.dart';
+import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
@@ -96,6 +97,7 @@ void main() {
       var dir =
           join('.dart_tool', 'dev_test', 'raw_dart_test1', 'test', 'project');
       var _ensureCreated = false;
+      var shell = Shell(workingDirectory: dir);
       Future<void> _create() async {
         await dartCreateProject(
           path: dir,
@@ -131,8 +133,58 @@ void main() {
 
       test('add dev_test', () async {
         await _ensureCreate();
+        var readDependencyLines =
+            await pathPubspecGetDependencyLines(dir, 'dev_test');
+        if (readDependencyLines == ['dev_test:']) {
+          return;
+        }
         if (await pathPubspecAddDependency(dir, 'dev_test')) {
+          expect(
+              pubspecYamlHasAnyDependencies(
+                  await pathGetPubspecYamlMap(dir), ['dev_test']),
+              isTrue);
           await _runCi();
+        } else {
+          expect(
+              pubspecYamlHasAnyDependencies(
+                  await pathGetPubspecYamlMap(dir), ['dev_test']),
+              isTrue);
+        }
+      }, timeout: const Timeout(Duration(minutes: 10)));
+
+      test('add dev_test_relative', () async {
+        await _ensureCreate();
+        var dependencyLines = ['path: ${join('..', '..', '..', '..', '..')}'];
+
+        var readDependencyLines =
+            await pathPubspecGetDependencyLines(dir, 'dev_test');
+        if (readDependencyLines == dependencyLines) {
+          return;
+        }
+        if (await pathPubspecRemoveDependency(dir, 'dev_test')) {
+          await shell.run('dart pub get');
+        }
+        expect(await pathPubspecGetDependencyLines(dir, 'dev_test'), isNull);
+        expect(
+            pubspecYamlHasAnyDependencies(
+                await pathGetPubspecYamlMap(dir), ['dev_test']),
+            isFalse);
+        if (await pathPubspecAddDependency(dir, 'dev_test',
+            dependencyLines: dependencyLines)) {
+          expect(await pathPubspecGetDependencyLines(dir, 'dev_test'),
+              dependencyLines);
+          expect(
+              pubspecYamlHasAnyDependencies(
+                  await pathGetPubspecYamlMap(dir), ['dev_test']),
+              isTrue);
+          await _runCi();
+        } else {
+          expect(await pathPubspecGetDependencyLines(dir, 'dev_test'),
+              dependencyLines);
+          expect(
+              pubspecYamlHasAnyDependencies(
+                  await pathGetPubspecYamlMap(dir), ['dev_test']),
+              isTrue);
         }
       }, timeout: const Timeout(Duration(minutes: 10)));
     },

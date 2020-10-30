@@ -7,6 +7,8 @@ export 'src/build_support.dart'
         buildSupportsWindows,
         buildInitFlutter,
         pathPubspecAddDependency,
+        pathPubspecGetDependencyLines,
+        pathPubspecRemoveDependency,
         flutterTemplateApp,
         flutterCreateProject,
         buildInitDart,
