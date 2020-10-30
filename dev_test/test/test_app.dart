@@ -1,8 +1,7 @@
+import 'package:dev_test/build_support.dart';
 import 'package:dev_test/package.dart';
 import 'package:fs_shim/fs_io.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart';
-import 'package:process_run/shell.dart';
 
 export 'package:path/path.dart';
 
@@ -21,16 +20,16 @@ extension _DirectoryExt on Directory {
 Future<void> main() async {
   var path = '.dart_tool/dev_test/test_exp/test_io_app';
 
-  await generateAndRunCi(path: path, template: 'console-simple');
+  await dartGenerateAndRunCi(path: path, template: 'console-simple');
 }
 
-Future<void> generateAndRunCi(
+Future<void> dartGenerateAndRunCi(
     {@required String template, @required String path}) async {
   await Directory(path).prepare();
 
-  var shell = Shell().cd(dirname(path));
-  await shell
-      .run('dart create --template $template ${shellArgument(basename(path))}');
+  // var shell = Shell().cd(dirname(path));
+  await dartCreateProject(template: template, path: path);
+  // await shell.run('dart create --template $template ${shellArgument(basename(path))}');
   await packageRunCi(path);
 }
 
@@ -41,9 +40,8 @@ Future<void> flutterGenerateAndRunCi({
 }) async {
   await Directory(path).prepare();
 
-  var shell = Shell().cd(dirname(path));
-
-  await shell.run(
-      'flutter create --template $template ${shellArgument(basename(path))}');
+  // var shell = Shell().cd(dirname(path));
+  await flutterCreateProject(path: path, template: template);
+  // shell.run('flutter create --template $template ${shellArgument(basename(path))}');
   await packageRunCi(path, noAnalyze: noAnalyze);
 }
