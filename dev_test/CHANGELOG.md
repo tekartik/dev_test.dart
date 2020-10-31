@@ -1,4 +1,4 @@
-## 0.13.4-dev.2
+## 0.13.4
 
 * Add `build_support.dart` to help building project for testing.
 

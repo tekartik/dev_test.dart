@@ -1,17 +1,17 @@
 name: dev_test
-version: 0.13.4-dev.2
+version: 0.13.4
 homepage: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 description: Brings (back) the solo and skip features on top of the test package
 
 environment:
-  sdk: '>=2.10.0-0 <3.0.0'
+  sdk: '>=2.10.0 <3.0.0'
 
 dependencies:
   test: '>=1.3.0 <3.0.0'
   matcher: '>=0.12.3+1 <2.0.0'
   collection: '>=1.14.10 <3.0.0'
   stack_trace: '>=1.9.2 <3.0.0'
-  process_run: '>=0.10.9 <2.0.0'
+  process_run: '>=0.11.1 <2.0.0'
   pub_semver: '>=1.4.0 <3.0.0'
   yaml: '>=2.2.1 <4.0.0'
   path: '>=1.4.0 <3.0.0'
