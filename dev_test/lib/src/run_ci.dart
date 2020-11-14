@@ -330,6 +330,8 @@ Future singlePackageRunCi(String path,
       dartRunExtraOptions =
           '--enable-experiment=non-nullable --no-sound-null-safety';
 
+      // dart test supports the nnbd option starting 2.12
+      var supportsDartTest = dartVersion >= Version(2, 12, 0, pre: '0');
       // Only io test for now
       if (dartVersion >= Version(2, 10, 0, pre: '92')) {
         if (!noAnalyze) {
@@ -340,10 +342,18 @@ Future singlePackageRunCi(String path,
         }
 
         if (!noTest) {
-          await shell.run('''
+          if (supportsDartTest) {
+            await shell.run('''
     # Test
     dart test $dartRunExtraOptions -p vm
     ''');
+          } else {
+            // Pre 2.12 supports
+            await shell.run('''
+    # Test
+    pub run $dartRunExtraOptions test -p vm
+    ''');
+          }
         } else {
           stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
         }
@@ -441,6 +451,7 @@ Future<List<String>> getInstalledGlobalPackages() async {
 }
 
 bool _flutterWebEnabled;
+
 Future<bool> flutterEnableWeb() async {
   if (_flutterWebEnabled == null) {
     /// requires at least beta
