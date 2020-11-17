@@ -154,8 +154,10 @@ Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 ///
 ///
 /// ```
+/// // run CI (format, analyze, test) on the current folder
+/// await packageRunCi('.');
 /// ```
-Future packageRunCi(String path,
+Future<void> packageRunCi(String path,
     {bool recursive,
     bool noFormat,
     bool noAnalyze,
@@ -192,9 +194,11 @@ Future packageRunCi(String path,
   }
 }
 
+final _runCiOverridePath = join('tool', 'run_ci_override.dart');
+
 /// Run basic tests on dart/flutter package
 ///
-Future singlePackageRunCi(String path,
+Future<void> singlePackageRunCi(String path,
     {@required bool noFormat,
     @required bool noAnalyze,
     @required bool noTest,
@@ -209,6 +213,14 @@ Future singlePackageRunCi(String path,
     bool pubUpgradeOnly}) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
+  // Override?
+
+  if (File(join(path, _runCiOverridePath)).existsSync()) {
+    // Run it instead
+    await shell.run('dart run $_runCiOverridePath');
+    return;
+  }
+
   var noPubGetOrUpgrade = false;
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
