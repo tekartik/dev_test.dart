@@ -1,4 +1,4 @@
-## 0.13.4+4
+## 0.13.4+5
 
 * Add `build_support.dart` to help building project for testing.
 * Allow running on NNBD projects

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:dev_test/src/mixin/package_io.dart';
-import 'package:dev_test/src/node_support.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
 import 'package:meta/meta.dart';
@@ -9,11 +9,11 @@ import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart'
     show getFlutterBinChannel, dartChannelStable;
 import 'package:process_run/shell_run.dart';
-import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 import 'import.dart';
 import 'mixin/package.dart';
+import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 
 Future main(List<String> arguments) async {
@@ -27,9 +27,6 @@ Future main(List<String> arguments) async {
   path ??= Directory.current.path;
   await packageRunCi(path);
 }
-
-/// true if flutter is supported
-final isNodeSupported = whichSync('node') != null;
 
 /// List the top level dirs basenames
 Future<List<String>> topLevelDirs(String dir) async {
@@ -389,10 +386,10 @@ Future<void> singlePackageRunCi(String path,
           }
           // Add node for standard run test
           var isNode = pubspecYamlSupportsNode(pubspecMap);
-          if (isNode && isNodeSupported) {
+          if (isNode && isNodeSupportedSync) {
             platforms.add('node');
 
-            await nodeTestCheck(path);
+            await nodeSetupCheck(path);
             // Workaround issue about complaining old pubspec on node...
             // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
             await shell.run('''
