@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:dev_test/src/node_support.dart';
+import 'package:dev_test/src/mixin/package_io.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
 import 'package:meta/meta.dart';
@@ -9,11 +9,11 @@ import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart'
     show getFlutterBinChannel, dartChannelStable;
 import 'package:process_run/shell_run.dart';
-import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 import 'import.dart';
 import 'mixin/package.dart';
+import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 
 Future main(List<String> arguments) async {
@@ -27,9 +27,6 @@ Future main(List<String> arguments) async {
   path ??= Directory.current.path;
   await packageRunCi(path);
 }
-
-/// true if flutter is supported
-final isNodeSupported = whichSync('node') != null;
 
 /// List the top level dirs basenames
 Future<List<String>> topLevelDirs(String dir) async {
@@ -154,8 +151,10 @@ Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 ///
 ///
 /// ```
+/// // run CI (format, analyze, test) on the current folder
+/// await packageRunCi('.');
 /// ```
-Future packageRunCi(String path,
+Future<void> packageRunCi(String path,
     {bool recursive,
     bool noFormat,
     bool noAnalyze,
@@ -192,9 +191,11 @@ Future packageRunCi(String path,
   }
 }
 
+final _runCiOverridePath = join('tool', 'run_ci_override.dart');
+
 /// Run basic tests on dart/flutter package
 ///
-Future singlePackageRunCi(String path,
+Future<void> singlePackageRunCi(String path,
     {@required bool noFormat,
     @required bool noAnalyze,
     @required bool noTest,
@@ -209,6 +210,14 @@ Future singlePackageRunCi(String path,
     bool pubUpgradeOnly}) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
+  // Override?
+
+  if (File(join(path, _runCiOverridePath)).existsSync()) {
+    // Run it instead
+    await shell.run('dart run $_runCiOverridePath');
+    return;
+  }
+
   var noPubGetOrUpgrade = false;
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
@@ -330,6 +339,8 @@ Future singlePackageRunCi(String path,
       dartRunExtraOptions =
           '--enable-experiment=non-nullable --no-sound-null-safety';
 
+      // dart test supports the nnbd option starting 2.12
+      var supportsDartTest = dartVersion >= Version(2, 12, 0, pre: '0');
       // Only io test for now
       if (dartVersion >= Version(2, 10, 0, pre: '92')) {
         if (!noAnalyze) {
@@ -340,10 +351,18 @@ Future singlePackageRunCi(String path,
         }
 
         if (!noTest) {
-          await shell.run('''
+          if (supportsDartTest) {
+            await shell.run('''
     # Test
     dart test $dartRunExtraOptions -p vm
     ''');
+          } else {
+            // Pre 2.12 supports
+            await shell.run('''
+    # Test
+    pub run $dartRunExtraOptions test -p vm
+    ''');
+          }
         } else {
           stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
         }
@@ -367,10 +386,10 @@ Future singlePackageRunCi(String path,
           }
           // Add node for standard run test
           var isNode = pubspecYamlSupportsNode(pubspecMap);
-          if (isNode && isNodeSupported) {
+          if (isNode && isNodeSupportedSync) {
             platforms.add('node');
 
-            await nodeTestCheck(path);
+            await nodeSetupCheck(path);
             // Workaround issue about complaining old pubspec on node...
             // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
             await shell.run('''
@@ -441,6 +460,7 @@ Future<List<String>> getInstalledGlobalPackages() async {
 }
 
 bool _flutterWebEnabled;
+
 Future<bool> flutterEnableWeb() async {
   if (_flutterWebEnabled == null) {
     /// requires at least beta

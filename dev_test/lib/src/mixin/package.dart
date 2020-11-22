@@ -17,4 +17,5 @@ export 'package:dev_test/src/package/package.dart'
 /// Pseudo exports.
 ///
 /// Used internally.
-export 'package:dev_test/src/package/universal/package_universal.dart';
+export 'package:dev_test/src/package/universal/package_universal.dart'
+    show pathGetPubspecYamlMap, pathGetAnalysisOptionsYamlMap;
