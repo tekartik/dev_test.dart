@@ -218,6 +218,11 @@ Future<void> singlePackageRunCi(String path,
     return;
   }
 
+  if (File(join('.local', '.skip_run_ci')).existsSync()) {
+    print('Skipping run_ci');
+    return;
+  }
+
   var noPubGetOrUpgrade = false;
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
@@ -260,6 +265,11 @@ Future<void> singlePackageRunCi(String path,
     noFormat = !formatOnly;
     noPubGetOrUpgrade = !pubGetOnly && !pubUpgradeOnly;
     pubUpgrade = pubUpgradeOnly;
+  }
+
+  // ensure test exists
+  if (!Directory(join(path, 'test')).existsSync()) {
+    noTest = true;
   }
 
   if (!noPubGetOrUpgrade) {

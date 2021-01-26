@@ -38,6 +38,9 @@ might skip many needed tests.
 ### IO utility
 
 There is convenient way to run a validation test on your package:
+- analyze
+- format
+- test
 
 ```
 # Once only
@@ -50,6 +53,9 @@ pub global run dev_test:run_ci
 pub global run dev_test:run_ci <path>
 
 ```
+
+- You can override the behavior by creating a 'tool/run_ci_override.dart' file
+- You can skip a folder by creating an empty placeholder file '.local/.skip_run_ci'
 
 ### Testing with dartdevc
 
