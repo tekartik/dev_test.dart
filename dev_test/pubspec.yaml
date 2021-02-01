@@ -1,5 +1,5 @@
 name: dev_test
-version: 0.13.5
+version: 0.15.0-nullsafety.0
 homepage: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 description: Brings (back) the solo and skip features on top of the test package
 
@@ -27,9 +27,9 @@ dev_dependencies:
 
 dependency_overrides:
   # Comment for publication - temp nnbd
-  test: '>=1.16.0-nullsafety.11'
-  args: '>=2.0.0-nullsafety.0'
-  pub_semver: '>=2.0.0-nullsafety.0'
+  # test: '>=1.16.0-nullsafety.11'
+  # args: '>=2.0.0-nullsafety.0'
+  # pub_semver: '>=2.0.0-nullsafety.0'
 executables:
   # Run common dart/flutter project testing
   run_ci:

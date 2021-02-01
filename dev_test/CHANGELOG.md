@@ -1,3 +1,7 @@
+## 0.15.0-nullsafety.0
+
+* `nnbd` supports, breaking change.
+
 ## 0.13.5
 
 * Add `build_support.dart` to help building project for testing.
