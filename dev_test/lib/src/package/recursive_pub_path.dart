@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:dev_test/src/import.dart';
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/pub_io.dart';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:pool/pool.dart';
 

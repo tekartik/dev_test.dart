@@ -2,11 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_test/src/mixin/package.dart';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process_run/dartbin.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/which.dart';
+import 'package:pub_semver/pub_semver.dart';
+
+var minNnbdVersion = Version(2, 12, 0, pre: '0');
 
 /// Returns true if added
 Future<bool> pathPubspecAddDependency(String dir, String dependency,
@@ -33,7 +35,7 @@ String _loadPubspecContent(String dir) {
 
 Future<void> _writePubspecContent(String dir, String content) async {
   var file = File(join(dir, 'pubspec.yaml'));
-  return await file.writeAsString(content);
+  await file.writeAsString(content);
 }
 
 // Null if not a dependency, formatted on a single line with depencency prefix or
@@ -42,7 +44,7 @@ Future<List<String>?> pathPubspecGetDependencyLines(
     String dir, String dependency) async {
   var map = await pathGetPubspecYamlMap(dir);
 
-  var lines = <String?>[];
+  var lines = <String>[];
   if (pubspecYamlHasAnyDependencies(map, [dependency])) {
     var readLines = _loadPubspecContentLines(dir).toList();
     String? headerLine;
@@ -60,10 +62,10 @@ Future<List<String>?> pathPubspecGetDependencyLines(
         foundHeader = true;
       }
     }
-    if (lines.isEmpty) {
+    if (lines.isEmpty && headerLine != null) {
       lines.add(headerLine);
     }
-    return lines as FutureOr<List<String>?>;
+    return lines;
   }
   return null;
 }
@@ -119,7 +121,7 @@ String _pubspecStringRemoveDependency(String content, String dependency) {
     var line = readLines[i];
     if (deleteStartIndex != null) {
       if (line.startsWith('  ')) {
-        deleteEndIndex++;
+        deleteEndIndex = deleteEndIndex! + 1;
       } else {
         break;
       }
@@ -203,8 +205,7 @@ const dartTemplateWebSimple = 'web-simple';
 const flutterTemplateApp = 'app';
 
 Future<void> dartCreateProject(
-    {String template = dartTemplateConsoleSimple,
-    required String path}) async {
+    {String template = dartTemplateConsoleSimple, required String path}) async {
   await Directory(path).prepare();
 
   var shell = Shell().cd(dirname(path));

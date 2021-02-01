@@ -25,15 +25,15 @@ void main() {
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
     });
 
-    Map<String, dynamic>? parseMap(String text) {
-      return (loadYaml(text) as Map?)?.cast<String, dynamic>();
+    Map<String, Object?>? parseMap(String text) {
+      return (loadYaml(text) as Map?)?.cast<String, Object?>();
     }
 
     test('pubspec supports', () {
       var pubspecMap = parseMap('''
 dependencies:
   flutter:
-      ''');
+      ''')!;
       expect(pubspecYamlSupportsFlutter(pubspecMap), isTrue);
       expect(pubspecYamlSupportsWeb(pubspecMap), isFalse);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
@@ -41,7 +41,7 @@ dependencies:
       pubspecMap = parseMap('''
 dev_dependencies:
   build_web_compilers:
-      ''');
+      ''')!;
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
       expect(pubspecYamlSupportsWeb(pubspecMap), isTrue);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
@@ -49,7 +49,7 @@ dev_dependencies:
       pubspecMap = parseMap('''
 dev_dependencies:
   build_node_compilers:
-      ''');
+      ''')!;
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
       expect(pubspecYamlSupportsWeb(pubspecMap), isFalse);
       expect(pubspecYamlSupportsNode(pubspecMap), isTrue);

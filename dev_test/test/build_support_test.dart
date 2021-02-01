@@ -186,7 +186,9 @@ void main() {
                   await pathGetPubspecYamlMap(dir), ['dev_test']),
               isTrue);
         }
-      }, timeout: const Timeout(Duration(minutes: 10)));
+      },
+          timeout: const Timeout(Duration(minutes: 10)),
+          skip: 'Temp skip during nnbd migration');
     },
   );
 }

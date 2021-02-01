@@ -1,7 +1,6 @@
 import 'package:dev_test/build_support.dart';
 import 'package:dev_test/package.dart';
 import 'package:fs_shim/fs_io.dart';
-import 'package:meta/meta.dart';
 
 export 'package:path/path.dart';
 

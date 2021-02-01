@@ -4,13 +4,13 @@ import 'dart:io';
 import 'package:dev_test/src/mixin/package_io.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart'
     show getFlutterBinChannel, dartChannelStable;
 import 'package:process_run/shell_run.dart';
 import 'package:pub_semver/pub_semver.dart';
 
+import 'build_support.dart';
 import 'import.dart';
 import 'mixin/package.dart';
 import 'node_support.dart';
@@ -18,8 +18,8 @@ import 'package/recursive_pub_path.dart';
 
 Future main(List<String> arguments) async {
   String? path;
-  if (arguments.isNotEmpty ?? false) {
-    var firstArg = arguments.first?.toString();
+  if (arguments.isNotEmpty) {
+    var firstArg = arguments.first.toString();
     if (await isPubPackageRoot(firstArg)) {
       path = firstArg;
     }
@@ -226,12 +226,12 @@ Future<void> singlePackageRunCi(String path,
   var noPubGetOrUpgrade = false;
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
-  var analysisOptionsMap = await pathGetAnalysisOptionsYamlMap(path);
   var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
 
   var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
-  var supportsNnbdExperiment =
-      analysisOptionsSupportsNnbdExperiment(analysisOptionsMap);
+  var supportsNnbd = dartVersion >= minNnbdVersion &&
+      sdkBoundaries.min != null &&
+      sdkBoundaries.min!.value >= minNnbdVersion;
 
   if (!sdkBoundaries.match(dartVersion)) {
     stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
@@ -332,7 +332,7 @@ Future<void> singlePackageRunCi(String path,
       /// Try building web if possible
 
       /// requires at least beta
-      if (await (flutterEnableWeb() as FutureOr<bool>)) {
+      if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           await checkAndActivatePackage('webdev');
           await shell.run('flutter build web');
@@ -342,40 +342,21 @@ Future<void> singlePackageRunCi(String path,
   } else {
     var dartExtraOptions = '';
     var dartRunExtraOptions = '';
-    if (supportsNnbdExperiment) {
-      // Temp dart extra option. To remove once nnbd supported on stable without flags
-      dartExtraOptions = '--enable-experiment=non-nullable';
-      // Needed for run and test
-      dartRunExtraOptions =
-          '--enable-experiment=non-nullable --no-sound-null-safety';
-
-      // dart test supports the nnbd option starting 2.12
-      var supportsDartTest = dartVersion >= Version(2, 12, 0, pre: '0');
-      // Only io test for now
-      if (dartVersion >= Version(2, 10, 0, pre: '92')) {
-        if (!noAnalyze!) {
-          await shell.run('''
+    if (supportsNnbd) {
+      if (!noAnalyze!) {
+        await shell.run('''
       # Analyze code
       dart analyze $dartExtraOptions --fatal-warnings --fatal-infos .
   ''');
-        }
+      }
 
-        if (!noTest!) {
-          if (supportsDartTest) {
-            await shell.run('''
+      if (!noTest!) {
+        await shell.run('''
     # Test
     dart test $dartRunExtraOptions -p vm
     ''');
-          } else {
-            // Pre 2.12 supports
-            await shell.run('''
-    # Test
-    pub run $dartRunExtraOptions test -p vm
-    ''');
-          }
-        } else {
-          stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
-        }
+      } else {
+        stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
       }
     } else {
       if (!noAnalyze!) {
@@ -453,25 +434,25 @@ bool get isRunningOnTravis => Platform.environment['TRAVIS'] == 'true';
 List<String>? _installedGlobalPackages;
 
 Future<void> checkAndActivatePackage(String package) async {
-  var list = await (getInstalledGlobalPackages() as FutureOr<List<String>>);
+  var list = await getInstalledGlobalPackages();
   if (!list.contains(package)) {
     await run('dart pub global activate $package');
     list.add(package);
   }
 }
 
-Future<List<String>?> getInstalledGlobalPackages() async {
+Future<List<String>> getInstalledGlobalPackages() async {
   if (_installedGlobalPackages == null) {
     var lines = (await run('dart pub global list', verbose: false)).outLines;
     _installedGlobalPackages =
         lines.map((line) => line.split(' ')[0]).toList(growable: true);
   }
-  return _installedGlobalPackages;
+  return _installedGlobalPackages!;
 }
 
 bool? _flutterWebEnabled;
 
-Future<bool?> flutterEnableWeb() async {
+Future<bool> flutterEnableWeb() async {
   if (_flutterWebEnabled == null) {
     /// requires at least beta
     if (await getFlutterBinChannel() != dartChannelStable) {
@@ -481,5 +462,5 @@ Future<bool?> flutterEnableWeb() async {
       _flutterWebEnabled = false;
     }
   }
-  return _flutterWebEnabled;
+  return _flutterWebEnabled!;
 }

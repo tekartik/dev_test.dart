@@ -45,7 +45,7 @@ bool _hasDependency(Map? yaml, String dependency) {
   return false;
 }
 
-bool pubspecYamlHasAnyDependencies(Map? yaml, List<String> dependencies) {
+bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
   for (var dependency in dependencies) {
     if (_hasDependency(yaml, dependency)) {
       return true;
@@ -63,10 +63,10 @@ bool pubspecYamlHasAllDependencies(Map yaml, List<String> dependencies) {
   return true;
 }
 
-bool pubspecYamlSupportsFlutter(Map? map) =>
+bool pubspecYamlSupportsFlutter(Map map) =>
     pubspecYamlHasAnyDependencies(map, ['flutter']);
 
-bool pubspecYamlSupportsWeb(Map? map) {
+bool pubspecYamlSupportsWeb(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['build_web_compilers']);
 }
 
@@ -74,7 +74,7 @@ bool pubspecYamlSupportsTest(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['test']);
 }
 
-bool pubspecYamlSupportsNode(Map? map) {
+bool pubspecYamlSupportsNode(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['build_node_compilers']);
 }
 

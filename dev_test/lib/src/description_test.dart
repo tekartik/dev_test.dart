@@ -22,7 +22,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic>? onPlatform}) {
+      Map<String, Object?>? onPlatform}) {
     var descriptions = List<String>.from(_descriptions)..add(description);
     _impl.test(description, () {
       return _wrap(descriptions, body);
@@ -42,7 +42,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic>? onPlatform}) {
+      Map<String, Object?>? onPlatform}) {
     _impl.group(description, () {
       _descriptions.add(description);
       body();

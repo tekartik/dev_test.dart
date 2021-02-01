@@ -2,7 +2,7 @@ import 'list_utils.dart';
 
 /// content from mapSrc is merge into mapDst overriding it if needed
 /// @returns mapDst
-Map mergeMap(Map mapDst, Map mapSrc) {
+Map mergeMap(Map mapDst, Map? mapSrc) {
   if (mapSrc != null) {
     mapSrc.forEach((var key, var value) {
       mapDst[key] = value;
@@ -31,7 +31,7 @@ Map<K, V> cloneMap<K, V>(Map<K, V> original) {
 ///
 /// if the map value is null and createIfNull is specified, the object is
 /// created and inserted in the map.
-V? mapValue<K, V>(Map<K, V> map, K key, {V Function()? createIfNull}) {
+V? mapValue<K, V>(Map<K, V>? map, K key, {V Function()? createIfNull}) {
   if (map == null) {
     return null;
   }
@@ -43,7 +43,7 @@ V? mapValue<K, V>(Map<K, V> map, K key, {V Function()? createIfNull}) {
   return value;
 }
 
-String? mapStringValue(Map map, String key, [String? defaultValue]) {
+String? mapStringValue(Map? map, String key, [String? defaultValue]) {
   if (map != null) {
     var value = map[key]?.toString();
     if (value != null) {
@@ -53,7 +53,7 @@ String? mapStringValue(Map map, String key, [String? defaultValue]) {
   return defaultValue;
 }
 
-int? mapIntValue(Map map, String key, [int? defaultValue]) {
+int? mapIntValue(Map? map, String key, [int? defaultValue]) {
   if (map != null) {
     var value = map[key];
     if (value != null) {

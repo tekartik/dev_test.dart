@@ -12,7 +12,7 @@ T? listLast<T>(Iterable<T> list) {
   return listIsEmpty(list) ? null : list.last;
 }
 
-int listLength(Iterable list) {
+int listLength(Iterable? list) {
   return list?.length ?? 0;
 }
 
@@ -66,7 +66,7 @@ List<T> listSubList<T>(List<T> list, int start, [int? end]) {
 List<T> listTruncate<T>(List<T> list, int len) => listSubList(list, 0, len);
 
 /// Clone list and list of list
-List<T> cloneList<T>(List<T> original) {
+List<T>? cloneList<T>(List<T>? original) {
   if (original == null) {
     return null;
   }
@@ -99,11 +99,11 @@ List<T> intersectList<T>(List<T> original1, List<T> original2) {
 /// Split a list in sub list with a maximum size.
 ///
 /// Never returns list. if list is null, returns an empty list.
-/// If [chunkSize] is null or 0, returns all in one list;
+/// If [chunkSize] is 0, returns all in one list;
 List<List<T>> listChunk<T>(List<T> list, int chunkSize) {
   var chunks = <List<T>>[];
-  final len = list?.length ?? 0;
-  if ((chunkSize ?? 0) == 0) {
+  final len = list.length;
+  if (chunkSize == 0) {
     chunkSize = len;
   }
   for (var i = 0; i < len; i += chunkSize) {

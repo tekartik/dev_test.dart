@@ -16,7 +16,7 @@ abstract class Test {
       Timeout? timeout,
       skip,
       bool solo = false,
-      Map<String, dynamic>? onPlatform});
+      Map<String, Object?>? onPlatform});
 
 // overriding  [_test.group]
   void group(String description, void Function() body,
@@ -24,7 +24,7 @@ abstract class Test {
       Timeout? timeout,
       skip,
       bool solo = false,
-      Map<String, dynamic>? onPlatform});
+      Map<String, Object?>? onPlatform});
 
 // overriding  [_test.setUp]
   void setUp(Function() callback);
@@ -50,7 +50,7 @@ void test(String description, Function() body,
     Timeout? timeout,
     skip,
     @deprecated bool solo = false,
-    Map<String, dynamic>? onPlatform}) {
+    Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -66,7 +66,7 @@ void group(String description, void Function() body,
     Timeout? timeout,
     skip,
     @deprecated bool solo = false,
-    Map<String, dynamic>? onPlatform}) {
+    Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -113,7 +113,7 @@ void
         Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic>? onPlatform}) {
+        Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -135,7 +135,7 @@ void
         Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic>? onPlatform}) {
+        Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -157,7 +157,7 @@ void
         Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic>? onPlatform}) {
+        Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -180,7 +180,7 @@ void
         Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic>? onPlatform}) {
+        Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,

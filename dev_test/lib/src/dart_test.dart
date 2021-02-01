@@ -10,7 +10,7 @@ class DartTest implements Test {
       Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic>? onPlatform}) {
+      Map<String, Object?>? onPlatform}) {
     _impl.test(description, body,
         testOn: testOn,
         timeout: timeout,
@@ -27,7 +27,7 @@ class DartTest implements Test {
       Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic>? onPlatform}) {
+      Map<String, Object?>? onPlatform}) {
     _impl.group(description, body,
         testOn: testOn,
         timeout: timeout,
