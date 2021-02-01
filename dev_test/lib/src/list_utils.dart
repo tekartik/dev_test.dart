@@ -2,13 +2,13 @@ import 'dart:math';
 
 import 'map_utils.dart';
 
-T first<T>(Iterable<T> list) => listFirst(list);
+T? first<T>(Iterable<T> list) => listFirst(list);
 
-T listFirst<T>(Iterable<T> list) {
+T? listFirst<T>(Iterable<T> list) {
   return listIsEmpty(list) ? null : list.first;
 }
 
-T listLast<T>(Iterable<T> list) {
+T? listLast<T>(Iterable<T> list) {
   return listIsEmpty(list) ? null : list.last;
 }
 
@@ -17,7 +17,7 @@ int listLength(Iterable list) {
 }
 
 /// Safe way to get a list, never fails
-List<T> asList<T>(dynamic value) {
+List<T>? asList<T>(dynamic value) {
   if (value is List<T>) {
     return value;
   }
@@ -51,7 +51,7 @@ int _listSafeStartOrEnd(List list, int index) {
 }
 
 /// Safe sub list sub list
-List<T> listSubList<T>(List<T> list, int start, [int end]) {
+List<T> listSubList<T>(List<T> list, int start, [int? end]) {
   if (listIsEmpty(list)) {
     return list;
   }
@@ -70,16 +70,16 @@ List<T> cloneList<T>(List<T> original) {
   if (original == null) {
     return null;
   }
-  var clone = <T>[];
+  var clone = <T?>[];
   original.forEach((dynamic item) {
     if (item is List) {
-      item = cloneList(item as List);
+      item = cloneList(item);
     } else if (item is Map) {
-      item = cloneMap(item as Map);
+      item = cloneMap(item);
     }
-    clone.add(item as T);
+    clone.add(item as T?);
   });
-  return clone;
+  return clone as List<T>;
 }
 
 /// better to have original1 bigger than original2

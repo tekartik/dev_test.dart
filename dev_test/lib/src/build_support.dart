@@ -10,7 +10,7 @@ import 'package:process_run/which.dart';
 
 /// Returns true if added
 Future<bool> pathPubspecAddDependency(String dir, String dependency,
-    {List<String> dependencyLines}) async {
+    {List<String>? dependencyLines}) async {
   var map = await pathGetPubspecYamlMap(dir);
   if (!pubspecYamlHasAnyDependencies(map, [dependency])) {
     var content = _loadPubspecContent(dir);
@@ -38,14 +38,14 @@ Future<void> _writePubspecContent(String dir, String content) async {
 
 // Null if not a dependency, formatted on a single line with depencency prefix or
 // multiple lines
-Future<List<String>> pathPubspecGetDependencyLines(
+Future<List<String>?> pathPubspecGetDependencyLines(
     String dir, String dependency) async {
   var map = await pathGetPubspecYamlMap(dir);
 
-  var lines = <String>[];
+  var lines = <String?>[];
   if (pubspecYamlHasAnyDependencies(map, [dependency])) {
     var readLines = _loadPubspecContentLines(dir).toList();
-    String headerLine;
+    String? headerLine;
     var foundHeader = false;
     for (var i = 0; i < readLines.length; i++) {
       var line = readLines[i];
@@ -63,7 +63,7 @@ Future<List<String>> pathPubspecGetDependencyLines(
     if (lines.isEmpty) {
       lines.add(headerLine);
     }
-    return lines;
+    return lines as FutureOr<List<String>?>;
   }
   return null;
 }
@@ -83,7 +83,7 @@ Future<bool> pathPubspecRemoveDependency(String dir, String dependency) async {
 /// Add a dependency in a brut force way
 ///
 String _pubspecStringAddDependency(String content, String dependency,
-    {List<String> dependencyLines}) {
+    {List<String>? dependencyLines}) {
   var lines = LineSplitter.split(content).toList();
   var index = lines.indexOf('dependencies:');
   if (index < 0) {
@@ -112,8 +112,8 @@ String _pubspecStringAddDependency(String content, String dependency,
 ///
 String _pubspecStringRemoveDependency(String content, String dependency) {
   var lines = LineSplitter.split(content).toList();
-  int deleteStartIndex;
-  int deleteEndIndex;
+  int? deleteStartIndex;
+  int? deleteEndIndex;
   var readLines = lines;
   for (var i = 0; i < readLines.length; i++) {
     var line = readLines[i];
@@ -129,13 +129,13 @@ String _pubspecStringRemoveDependency(String content, String dependency) {
     }
   }
   if (deleteStartIndex != null) {
-    lines.removeRange(deleteStartIndex, deleteEndIndex);
+    lines.removeRange(deleteStartIndex, deleteEndIndex!);
   }
 
   return lines.join('\n');
 }
 
-String _flutterChannel;
+String? _flutterChannel;
 
 /// Setup minimum Dart support
 Future<void> buildInitDart() async {}
@@ -158,13 +158,13 @@ bool get buildSupportsMacOS =>
     Platform.isMacOS &&
     [dartChannelDev, dartChannelMaster].contains(_flutterChannel);
 
-bool _supportsIOS;
+bool? _supportsIOS;
 
 /// For now based on x-code presence.
 bool get buildSupportsIOS =>
     _supportsIOS ??= Platform.isMacOS && whichSync('xcode-select') != null;
 
-bool _supportsAndroid;
+bool? _supportsAndroid;
 
 /// Always allowed for now
 bool get buildSupportsAndroid => _supportsAndroid ??= true;
@@ -204,7 +204,7 @@ const flutterTemplateApp = 'app';
 
 Future<void> dartCreateProject(
     {String template = dartTemplateConsoleSimple,
-    @required String path}) async {
+    required String path}) async {
   await Directory(path).prepare();
 
   var shell = Shell().cd(dirname(path));
@@ -213,9 +213,9 @@ Future<void> dartCreateProject(
 }
 
 Future<void> flutterCreateProject({
-  @required String path,
+  required String path,
   String template = flutterTemplateApp,
-  bool noAnalyze,
+  bool? noAnalyze,
 }) async {
   await Directory(path).prepare();
 

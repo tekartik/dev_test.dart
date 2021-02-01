@@ -8,7 +8,7 @@ import 'package:process_run/cmd_run.dart';
 
 import 'test_utils.dart';
 
-Future checkCaseTest(String name, int count, {String testNameFilter}) async {
+Future checkCaseTest(String name, int count, {String? testNameFilter}) async {
   // pub run test -r json -j 1 --no-color -p chrome test/multiplatform/case/one_solo_test_case_test.dart
   final runResult = await runCmd(ProcessCmd('pub', [
     'run',

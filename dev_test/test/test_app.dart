@@ -24,7 +24,7 @@ Future<void> main() async {
 }
 
 Future<void> dartGenerateAndRunCi(
-    {@required String template, @required String path}) async {
+    {required String template, required String path}) async {
   await Directory(path).prepare();
 
   // var shell = Shell().cd(dirname(path));
@@ -34,9 +34,9 @@ Future<void> dartGenerateAndRunCi(
 }
 
 Future<void> flutterGenerateAndRunCi({
-  @required String path,
-  @required String template,
-  bool noAnalyze,
+  required String path,
+  required String template,
+  bool? noAnalyze,
 }) async {
   await Directory(path).prepare();
 

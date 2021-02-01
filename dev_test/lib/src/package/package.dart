@@ -2,28 +2,28 @@
 import 'package:dev_test/src/map_utils.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-String pubspecYamlGetPackageName(Map yaml) => yaml['name'] as String;
+String? pubspecYamlGetPackageName(Map yaml) => yaml['name'] as String?;
 
 Version pubspecYamlGetVersion(Map yaml) =>
     Version.parse(yaml['version'] as String);
 
-Iterable<String> pubspecYamlGetTestDependenciesPackageName(Map yaml) {
+Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {
   if (yaml.containsKey('test_dependencies')) {
-    var list = (yaml['test_dependencies'] as Iterable)?.cast<String>();
+    var list = (yaml['test_dependencies'] as Iterable?)?.cast<String>();
     list ??= <String>[];
   }
   return null;
 }
 
-Iterable<String> pubspecYamlGetDependenciesPackageName(Map yaml) {
-  return ((yaml['dependencies'] as Map)?.keys)?.cast<String>();
+Iterable<String>? pubspecYamlGetDependenciesPackageName(Map yaml) {
+  return ((yaml['dependencies'] as Map?)?.keys)?.cast<String>();
 }
 
 Version pubspecLockGetVersion(Map yaml, String packageName) =>
     Version.parse(yaml['packages'][packageName]['version'] as String);
 
 bool _hasKindDependency(Map yaml, String kind, String dependency) {
-  var dependencies = yaml[kind] as Map;
+  var dependencies = yaml[kind] as Map?;
   if (dependencies != null) {
     if (dependencies.containsKey(dependency)) {
       return true;
@@ -32,20 +32,20 @@ bool _hasKindDependency(Map yaml, String kind, String dependency) {
   return false;
 }
 
-bool _hasDependency(Map yaml, String dependency) {
+bool _hasDependency(Map? yaml, String dependency) {
   for (var kind in [
     'dependencies',
     'dev_dependencies',
     'dependency_overrides'
   ]) {
-    if (_hasKindDependency(yaml, kind, dependency)) {
+    if (_hasKindDependency(yaml!, kind, dependency)) {
       return true;
     }
   }
   return false;
 }
 
-bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
+bool pubspecYamlHasAnyDependencies(Map? yaml, List<String> dependencies) {
   for (var dependency in dependencies) {
     if (_hasDependency(yaml, dependency)) {
       return true;
@@ -63,10 +63,10 @@ bool pubspecYamlHasAllDependencies(Map yaml, List<String> dependencies) {
   return true;
 }
 
-bool pubspecYamlSupportsFlutter(Map map) =>
+bool pubspecYamlSupportsFlutter(Map? map) =>
     pubspecYamlHasAnyDependencies(map, ['flutter']);
 
-bool pubspecYamlSupportsWeb(Map map) {
+bool pubspecYamlSupportsWeb(Map? map) {
   return pubspecYamlHasAnyDependencies(map, ['build_web_compilers']);
 }
 
@@ -74,7 +74,7 @@ bool pubspecYamlSupportsTest(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['test']);
 }
 
-bool pubspecYamlSupportsNode(Map map) {
+bool pubspecYamlSupportsNode(Map? map) {
   return pubspecYamlHasAnyDependencies(map, ['build_node_compilers']);
 }
 
@@ -93,42 +93,42 @@ class VersionBoundary {
 }
 
 class VersionBoundaries {
-  final VersionBoundary min;
-  final VersionBoundary max;
+  final VersionBoundary? min;
+  final VersionBoundary? max;
 
   @override
   String toString() {
     var sb = StringBuffer();
     if (min != null) {
       if (max == min) {
-        return min.value.toString();
+        return min!.value.toString();
       }
       sb.write('>');
-      if (min.include) {
+      if (min!.include) {
         sb.write('=');
       }
-      sb.write(min.value);
+      sb.write(min!.value);
     }
     if (max != null) {
       if (sb.isNotEmpty) {
         sb.write(' ');
       }
       sb.write('<');
-      if (max.include) {
+      if (max!.include) {
         sb.write('=');
       }
-      sb.write(max.value);
+      sb.write(max!.value);
     }
     return sb.toString();
   }
 
   VersionBoundaries(this.min, this.max);
 
-  static VersionBoundaries tryParse(String text) {
+  static VersionBoundaries? tryParse(String text) {
     if (text is String) {
       var parts = text.trim().split(' ');
-      VersionBoundary min;
-      VersionBoundary max;
+      VersionBoundary? min;
+      VersionBoundary? max;
       for (var part in parts) {
         if (part.startsWith('>=')) {
           try {
@@ -171,20 +171,20 @@ class VersionBoundaries {
   // True if a version match the boundaries
   bool match(Version version) {
     if (min != null) {
-      if (min.include) {
-        if (version < min.value) {
+      if (min!.include) {
+        if (version < min!.value) {
           return false;
         }
-      } else if (version <= min.value) {
+      } else if (version <= min!.value) {
         return false;
       }
     }
     if (max != null) {
-      if (max.include) {
-        if (version > max.value) {
+      if (max!.include) {
+        if (version > max!.value) {
           return false;
         }
-      } else if (version >= max.value) {
+      } else if (version >= max!.value) {
         return false;
       }
     }
@@ -192,7 +192,7 @@ class VersionBoundaries {
   }
 }
 
-VersionBoundaries pubspecYamlGetSdkBoundaries(Map map) {
+VersionBoundaries? pubspecYamlGetSdkBoundaries(Map? map) {
   // environment:
   //   sdk: '>=2.8.0 <3.0.0'
   var rawSdk = mapValueFromParts(map, ['environment', 'sdk']);
@@ -202,7 +202,7 @@ VersionBoundaries pubspecYamlGetSdkBoundaries(Map map) {
   return null;
 }
 
-bool analysisOptionsSupportsNnbdExperiment(Map map) {
+bool analysisOptionsSupportsNnbdExperiment(Map? map) {
   // analyzer:
   //   enable-experiment:
   //     - non-nullable

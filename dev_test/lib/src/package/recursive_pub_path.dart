@@ -49,12 +49,12 @@ final List<String> _blackListedTargets = [
 ];
 
 /// True if the dir should be handled
-Future<bool> _handleDir(String dir, {List<String> dependencies}) async {
+Future<bool> _handleDir(String dir, {List<String>? dependencies}) async {
   // Ignore folder starting with .
   // don't event go below
   if (!_isToBeIgnored(basename(dir))) {
     if (await isPubPackageRoot(dir)) {
-      if (dependencies is List && dependencies.isNotEmpty) {
+      if (dependencies is List && dependencies!.isNotEmpty) {
         final yaml = await pathGetPubspecYamlMap(dir);
         if (pubspecYamlHasAnyDependencies(yaml, dependencies)) {
           return true;
@@ -71,7 +71,7 @@ Future<bool> _handleDir(String dir, {List<String> dependencies}) async {
 /// if [forceRecursive] is true, we folder going deeper even if the current
 /// path is a dart project
 Future<List<String>> filterPubPath(List<String> dirs,
-    {List<String> dependencies}) async {
+    {List<String>? dependencies}) async {
   var list = <String>[];
 
   for (final dir in dirs) {
@@ -92,7 +92,7 @@ Future<List<String>> filterPubPath(List<String> dirs,
 ///
 /// Returns the list of valid pub folder, including me
 Future<List<String>> recursivePubPath(List<String> dirs,
-    {List<String> dependencies}) async {
+    {List<String>? dependencies}) async {
   var pubDirs = await filterPubPath(dirs, dependencies: dependencies);
 
   Future<List<String>> _getSubDirs(String dir) async {
@@ -147,9 +147,9 @@ List<String> removeDuplicates(List<String> dirs) {
 ///
 /// [poolSize] default to 4
 Future<void> recursiveActions(List<String> paths,
-    {@required FutureOr<dynamic> Function(String package) action,
-    bool verbose,
-    int poolSize}) async {
+    {required FutureOr<dynamic> Function(String package) action,
+    bool? verbose,
+    int? poolSize}) async {
   poolSize ??= 4;
   verbose ??= false;
 // filter what could be packages in the paths list

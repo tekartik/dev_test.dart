@@ -7,10 +7,10 @@ String caseNamePath(String name) {
 }
 
 /// result must be run with reporter:json
-bool pubRunTestJsonIsSuccess(String stdout) {
+bool? pubRunTestJsonIsSuccess(String stdout) {
   try {
     var map = json.decode(LineSplitter.split(stdout).last) as Map;
-    return map['success'] as bool;
+    return map['success'] as bool?;
   } catch (_) {
     return false;
   }

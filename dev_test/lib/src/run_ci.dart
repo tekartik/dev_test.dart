@@ -17,7 +17,7 @@ import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 
 Future main(List<String> arguments) async {
-  String path;
+  String? path;
   if (arguments.isNotEmpty ?? false) {
     var firstArg = arguments.first?.toString();
     if (await isPubPackageRoot(firstArg)) {
@@ -155,15 +155,15 @@ Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 /// await packageRunCi('.');
 /// ```
 Future<void> packageRunCi(String path,
-    {bool recursive,
-    bool noFormat,
-    bool noAnalyze,
-    bool noTest,
-    bool noBuild,
-    bool noPubGet,
-    bool verbose,
-    bool pubUpgrade,
-    int poolSize}) async {
+    {bool? recursive,
+    bool? noFormat,
+    bool? noAnalyze,
+    bool? noTest,
+    bool? noBuild,
+    bool? noPubGet,
+    bool? verbose,
+    bool? pubUpgrade,
+    int? poolSize}) async {
   recursive ??= false;
   noFormat ??= false;
   noAnalyze ??= false;
@@ -196,18 +196,18 @@ final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 /// Run basic tests on dart/flutter package
 ///
 Future<void> singlePackageRunCi(String path,
-    {@required bool noFormat,
-    @required bool noAnalyze,
-    @required bool noTest,
-    @required bool noBuild,
-    @required bool noPubGet,
-    bool pubUpgrade,
-    bool formatOnly,
-    bool analyzeOnly,
-    bool testOnly,
-    bool buildOnly,
-    bool pubGetOnly,
-    bool pubUpgradeOnly}) async {
+    {required bool? noFormat,
+    required bool? noAnalyze,
+    required bool? noTest,
+    required bool? noBuild,
+    required bool? noPubGet,
+    bool? pubUpgrade,
+    bool? formatOnly,
+    bool? analyzeOnly,
+    bool? testOnly,
+    bool? buildOnly,
+    bool? pubGetOnly,
+    bool? pubUpgradeOnly}) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
   // Override?
@@ -229,7 +229,7 @@ Future<void> singlePackageRunCi(String path,
   var analysisOptionsMap = await pathGetAnalysisOptionsYamlMap(path);
   var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
 
-  var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
+  var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
   var supportsNnbdExperiment =
       analysisOptionsSupportsNnbdExperiment(analysisOptionsMap);
 
@@ -291,7 +291,7 @@ Future<void> singlePackageRunCi(String path,
   var filteredDartDirs = await filterTopLevelDartDirs(path);
   var filteredDartDirsArg = filteredDartDirs.join(' ');
 
-  if (!noFormat) {
+  if (!noFormat!) {
     // Formatting change in 2.9 with hashbang first line
     await checkAndActivatePackage('dart_style');
     try {
@@ -313,14 +313,14 @@ Future<void> singlePackageRunCi(String path,
   }
 
   if (isFlutterPackage) {
-    if (!noAnalyze) {
+    if (!noAnalyze!) {
       await shell.run('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
     }
 
-    if (!noTest) {
+    if (!noTest!) {
       // 'test', '--no-pub'
       // Flutter way
       await shell.run('''
@@ -328,11 +328,11 @@ Future<void> singlePackageRunCi(String path,
       flutter test --no-pub
     ''');
     }
-    if (!noBuild) {
+    if (!noBuild!) {
       /// Try building web if possible
 
       /// requires at least beta
-      if (await flutterEnableWeb()) {
+      if (await (flutterEnableWeb() as FutureOr<bool>)) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           await checkAndActivatePackage('webdev');
           await shell.run('flutter build web');
@@ -353,14 +353,14 @@ Future<void> singlePackageRunCi(String path,
       var supportsDartTest = dartVersion >= Version(2, 12, 0, pre: '0');
       // Only io test for now
       if (dartVersion >= Version(2, 10, 0, pre: '92')) {
-        if (!noAnalyze) {
+        if (!noAnalyze!) {
           await shell.run('''
       # Analyze code
       dart analyze $dartExtraOptions --fatal-warnings --fatal-infos .
   ''');
         }
 
-        if (!noTest) {
+        if (!noTest!) {
           if (supportsDartTest) {
             await shell.run('''
     # Test
@@ -378,7 +378,7 @@ Future<void> singlePackageRunCi(String path,
         }
       }
     } else {
-      if (!noAnalyze) {
+      if (!noAnalyze!) {
         await shell.run('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
@@ -386,7 +386,7 @@ Future<void> singlePackageRunCi(String path,
       }
 
       // Test?
-      if (!noTest) {
+      if (!noTest!) {
         if (filteredDartDirs.contains('test')) {
           var platforms = <String>['vm'];
 
@@ -434,7 +434,7 @@ Future<void> singlePackageRunCi(String path,
         }
       }
 
-      if (!noBuild) {
+      if (!noBuild!) {
         /// Try web dev if possible
         if (pubspecYamlHasAllDependencies(
             pubspecMap, ['build_web_compilers', 'build_runner'])) {
@@ -450,17 +450,17 @@ Future<void> singlePackageRunCi(String path,
 
 bool get isRunningOnTravis => Platform.environment['TRAVIS'] == 'true';
 
-List<String> _installedGlobalPackages;
+List<String>? _installedGlobalPackages;
 
 Future<void> checkAndActivatePackage(String package) async {
-  var list = await getInstalledGlobalPackages();
+  var list = await (getInstalledGlobalPackages() as FutureOr<List<String>>);
   if (!list.contains(package)) {
     await run('dart pub global activate $package');
     list.add(package);
   }
 }
 
-Future<List<String>> getInstalledGlobalPackages() async {
+Future<List<String>?> getInstalledGlobalPackages() async {
   if (_installedGlobalPackages == null) {
     var lines = (await run('dart pub global list', verbose: false)).outLines;
     _installedGlobalPackages =
@@ -469,9 +469,9 @@ Future<List<String>> getInstalledGlobalPackages() async {
   return _installedGlobalPackages;
 }
 
-bool _flutterWebEnabled;
+bool? _flutterWebEnabled;
 
-Future<bool> flutterEnableWeb() async {
+Future<bool?> flutterEnableWeb() async {
   if (_flutterWebEnabled == null) {
     /// requires at least beta
     if (await getFlutterBinChannel() != dartChannelStable) {

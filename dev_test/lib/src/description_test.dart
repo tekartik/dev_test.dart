@@ -11,18 +11,18 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   List<String> get testDescriptions =>
       List.from(_currentDescriptions ?? _descriptions);
 
-  List<String> _currentDescriptions; // set when the test is ran
+  List<String>? _currentDescriptions; // set when the test is ran
   final List<String> _descriptions = [];
 
   WithDescriptionsTest(this._impl);
 
   @override
   void test(String description, Function() body,
-      {String testOn,
-      Timeout timeout,
+      {String? testOn,
+      Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic> onPlatform}) {
+      Map<String, dynamic>? onPlatform}) {
     var descriptions = List<String>.from(_descriptions)..add(description);
     _impl.test(description, () {
       return _wrap(descriptions, body);
@@ -38,11 +38,11 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 // overriding  [_test.group]
   @override
   void group(String description, void Function() body,
-      {String testOn,
-      Timeout timeout,
+      {String? testOn,
+      Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic> onPlatform}) {
+      Map<String, dynamic>? onPlatform}) {
     _impl.group(description, () {
       _descriptions.add(description);
       body();
@@ -93,7 +93,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   }
 
   @override
-  void expect(actual, matcher, {String reason, skip}) {
+  void expect(actual, matcher, {String? reason, skip}) {
     _impl.expect(actual, matcher, reason: reason, skip: skip);
   }
 

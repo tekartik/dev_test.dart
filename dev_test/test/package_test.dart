@@ -25,8 +25,8 @@ void main() {
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
     });
 
-    Map<String, dynamic> parseMap(String text) {
-      return (loadYaml(text) as Map)?.cast<String, dynamic>();
+    Map<String, dynamic>? parseMap(String text) {
+      return (loadYaml(text) as Map?)?.cast<String, dynamic>();
     }
 
     test('pubspec supports', () {
@@ -85,7 +85,7 @@ analyzer:
 environment:
   sdk: '>=2.8.0 <3.0.0'
       ''');
-      var boundaries = pubspecYamlGetSdkBoundaries(map);
+      var boundaries = pubspecYamlGetSdkBoundaries(map)!;
       expect(boundaries.match(Version(2, 8, 0)), isTrue);
       expect(boundaries.match(Version(2, 9, 0)), isTrue);
       expect(boundaries.match(Version(3, 0, 0)), isFalse);
@@ -96,11 +96,11 @@ environment:
       expect(VersionBoundaries.tryParse('^0.1.2').toString(), '>=0.1.2 <0.2.0');
       expect(VersionBoundaries.tryParse('^1.2.3').toString(), '>=1.2.3 <2.0.0');
 
-      boundaries = VersionBoundaries.tryParse('>1.0.0');
+      boundaries = VersionBoundaries.tryParse('>1.0.0')!;
       expect(boundaries.match(Version(1, 1, 0)), isTrue);
       expect(boundaries.match(Version(2, 1, 0)), isTrue);
       expect(boundaries.match(Version(1, 0, 0)), isFalse);
-      boundaries = VersionBoundaries.tryParse('<=3.0.0');
+      boundaries = VersionBoundaries.tryParse('<=3.0.0')!;
       expect(boundaries.match(Version(3, 0, 0)), isTrue);
       expect(boundaries.match(Version(3, 0, 1)), isFalse);
     });

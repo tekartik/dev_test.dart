@@ -12,19 +12,19 @@ List<String> get testDescriptions =>
 
 abstract class Test {
   void test(String description, Function() body,
-      {String testOn,
-      Timeout timeout,
+      {String? testOn,
+      Timeout? timeout,
       skip,
       bool solo = false,
-      Map<String, dynamic> onPlatform});
+      Map<String, dynamic>? onPlatform});
 
 // overriding  [_test.group]
   void group(String description, void Function() body,
-      {String testOn,
-      Timeout timeout,
+      {String? testOn,
+      Timeout? timeout,
       skip,
       bool solo = false,
-      Map<String, dynamic> onPlatform});
+      Map<String, dynamic>? onPlatform});
 
 // overriding  [_test.setUp]
   void setUp(Function() callback);
@@ -38,7 +38,7 @@ abstract class Test {
 // overriding  [_test.tearDown]
   void tearDownAll(Function() callback);
 
-  void expect(actual, matcher, {String reason, skip});
+  void expect(actual, matcher, {String? reason, skip});
 }
 
 abstract class WithTestDescriptions {
@@ -46,11 +46,11 @@ abstract class WithTestDescriptions {
 }
 
 void test(String description, Function() body,
-    {String testOn,
-    Timeout timeout,
+    {String? testOn,
+    Timeout? timeout,
     skip,
     @deprecated bool solo = false,
-    Map<String, dynamic> onPlatform}) {
+    Map<String, dynamic>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -62,11 +62,11 @@ void test(String description, Function() body,
 
 // overriding  [_test.group]
 void group(String description, void Function() body,
-    {String testOn,
-    Timeout timeout,
+    {String? testOn,
+    Timeout? timeout,
     skip,
     @deprecated bool solo = false,
-    Map<String, dynamic> onPlatform}) {
+    Map<String, dynamic>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -95,7 +95,7 @@ void tearDownAll(Function() callback) {
   testImplementation.tearDownAll(callback);
 }
 
-void expect(actual, matcher, {String reason, skip}) {
+void expect(actual, matcher, {String? reason, skip}) {
   testImplementation.expect(actual, matcher, reason: reason, skip: skip);
 }
 
@@ -109,11 +109,11 @@ void expect(actual, matcher, {String reason, skip}) {
 void
 // ignore: non_constant_identifier_names
     solo_test(String description, Function() body,
-        {String testOn,
-        Timeout timeout,
+        {String? testOn,
+        Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic> onPlatform}) {
+        Map<String, dynamic>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -131,11 +131,11 @@ void
 void
 // ignore: non_constant_identifier_names
     solo_group(String description, void Function() body,
-        {String testOn,
-        Timeout timeout,
+        {String? testOn,
+        Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic> onPlatform}) {
+        Map<String, dynamic>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -153,11 +153,11 @@ void
 void
 // ignore: non_constant_identifier_names
     skip_test(String description, Function() body,
-        {String testOn,
-        Timeout timeout,
+        {String? testOn,
+        Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic> onPlatform}) {
+        Map<String, dynamic>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
       timeout: timeout,
@@ -176,11 +176,11 @@ void
 void
 // ignore: non_constant_identifier_names
     skip_group(String description, void Function() body,
-        {String testOn,
-        Timeout timeout,
+        {String? testOn,
+        Timeout? timeout,
         skip,
         @deprecated bool solo = false,
-        Map<String, dynamic> onPlatform}) {
+        Map<String, dynamic>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
       timeout: timeout,
