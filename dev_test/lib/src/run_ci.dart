@@ -10,7 +10,6 @@ import 'package:process_run/cmd_run.dart'
 import 'package:process_run/shell_run.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-import 'build_support.dart';
 import 'import.dart';
 import 'mixin/package.dart';
 import 'node_support.dart';
@@ -229,9 +228,6 @@ Future<void> singlePackageRunCi(String path,
   var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
 
   var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
-  var supportsNnbd = dartVersion >= minNnbdVersion &&
-      sdkBoundaries.min != null &&
-      sdkBoundaries.min!.value >= minNnbdVersion;
 
   if (!sdkBoundaries.match(dartVersion)) {
     stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
@@ -340,89 +336,69 @@ Future<void> singlePackageRunCi(String path,
       }
     }
   } else {
-    var dartExtraOptions = '';
-    var dartRunExtraOptions = '';
-    if (supportsNnbd) {
-      if (!noAnalyze!) {
-        await shell.run('''
-      # Analyze code
-      dart analyze $dartExtraOptions --fatal-warnings --fatal-infos .
-  ''');
-      }
-
-      if (!noTest!) {
-        await shell.run('''
-    # Test
-    dart test $dartRunExtraOptions -p vm
-    ''');
-      } else {
-        stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
-      }
-    } else {
-      if (!noAnalyze!) {
-        await shell.run('''
+    if (!noAnalyze!) {
+      await shell.run('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
   ''');
-      }
+    }
 
-      // Test?
-      if (!noTest!) {
-        if (filteredDartDirs.contains('test')) {
-          var platforms = <String>['vm'];
+    // Test?
+    if (!noTest!) {
+      if (filteredDartDirs.contains('test')) {
+        var platforms = <String>['vm'];
 
-          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-          if (isWeb) {
-            platforms.add('chrome');
-          }
-          // Add node for standard run test
-          var isNode = pubspecYamlSupportsNode(pubspecMap);
-          if (isNode && isNodeSupportedSync) {
-            platforms.add('node');
+        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+        if (isWeb) {
+          platforms.add('chrome');
+        }
+        // Add node for standard run test
+        var isNode = pubspecYamlSupportsNode(pubspecMap);
+        if (isNode && isNodeSupportedSync) {
+          platforms.add('node');
 
-            await nodeSetupCheck(path);
-            // Workaround issue about complaining old pubspec on node...
-            // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
-            await shell.run('''
+          await nodeSetupCheck(path);
+          // Workaround issue about complaining old pubspec on node...
+          // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+          await shell.run('''
           # Get dependencies
           dart pub get --offline
     ''');
-          }
+        }
 
-          await shell.run('''
+        await shell.run('''
     # Test
     dart test -p ${platforms.join(',')}
     ''');
 
-          if (isWeb) {
-            if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-              if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-                if (isRunningOnTravis) {
-                  stderr.writeln(
-                      '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
-                } else {
-                  stderr.writeln(
-                      '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
-                }
+        if (isWeb) {
+          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+            if (dartVersion >= Version(2, 10, 0, pre: '110')) {
+              if (isRunningOnTravis) {
+                stderr.writeln(
+                    '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
               } else {
-                await shell.run('''
+                stderr.writeln(
+                    '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
+              }
+            } else {
+              await shell.run('''
       # Build runner test
       dart pub run build_runner test -- -p chrome
       ''');
-              }
             }
           }
         }
       }
+    }
 
-      if (!noBuild!) {
-        /// Try web dev if possible
-        if (pubspecYamlHasAllDependencies(
-            pubspecMap, ['build_web_compilers', 'build_runner'])) {
-          if (File(join(path, 'web', 'index.html')).existsSync()) {
-            await checkAndActivatePackage('webdev');
-            await shell.run('dart pub global run webdev build');
-          }
+    if (!noBuild!) {
+      /// Try web dev if possible
+      if (pubspecYamlHasAllDependencies(
+          pubspecMap, ['build_web_compilers', 'build_runner'])) {
+        if (File(join(path, 'web', 'index.html')).existsSync()) {
+          await checkAndActivatePackage('webdev');
+          await shell.run('dart pub global run webdev build');
         }
       }
     }
