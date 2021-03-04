@@ -81,7 +81,7 @@ Future<List<String>> filterPubPath(List<String> dirs,
         list.add(dir);
       }
     } else {
-      throw '${dir} not a directory';
+      throw '$dir not a directory';
     }
   }
   return list;
@@ -121,7 +121,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
     if (isDirectoryNotLinkSynk(dir)) {
       pubDirs.addAll(await _getSubDirs(dir));
     } else {
-      throw '${dir} not a directory';
+      throw '$dir not a directory';
     }
   }
 
