@@ -9,6 +9,7 @@ jobs:
       run:
         working-directory: .
     strategy:
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         flutter: [stable, beta, dev]
