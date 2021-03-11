@@ -7,6 +7,7 @@ import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
 import 'package:dev_test/test.dart';
+import 'package:path/path.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
@@ -155,16 +156,18 @@ environment:
     });
 
     test('recursivePubPath', () async {
-      expect(await recursivePubPath(['.', '..']), ['.', '..']);
-      expect(await recursivePubPath(['..', '.']), ['.', '..']);
-      expect(await recursivePubPath(['..']),
-          ['..', Platform.isWindows ? '..\\dev_test' : '../dev_test']);
+      var repoSupportEntry = join('..', 'repo_support');
+      var devTestEntry = join('..', 'dev_test');
+      expect(await recursivePubPath(['.', '..']), ['.', repoSupportEntry]);
+      expect(await recursivePubPath(['..', '.']), ['.', repoSupportEntry]);
+      expect(await recursivePubPath(['..']), [devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
     });
 
     test('filterTopLevelDartDirs', () async {
-      expect(await filterTopLevelDartDirs('..'), ['tool']);
+      expect(
+          await filterTopLevelDartDirs(join('..', 'repo_support')), ['tool']);
       expect(await filterTopLevelDartDirs('.'),
           ['bin', 'example', 'lib', 'test', 'tool']);
     });
@@ -180,12 +183,16 @@ environment:
       await recursiveActions(['..'], action: (src) {
         list.add(src);
       });
-      expect(list, ['..', Platform.isWindows ? '..\\dev_test' : '../dev_test']);
+      expect(list, [join('..', 'dev_test'), join('..', 'repo_support')]);
       list = <String>[];
       await recursiveActions(['.', '..'], action: (src) {
         list.add(src);
       });
-      expect(list, ['.', '..']);
+      expect(list, ['.', join('..', 'repo_support')]);
+    });
+
+    test('packageRunCi', () async {
+      await packageRunCi('..', noTest: true);
     });
   });
 }

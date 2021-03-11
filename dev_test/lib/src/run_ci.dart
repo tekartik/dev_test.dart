@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dev_test/package.dart';
 import 'package:dev_test/src/mixin/package_io.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
@@ -154,7 +155,8 @@ Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 /// await packageRunCi('.');
 /// ```
 Future<void> packageRunCi(String path,
-    {bool? recursive,
+    {PackageRunCiOptions? options,
+    bool? recursive,
     bool? noFormat,
     bool? noAnalyze,
     bool? noTest,
@@ -163,43 +165,51 @@ Future<void> packageRunCi(String path,
     bool? verbose,
     bool? pubUpgrade,
     int? poolSize}) async {
-  recursive ??= false;
-  noFormat ??= false;
-  noAnalyze ??= false;
-  noTest ??= false;
-  noBuild ??= false;
-  pubUpgrade ??= false;
+  options ??= PackageRunCiOptions(
+      noPubGet: noPubGet ?? false,
+      noTest: noTest ?? false,
+      noFormat: noFormat ?? false,
+      noAnalyze: noAnalyze ?? false,
+      noBuild: noBuild ?? false,
+      verbose: verbose ?? false,
+      poolSize: poolSize,
+      recursive: recursive ?? false,
+      pubUpgradeOnly: pubUpgrade ?? false);
 
-  if (recursive) {
-    await recursiveActions([path], verbose: verbose, poolSize: poolSize,
-        action: (dir) async {
-      await singlePackageRunCi(dir,
-          noTest: noTest,
-          noFormat: noFormat,
-          noAnalyze: noAnalyze,
-          noBuild: noBuild,
-          noPubGet: noPubGet);
-    });
-  } else {
-    await singlePackageRunCi(path,
-        noAnalyze: noAnalyze,
-        noFormat: noFormat,
-        noTest: noTest,
-        noBuild: noBuild,
-        noPubGet: noPubGet);
-  }
+  await packageRunCiImpl(path, options,
+      recursive: recursive ?? options.recursive);
 }
 
 final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 
+Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
+    {bool recursive = false, int? poolSize}) async {
+  if (recursive) {
+    await recursiveActions([path], verbose: options.verbose, poolSize: poolSize,
+        action: (dir) async {
+      await singlePackageRunCi(dir, options: options);
+    });
+  } else {
+    if (!(await isPubPackageRoot(path))) {
+      stderr.writeln(
+          '${absolute(path)} not a dart package, use --recursive option');
+    } else {
+      await singlePackageRunCi(path, options: options);
+    }
+  }
+}
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> singlePackageRunCi(String path,
-    {required bool? noFormat,
-    required bool? noAnalyze,
-    required bool? noTest,
-    required bool? noBuild,
-    required bool? noPubGet,
+    {PackageRunCiOptions? options,
+    // Later might deprecated in the future - Deprecated since 2021/03/11
+
+    bool? noFormat,
+    bool? noAnalyze,
+    bool? noTest,
+    bool? noBuild,
+    bool? noPubGet,
     bool? pubUpgrade,
     bool? formatOnly,
     bool? analyzeOnly,
@@ -207,6 +217,26 @@ Future<void> singlePackageRunCi(String path,
     bool? buildOnly,
     bool? pubGetOnly,
     bool? pubUpgradeOnly}) async {
+  options ??= PackageRunCiOptions(
+    formatOnly: formatOnly ?? false,
+    buildOnly: buildOnly ?? false,
+    testOnly: testOnly ?? false,
+    analyzeOnly: analyzeOnly ?? false,
+    pubGetOnly: pubGetOnly ?? false,
+    pubUpgradeOnly: pubUpgradeOnly ?? false,
+    noPubGet: noPubGet ?? false,
+    noTest: noTest ?? false,
+    noFormat: noFormat ?? false,
+    noAnalyze: noAnalyze ?? false,
+    noBuild: noBuild ?? false,
+  );
+  await singlePackageRunCiImpl(path, options);
+}
+
+/// Run basic tests on dart/flutter package
+///
+Future<void> singlePackageRunCiImpl(
+    String path, PackageRunCiOptions options) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
   // Override?
@@ -221,8 +251,6 @@ Future<void> singlePackageRunCi(String path,
     print('Skipping run_ci');
     return;
   }
-
-  var noPubGetOrUpgrade = false;
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
   var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
@@ -241,45 +269,24 @@ Future<void> singlePackageRunCi(String path,
     }
   }
 
-  formatOnly ??= false;
-  buildOnly ??= false;
-  testOnly ??= false;
-  analyzeOnly ??= false;
-  pubGetOnly ??= false;
-  pubUpgradeOnly ??= false;
-  pubUpgrade ??= false;
-
-  if (formatOnly ||
-      buildOnly ||
-      testOnly ||
-      analyzeOnly ||
-      pubGetOnly ||
-      pubUpgradeOnly) {
-    noTest = !testOnly;
-    noBuild = !buildOnly;
-    noAnalyze = !analyzeOnly;
-    noFormat = !formatOnly;
-    noPubGetOrUpgrade = !pubGetOnly && !pubUpgradeOnly;
-    pubUpgrade = pubUpgradeOnly;
-  }
-
   // ensure test exists
   if (!Directory(join(path, 'test')).existsSync()) {
-    noTest = true;
+    options.noTest = true;
   }
 
-  if (!noPubGetOrUpgrade) {
+  if (!options.noPubGetOrUpgrade) {
+    var offlineSuffix = options.offline ? ' --offline' : '';
     if (isFlutterPackage) {
-      if (pubUpgrade) {
-        await shell.run('flutter pub upgrade');
+      if (options.pubUpgradeOnly) {
+        await shell.run('flutter pub upgrade$offlineSuffix');
       } else {
-        await shell.run('flutter pub get');
+        await shell.run('flutter pub get$offlineSuffix');
       }
     } else {
-      if (pubUpgrade) {
-        await shell.run('dart pub upgrade');
+      if (options.pubUpgradeOnly) {
+        await shell.run('dart pub upgrade$offlineSuffix');
       } else {
-        await shell.run('dart pub get');
+        await shell.run('dart pub get$offlineSuffix');
       }
     }
   }
@@ -287,7 +294,7 @@ Future<void> singlePackageRunCi(String path,
   var filteredDartDirs = await filterTopLevelDartDirs(path);
   var filteredDartDirsArg = filteredDartDirs.join(' ');
 
-  if (!noFormat!) {
+  if (!options.noFormat) {
     // Formatting change in 2.9 with hashbang first line
     await checkAndActivatePackage('dart_style');
     try {
@@ -309,14 +316,14 @@ Future<void> singlePackageRunCi(String path,
   }
 
   if (isFlutterPackage) {
-    if (!noAnalyze!) {
+    if (!options.noAnalyze) {
       await shell.run('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
     }
 
-    if (!noTest!) {
+    if (!options.noTest) {
       // 'test', '--no-pub'
       // Flutter way
       await shell.run('''
@@ -324,19 +331,19 @@ Future<void> singlePackageRunCi(String path,
       flutter test --no-pub
     ''');
     }
-    if (!noBuild!) {
+    if (!options.noBuild) {
       /// Try building web if possible
 
       /// requires at least beta
       if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
-          await checkAndActivatePackage('webdev');
+          // await checkAndActivatePackage('webdev');
           await shell.run('flutter build web');
         }
       }
     }
   } else {
-    if (!noAnalyze!) {
+    if (!options.noAnalyze) {
       await shell.run('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
@@ -344,32 +351,36 @@ Future<void> singlePackageRunCi(String path,
     }
 
     // Test?
-    if (!noTest!) {
+    if (!options.noTest) {
       if (filteredDartDirs.contains('test')) {
-        var platforms = <String>['vm'];
+        var platforms = <String>[if (!options.noVmTest) 'vm'];
 
         var isWeb = pubspecYamlSupportsWeb(pubspecMap);
         if (isWeb) {
           platforms.add('chrome');
         }
         // Add node for standard run test
-        var isNode = pubspecYamlSupportsNode(pubspecMap);
-        if (isNode && isNodeSupportedSync) {
+        var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
+        if (!options.noNodeTest && (isNodePackage && isNodeSupportedSync)) {
           platforms.add('node');
 
-          await nodeSetupCheck(path);
-          // Workaround issue about complaining old pubspec on node...
-          // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+          if (!options.noNpmInstall) {
+            await nodeSetupCheck(path);
+            // Workaround issue about complaining old pubspec on node...
+            // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+          }
           await shell.run('''
           # Get dependencies
           dart pub get --offline
     ''');
         }
 
-        await shell.run('''
+        if (platforms.isNotEmpty) {
+          await shell.run('''
     # Test
     dart test -p ${platforms.join(',')}
     ''');
+        }
 
         if (isWeb) {
           if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
@@ -392,7 +403,7 @@ Future<void> singlePackageRunCi(String path,
       }
     }
 
-    if (!noBuild!) {
+    if (!options.noBuild) {
       /// Try web dev if possible
       if (pubspecYamlHasAllDependencies(
           pubspecMap, ['build_web_compilers', 'build_runner'])) {
