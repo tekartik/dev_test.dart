@@ -13,5 +13,6 @@ dev_dependencies:
   dev_test:
 
 dependency_overrides:
+  pedantic:
   dev_test:
     path: ../dev_test

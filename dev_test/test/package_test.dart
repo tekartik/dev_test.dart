@@ -1,8 +1,6 @@
 @TestOn('vm')
 library dev_test.test.package_test;
 
-import 'dart:io';
-
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
