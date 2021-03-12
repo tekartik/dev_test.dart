@@ -1,4 +1,4 @@
-## 0.15.1-1
+## 0.15.1
 
 * `nnbd` supports, breaking change.
 
