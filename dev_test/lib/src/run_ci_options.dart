@@ -81,5 +81,6 @@ class PackageRunCiOptions {
     }
   }
 
-  bool get noPubGetOrUpgrade => noPubGet || (!pubGetOnly && !pubUpgradeOnly);
+  bool get noPubGetOrUpgrade =>
+      (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;
 }
