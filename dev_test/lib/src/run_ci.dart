@@ -242,13 +242,7 @@ Future<void> singlePackageRunCiImpl(
   // Override?
 
   if (!options.noOverride &&
-      File(join(path, _runCiOverridePath)).existsSync()) {
-    // Run it instead
-    await shell.run('dart run $_runCiOverridePath');
-    return;
-  }
-
-  if (File(join('.local', '.skip_run_ci')).existsSync()) {
+      File(join('.local', '.skip_run_ci')).existsSync()) {
     print('Skipping run_ci');
     return;
   }
@@ -290,6 +284,14 @@ Future<void> singlePackageRunCiImpl(
         await shell.run('dart pub get$offlineSuffix');
       }
     }
+  }
+
+  // Specifi run
+  if (!options.noOverride &&
+      File(join(path, _runCiOverridePath)).existsSync()) {
+    // Run it instead
+    await shell.run('dart run $_runCiOverridePath');
+    return;
   }
 
   var filteredDartDirs = await filterTopLevelDartDirs(path);
