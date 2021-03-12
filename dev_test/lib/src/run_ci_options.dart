@@ -46,6 +46,9 @@ class PackageRunCiOptions {
   final bool pubGetOnly;
   final int? poolSize;
 
+  /// Do not run `run_ci_override.dart`, typically to use in this file
+  final bool noOverride;
+
   PackageRunCiOptions(
       {this.formatOnly = false,
       this.testOnly = false,
@@ -65,7 +68,8 @@ class PackageRunCiOptions {
       this.noBuild = false,
       this.offline = false,
       this.noNpmInstall = false,
-      this.poolSize}) {
+      this.poolSize,
+      this.noOverride = false}) {
     var isOnlyAction = (formatOnly ||
         buildOnly ||
         testOnly ||

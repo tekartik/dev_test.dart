@@ -241,7 +241,8 @@ Future<void> singlePackageRunCiImpl(
   var shell = Shell(workingDirectory: path);
   // Override?
 
-  if (File(join(path, _runCiOverridePath)).existsSync()) {
+  if (!options.noOverride &&
+      File(join(path, _runCiOverridePath)).existsSync()) {
     // Run it instead
     await shell.run('dart run $_runCiOverridePath');
     return;
@@ -356,7 +357,7 @@ Future<void> singlePackageRunCiImpl(
         var platforms = <String>[if (!options.noVmTest) 'vm'];
 
         var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-        if (isWeb) {
+        if (!options.noBrowserTest && isWeb) {
           platforms.add('chrome');
         }
         // Add node for standard run test
