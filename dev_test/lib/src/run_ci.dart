@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dev_test/package.dart';
 import 'package:dev_test/src/mixin/package_io.dart';
 import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/pub_io.dart';
-import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart'
     show getFlutterBinChannel, dartChannelStable;
@@ -17,9 +17,9 @@ import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 
 Future main(List<String> arguments) async {
-  String path;
-  if (arguments.isNotEmpty ?? false) {
-    var firstArg = arguments.first?.toString();
+  String? path;
+  if (arguments.isNotEmpty) {
+    var firstArg = arguments.first.toString();
     if (await isPubPackageRoot(firstArg)) {
       path = firstArg;
     }
@@ -155,59 +155,88 @@ Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 /// await packageRunCi('.');
 /// ```
 Future<void> packageRunCi(String path,
-    {bool recursive,
-    bool noFormat,
-    bool noAnalyze,
-    bool noTest,
-    bool noBuild,
-    bool noPubGet,
-    bool verbose,
-    bool pubUpgrade,
-    int poolSize}) async {
-  recursive ??= false;
-  noFormat ??= false;
-  noAnalyze ??= false;
-  noTest ??= false;
-  noBuild ??= false;
-  pubUpgrade ??= false;
+    {PackageRunCiOptions? options,
+    bool? recursive,
+    bool? noFormat,
+    bool? noAnalyze,
+    bool? noTest,
+    bool? noBuild,
+    bool? noPubGet,
+    bool? verbose,
+    bool? pubUpgrade,
+    int? poolSize}) async {
+  options ??= PackageRunCiOptions(
+      noPubGet: noPubGet ?? false,
+      noTest: noTest ?? false,
+      noFormat: noFormat ?? false,
+      noAnalyze: noAnalyze ?? false,
+      noBuild: noBuild ?? false,
+      verbose: verbose ?? false,
+      poolSize: poolSize,
+      recursive: recursive ?? false,
+      pubUpgradeOnly: pubUpgrade ?? false);
 
-  if (recursive) {
-    await recursiveActions([path], verbose: verbose, poolSize: poolSize,
-        action: (dir) async {
-      await singlePackageRunCi(dir,
-          noTest: noTest,
-          noFormat: noFormat,
-          noAnalyze: noAnalyze,
-          noBuild: noBuild,
-          noPubGet: noPubGet);
-    });
-  } else {
-    await singlePackageRunCi(path,
-        noAnalyze: noAnalyze,
-        noFormat: noFormat,
-        noTest: noTest,
-        noBuild: noBuild,
-        noPubGet: noPubGet);
-  }
+  await packageRunCiImpl(path, options,
+      recursive: recursive ?? options.recursive);
 }
 
 final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 
+Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
+    {bool recursive = false, int? poolSize}) async {
+  if (recursive) {
+    await recursiveActions([path], verbose: options.verbose, poolSize: poolSize,
+        action: (dir) async {
+      await singlePackageRunCi(dir, options: options);
+    });
+  } else {
+    if (!(await isPubPackageRoot(path))) {
+      stderr.writeln(
+          '${absolute(path)} not a dart package, use --recursive option');
+    } else {
+      await singlePackageRunCi(path, options: options);
+    }
+  }
+}
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> singlePackageRunCi(String path,
-    {@required bool noFormat,
-    @required bool noAnalyze,
-    @required bool noTest,
-    @required bool noBuild,
-    @required bool noPubGet,
-    bool pubUpgrade,
-    bool formatOnly,
-    bool analyzeOnly,
-    bool testOnly,
-    bool buildOnly,
-    bool pubGetOnly,
-    bool pubUpgradeOnly}) async {
+    {PackageRunCiOptions? options,
+    // Later might deprecated in the future - Deprecated since 2021/03/11
+
+    bool? noFormat,
+    bool? noAnalyze,
+    bool? noTest,
+    bool? noBuild,
+    bool? noPubGet,
+    bool? pubUpgrade,
+    bool? formatOnly,
+    bool? analyzeOnly,
+    bool? testOnly,
+    bool? buildOnly,
+    bool? pubGetOnly,
+    bool? pubUpgradeOnly}) async {
+  options ??= PackageRunCiOptions(
+    formatOnly: formatOnly ?? false,
+    buildOnly: buildOnly ?? false,
+    testOnly: testOnly ?? false,
+    analyzeOnly: analyzeOnly ?? false,
+    pubGetOnly: pubGetOnly ?? false,
+    pubUpgradeOnly: pubUpgradeOnly ?? false,
+    noPubGet: noPubGet ?? false,
+    noTest: noTest ?? false,
+    noFormat: noFormat ?? false,
+    noAnalyze: noAnalyze ?? false,
+    noBuild: noBuild ?? false,
+  );
+  await singlePackageRunCiImpl(path, options);
+}
+
+/// Run basic tests on dart/flutter package
+///
+Future<void> singlePackageRunCiImpl(
+    String path, PackageRunCiOptions options) async {
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
   // Override?
@@ -218,15 +247,15 @@ Future<void> singlePackageRunCi(String path,
     return;
   }
 
-  var noPubGetOrUpgrade = false;
+  if (File(join('.local', '.skip_run_ci')).existsSync()) {
+    print('Skipping run_ci');
+    return;
+  }
 
   var pubspecMap = await pathGetPubspecYamlMap(path);
-  var analysisOptionsMap = await pathGetAnalysisOptionsYamlMap(path);
   var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
 
-  var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
-  var supportsNnbdExperiment =
-      analysisOptionsSupportsNnbdExperiment(analysisOptionsMap);
+  var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
 
   if (!sdkBoundaries.match(dartVersion)) {
     stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
@@ -240,40 +269,24 @@ Future<void> singlePackageRunCi(String path,
     }
   }
 
-  formatOnly ??= false;
-  buildOnly ??= false;
-  testOnly ??= false;
-  analyzeOnly ??= false;
-  pubGetOnly ??= false;
-  pubUpgradeOnly ??= false;
-  pubUpgrade ??= false;
-
-  if (formatOnly ||
-      buildOnly ||
-      testOnly ||
-      analyzeOnly ||
-      pubGetOnly ||
-      pubUpgradeOnly) {
-    noTest = !testOnly;
-    noBuild = !buildOnly;
-    noAnalyze = !analyzeOnly;
-    noFormat = !formatOnly;
-    noPubGetOrUpgrade = !pubGetOnly && !pubUpgradeOnly;
-    pubUpgrade = pubUpgradeOnly;
+  // ensure test exists
+  if (!Directory(join(path, 'test')).existsSync()) {
+    options.noTest = true;
   }
 
-  if (!noPubGetOrUpgrade) {
+  if (!options.noPubGetOrUpgrade) {
+    var offlineSuffix = options.offline ? ' --offline' : '';
     if (isFlutterPackage) {
-      if (pubUpgrade) {
-        await shell.run('flutter pub upgrade');
+      if (options.pubUpgradeOnly) {
+        await shell.run('flutter pub upgrade$offlineSuffix');
       } else {
-        await shell.run('flutter pub get');
+        await shell.run('flutter pub get$offlineSuffix');
       }
     } else {
-      if (pubUpgrade) {
-        await shell.run('dart pub upgrade');
+      if (options.pubUpgradeOnly) {
+        await shell.run('dart pub upgrade$offlineSuffix');
       } else {
-        await shell.run('dart pub get');
+        await shell.run('dart pub get$offlineSuffix');
       }
     }
   }
@@ -281,7 +294,7 @@ Future<void> singlePackageRunCi(String path,
   var filteredDartDirs = await filterTopLevelDartDirs(path);
   var filteredDartDirsArg = filteredDartDirs.join(' ');
 
-  if (!noFormat) {
+  if (!options.noFormat) {
     // Formatting change in 2.9 with hashbang first line
     await checkAndActivatePackage('dart_style');
     try {
@@ -303,14 +316,14 @@ Future<void> singlePackageRunCi(String path,
   }
 
   if (isFlutterPackage) {
-    if (!noAnalyze) {
+    if (!options.noAnalyze) {
       await shell.run('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
     }
 
-    if (!noTest) {
+    if (!options.noTest) {
       // 'test', '--no-pub'
       // Flutter way
       await shell.run('''
@@ -318,120 +331,85 @@ Future<void> singlePackageRunCi(String path,
       flutter test --no-pub
     ''');
     }
-    if (!noBuild) {
+    if (!options.noBuild) {
       /// Try building web if possible
 
       /// requires at least beta
       if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
-          await checkAndActivatePackage('webdev');
+          // await checkAndActivatePackage('webdev');
           await shell.run('flutter build web');
         }
       }
     }
   } else {
-    var dartExtraOptions = '';
-    var dartRunExtraOptions = '';
-    if (supportsNnbdExperiment) {
-      // Temp dart extra option. To remove once nnbd supported on stable without flags
-      dartExtraOptions = '--enable-experiment=non-nullable';
-      // Needed for run and test
-      dartRunExtraOptions =
-          '--enable-experiment=non-nullable --no-sound-null-safety';
-
-      // dart test supports the nnbd option starting 2.12
-      var supportsDartTest = dartVersion >= Version(2, 12, 0, pre: '0');
-      // Only io test for now
-      if (dartVersion >= Version(2, 10, 0, pre: '92')) {
-        if (!noAnalyze) {
-          await shell.run('''
-      # Analyze code
-      dart analyze $dartExtraOptions --fatal-warnings --fatal-infos .
-  ''');
-        }
-
-        if (!noTest) {
-          if (supportsDartTest) {
-            await shell.run('''
-    # Test
-    dart test $dartRunExtraOptions -p vm
-    ''');
-          } else {
-            // Pre 2.12 supports
-            await shell.run('''
-    # Test
-    pub run $dartRunExtraOptions test -p vm
-    ''');
-          }
-        } else {
-          stderr.writeln('NNBD experiments are skipped for dart $dartVersion');
-        }
-      }
-    } else {
-      if (!noAnalyze) {
-        await shell.run('''
+    if (!options.noAnalyze) {
+      await shell.run('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
   ''');
-      }
+    }
 
-      // Test?
-      if (!noTest) {
-        if (filteredDartDirs.contains('test')) {
-          var platforms = <String>['vm'];
+    // Test?
+    if (!options.noTest) {
+      if (filteredDartDirs.contains('test')) {
+        var platforms = <String>[if (!options.noVmTest) 'vm'];
 
-          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-          if (isWeb) {
-            platforms.add('chrome');
-          }
-          // Add node for standard run test
-          var isNode = pubspecYamlSupportsNode(pubspecMap);
-          if (isNode && isNodeSupportedSync) {
-            platforms.add('node');
+        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+        if (isWeb) {
+          platforms.add('chrome');
+        }
+        // Add node for standard run test
+        var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
+        if (!options.noNodeTest && (isNodePackage && isNodeSupportedSync)) {
+          platforms.add('node');
 
+          if (!options.noNpmInstall) {
             await nodeSetupCheck(path);
             // Workaround issue about complaining old pubspec on node...
             // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
-            await shell.run('''
+          }
+          await shell.run('''
           # Get dependencies
           dart pub get --offline
     ''');
-          }
+        }
 
+        if (platforms.isNotEmpty) {
           await shell.run('''
     # Test
     dart test -p ${platforms.join(',')}
     ''');
+        }
 
-          if (isWeb) {
-            if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-              if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-                if (isRunningOnTravis) {
-                  stderr.writeln(
-                      '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
-                } else {
-                  stderr.writeln(
-                      '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
-                }
+        if (isWeb) {
+          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+            if (dartVersion >= Version(2, 10, 0, pre: '110')) {
+              if (isRunningOnTravis) {
+                stderr.writeln(
+                    '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
               } else {
-                await shell.run('''
+                stderr.writeln(
+                    '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
+              }
+            } else {
+              await shell.run('''
       # Build runner test
       dart pub run build_runner test -- -p chrome
       ''');
-              }
             }
           }
         }
       }
+    }
 
-      if (!noBuild) {
-        /// Try web dev if possible
-        if (pubspecYamlHasAllDependencies(
-            pubspecMap, ['build_web_compilers', 'build_runner'])) {
-          if (File(join(path, 'web', 'index.html')).existsSync()) {
-            await checkAndActivatePackage('webdev');
-            await shell.run('dart pub global run webdev build');
-          }
+    if (!options.noBuild) {
+      /// Try web dev if possible
+      if (pubspecYamlHasAllDependencies(
+          pubspecMap, ['build_web_compilers', 'build_runner'])) {
+        if (File(join(path, 'web', 'index.html')).existsSync()) {
+          await checkAndActivatePackage('webdev');
+          await shell.run('dart pub global run webdev build');
         }
       }
     }
@@ -440,7 +418,7 @@ Future<void> singlePackageRunCi(String path,
 
 bool get isRunningOnTravis => Platform.environment['TRAVIS'] == 'true';
 
-List<String> _installedGlobalPackages;
+List<String>? _installedGlobalPackages;
 
 Future<void> checkAndActivatePackage(String package) async {
   var list = await getInstalledGlobalPackages();
@@ -456,10 +434,10 @@ Future<List<String>> getInstalledGlobalPackages() async {
     _installedGlobalPackages =
         lines.map((line) => line.split(' ')[0]).toList(growable: true);
   }
-  return _installedGlobalPackages;
+  return _installedGlobalPackages!;
 }
 
-bool _flutterWebEnabled;
+bool? _flutterWebEnabled;
 
 Future<bool> flutterEnableWeb() async {
   if (_flutterWebEnabled == null) {
@@ -471,5 +449,5 @@ Future<bool> flutterEnableWeb() async {
       _flutterWebEnabled = false;
     }
   }
-  return _flutterWebEnabled;
+  return _flutterWebEnabled!;
 }

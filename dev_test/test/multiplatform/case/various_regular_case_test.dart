@@ -14,12 +14,6 @@ Future main() async {
     test('test', () {
       expect(true, isTrue);
     });
-
-    group('null', () {
-      // somehow null is allowed for setUp, tearDown...
-      tearDown(null);
-      setUp(null);
-    });
   });
   test('test', () {
     try {

@@ -6,11 +6,11 @@ import 'package:test/test.dart' show Timeout;
 class DartTest implements Test {
   @override
   void test(String description, dynamic Function() body,
-      {String testOn,
-      Timeout timeout,
+      {String? testOn,
+      Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic> onPlatform}) {
+      Map<String, Object?>? onPlatform}) {
     _impl.test(description, body,
         testOn: testOn,
         timeout: timeout,
@@ -23,11 +23,11 @@ class DartTest implements Test {
 // overriding  [_test.group]
   @override
   void group(String description, void Function() body,
-      {String testOn,
-      Timeout timeout,
+      {String? testOn,
+      Timeout? timeout,
       skip,
       @deprecated bool solo = false,
-      Map<String, dynamic> onPlatform}) {
+      Map<String, Object?>? onPlatform}) {
     _impl.group(description, body,
         testOn: testOn,
         timeout: timeout,
@@ -62,7 +62,7 @@ class DartTest implements Test {
   }
 
   @override
-  void expect(actual, matcher, {String reason, skip}) {
+  void expect(actual, matcher, {String? reason, skip}) {
     _impl.expect(actual, matcher, reason: reason, skip: skip);
   }
 }

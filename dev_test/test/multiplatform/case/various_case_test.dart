@@ -41,12 +41,6 @@ void main() {
     expect(true, isTrue);
     expect(testDescriptions, ['']);
   });
-
-  group('null', () {
-    // somehow null is allowed for setUp, tearDown...
-    tearDown(null);
-    setUp(null);
-  });
 }
 
 /*

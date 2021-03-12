@@ -1,12 +1,11 @@
 @TestOn('vm')
 library dev_test.test.package_test;
 
-import 'dart:io';
-
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
 import 'package:dev_test/test.dart';
+import 'package:path/path.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
@@ -25,15 +24,15 @@ void main() {
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
     });
 
-    Map<String, dynamic> parseMap(String text) {
-      return (loadYaml(text) as Map)?.cast<String, dynamic>();
+    Map<String, Object?>? parseMap(String text) {
+      return (loadYaml(text) as Map?)?.cast<String, Object?>();
     }
 
     test('pubspec supports', () {
       var pubspecMap = parseMap('''
 dependencies:
   flutter:
-      ''');
+      ''')!;
       expect(pubspecYamlSupportsFlutter(pubspecMap), isTrue);
       expect(pubspecYamlSupportsWeb(pubspecMap), isFalse);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
@@ -41,7 +40,7 @@ dependencies:
       pubspecMap = parseMap('''
 dev_dependencies:
   build_web_compilers:
-      ''');
+      ''')!;
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
       expect(pubspecYamlSupportsWeb(pubspecMap), isTrue);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
@@ -49,7 +48,7 @@ dev_dependencies:
       pubspecMap = parseMap('''
 dev_dependencies:
   build_node_compilers:
-      ''');
+      ''')!;
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
       expect(pubspecYamlSupportsWeb(pubspecMap), isFalse);
       expect(pubspecYamlSupportsNode(pubspecMap), isTrue);
@@ -85,7 +84,7 @@ analyzer:
 environment:
   sdk: '>=2.8.0 <3.0.0'
       ''');
-      var boundaries = pubspecYamlGetSdkBoundaries(map);
+      var boundaries = pubspecYamlGetSdkBoundaries(map)!;
       expect(boundaries.match(Version(2, 8, 0)), isTrue);
       expect(boundaries.match(Version(2, 9, 0)), isTrue);
       expect(boundaries.match(Version(3, 0, 0)), isFalse);
@@ -96,11 +95,11 @@ environment:
       expect(VersionBoundaries.tryParse('^0.1.2').toString(), '>=0.1.2 <0.2.0');
       expect(VersionBoundaries.tryParse('^1.2.3').toString(), '>=1.2.3 <2.0.0');
 
-      boundaries = VersionBoundaries.tryParse('>1.0.0');
+      boundaries = VersionBoundaries.tryParse('>1.0.0')!;
       expect(boundaries.match(Version(1, 1, 0)), isTrue);
       expect(boundaries.match(Version(2, 1, 0)), isTrue);
       expect(boundaries.match(Version(1, 0, 0)), isFalse);
-      boundaries = VersionBoundaries.tryParse('<=3.0.0');
+      boundaries = VersionBoundaries.tryParse('<=3.0.0')!;
       expect(boundaries.match(Version(3, 0, 0)), isTrue);
       expect(boundaries.match(Version(3, 0, 1)), isFalse);
     });
@@ -155,16 +154,18 @@ environment:
     });
 
     test('recursivePubPath', () async {
-      expect(await recursivePubPath(['.', '..']), ['.', '..']);
-      expect(await recursivePubPath(['..', '.']), ['.', '..']);
-      expect(await recursivePubPath(['..']),
-          ['..', Platform.isWindows ? '..\\dev_test' : '../dev_test']);
+      var repoSupportEntry = join('..', 'repo_support');
+      var devTestEntry = join('..', 'dev_test');
+      expect(await recursivePubPath(['.', '..']), ['.', repoSupportEntry]);
+      expect(await recursivePubPath(['..', '.']), ['.', repoSupportEntry]);
+      expect(await recursivePubPath(['..']), [devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
     });
 
     test('filterTopLevelDartDirs', () async {
-      expect(await filterTopLevelDartDirs('..'), ['tool']);
+      expect(
+          await filterTopLevelDartDirs(join('..', 'repo_support')), ['tool']);
       expect(await filterTopLevelDartDirs('.'),
           ['bin', 'example', 'lib', 'test', 'tool']);
     });
@@ -180,12 +181,16 @@ environment:
       await recursiveActions(['..'], action: (src) {
         list.add(src);
       });
-      expect(list, ['..', Platform.isWindows ? '..\\dev_test' : '../dev_test']);
+      expect(list, [join('..', 'dev_test'), join('..', 'repo_support')]);
       list = <String>[];
       await recursiveActions(['.', '..'], action: (src) {
         list.add(src);
       });
-      expect(list, ['.', '..']);
+      expect(list, ['.', join('..', 'repo_support')]);
+    });
+
+    test('packageRunCi', () async {
+      await packageRunCi('..', noTest: true);
     });
   });
 }

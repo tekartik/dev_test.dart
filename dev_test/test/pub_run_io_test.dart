@@ -9,7 +9,7 @@ import 'package:process_run/cmd_run.dart';
 import 'test_utils.dart';
 
 Future checkCaseTest(String name, int count,
-    {String testNameFilter, int expectedExitCode = 0}) async {
+    {String? testNameFilter, int expectedExitCode = 0}) async {
   // pub run test -r json -j 1 --no-color -p vm test/multiplatform/case/one_solo_test_in_group_case_test.dart
 
   var cmd = ProcessCmd('pub', [
