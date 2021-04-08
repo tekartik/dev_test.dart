@@ -1,4 +1,8 @@
-## 0.15.0+3
+## 0.15.2
+
+* Add `dry-run` options to `run_ci`.
+
+## 0.15.1
 
 * `nnbd` supports, breaking change.
 

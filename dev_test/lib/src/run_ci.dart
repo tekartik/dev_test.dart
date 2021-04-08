@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:process_run/src/shell_utils.dart'; // ignore: implementation_imports
 import 'package:dev_test/package.dart';
 import 'package:dev_test/src/mixin/package_io.dart';
 import 'package:dev_test/src/package/package.dart';
@@ -237,17 +237,14 @@ Future<void> singlePackageRunCi(String path,
 ///
 Future<void> singlePackageRunCiImpl(
     String path, PackageRunCiOptions options) async {
+  options = options.clone();
+
   print('# package: $path');
   var shell = Shell(workingDirectory: path);
   // Override?
 
-  if (File(join(path, _runCiOverridePath)).existsSync()) {
-    // Run it instead
-    await shell.run('dart run $_runCiOverridePath');
-    return;
-  }
-
-  if (File(join('.local', '.skip_run_ci')).existsSync()) {
+  if (!options.noOverride &&
+      File(join('.local', '.skip_run_ci')).existsSync()) {
     print('Skipping run_ci');
     return;
   }
@@ -274,21 +271,39 @@ Future<void> singlePackageRunCiImpl(
     options.noTest = true;
   }
 
+  Future<List<ProcessResult>> _run(String script) async {
+    if (options.dryRun) {
+      scriptToCommands(script).forEach((command) {
+        print('\$ $command');
+      });
+      return <ProcessResult>[];
+    }
+    return await shell.run(script);
+  }
+
   if (!options.noPubGetOrUpgrade) {
     var offlineSuffix = options.offline ? ' --offline' : '';
     if (isFlutterPackage) {
       if (options.pubUpgradeOnly) {
-        await shell.run('flutter pub upgrade$offlineSuffix');
+        await _run('flutter pub upgrade$offlineSuffix');
       } else {
-        await shell.run('flutter pub get$offlineSuffix');
+        await _run('flutter pub get$offlineSuffix');
       }
     } else {
       if (options.pubUpgradeOnly) {
-        await shell.run('dart pub upgrade$offlineSuffix');
+        await _run('dart pub upgrade$offlineSuffix');
       } else {
-        await shell.run('dart pub get$offlineSuffix');
+        await _run('dart pub get$offlineSuffix');
       }
     }
+  }
+
+  // Specific run
+  if (!options.noOverride &&
+      File(join(path, _runCiOverridePath)).existsSync()) {
+    // Run it instead
+    await _run('dart run $_runCiOverridePath');
+    return;
   }
 
   var filteredDartDirs = await filterTopLevelDartDirs(path);
@@ -298,7 +313,7 @@ Future<void> singlePackageRunCiImpl(
     // Formatting change in 2.9 with hashbang first line
     await checkAndActivatePackage('dart_style');
     try {
-      await shell.run('''
+      await _run('''
       # Formatting
       dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
     ''');
@@ -317,7 +332,7 @@ Future<void> singlePackageRunCiImpl(
 
   if (isFlutterPackage) {
     if (!options.noAnalyze) {
-      await shell.run('''
+      await _run('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
@@ -326,7 +341,7 @@ Future<void> singlePackageRunCiImpl(
     if (!options.noTest) {
       // 'test', '--no-pub'
       // Flutter way
-      await shell.run('''
+      await _run('''
       # Test
       flutter test --no-pub
     ''');
@@ -338,13 +353,13 @@ Future<void> singlePackageRunCiImpl(
       if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           // await checkAndActivatePackage('webdev');
-          await shell.run('flutter build web');
+          await _run('flutter build web');
         }
       }
     }
   } else {
     if (!options.noAnalyze) {
-      await shell.run('''
+      await _run('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
   ''');
@@ -356,7 +371,7 @@ Future<void> singlePackageRunCiImpl(
         var platforms = <String>[if (!options.noVmTest) 'vm'];
 
         var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-        if (isWeb) {
+        if (!options.noBrowserTest && isWeb) {
           platforms.add('chrome');
         }
         // Add node for standard run test
@@ -369,14 +384,14 @@ Future<void> singlePackageRunCiImpl(
             // Workaround issue about complaining old pubspec on node...
             // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
           }
-          await shell.run('''
+          await _run('''
           # Get dependencies
           dart pub get --offline
     ''');
         }
 
         if (platforms.isNotEmpty) {
-          await shell.run('''
+          await _run('''
     # Test
     dart test -p ${platforms.join(',')}
     ''');
@@ -393,7 +408,7 @@ Future<void> singlePackageRunCiImpl(
                     '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
               }
             } else {
-              await shell.run('''
+              await _run('''
       # Build runner test
       dart pub run build_runner test -- -p chrome
       ''');
@@ -409,7 +424,7 @@ Future<void> singlePackageRunCiImpl(
           pubspecMap, ['build_web_compilers', 'build_runner'])) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           await checkAndActivatePackage('webdev');
-          await shell.run('dart pub global run webdev build');
+          await _run('dart pub global run webdev build');
         }
       }
     }

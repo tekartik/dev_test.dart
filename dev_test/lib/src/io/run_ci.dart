@@ -27,6 +27,9 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('no-browser-test', help: 'No Browser test', negatable: false)
     ..addFlag('no-node-test', help: 'No Node test', negatable: false)
     ..addFlag('no-npm-install', help: 'No NPM install', negatable: false)
+    ..addFlag('no-override',
+        help: 'Do not run \'tool/run_ci_override.dart\' if found',
+        negatable: false)
     ..addFlag('format', help: 'Format only', negatable: false)
     ..addFlag('test', help: 'Test only', negatable: false)
     ..addFlag('analyze', help: 'Analyze only', negatable: false)
@@ -34,6 +37,7 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
     ..addFlag('offline', help: 'Offline', negatable: false)
+    ..addFlag('dry-run', help: 'Dry run', negatable: false)
     ..addOption('concurrency',
         abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
     ..addFlag('recursive',
@@ -65,12 +69,14 @@ Future<void> main(List<String> arguments) async {
   var noNodeTest = result['no-node-test'] as bool;
   var noBrowserTest = result['no-browser-test'] as bool;
   var noNpmInstall = result['no-npm-install'] as bool;
+  var noOverride = result['no-override'] as bool;
   var formatOnly = result['format'] as bool;
   var testOnly = result['test'] as bool;
   var analyzeOnly = result['analyze'] as bool;
   var buildOnly = result['build'] as bool;
   var pubGetOnly = result['pub-get'] as bool;
   var pubUpgradeOnly = result['pub-upgrade'] as bool;
+  var dryRun = result['dry-run'] as bool;
   // default to true
   var recursive = result['recursive'] as bool;
 
@@ -96,6 +102,8 @@ Future<void> main(List<String> arguments) async {
     analyzeOnly: analyzeOnly,
     pubGetOnly: pubGetOnly,
     pubUpgradeOnly: pubUpgradeOnly,
+    noOverride: noOverride,
+    dryRun: dryRun,
   );
 
   Future _runDir(String dir) async {

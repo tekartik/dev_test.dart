@@ -12,7 +12,7 @@ void main() {
         var shell = Shell(
             environment: ShellEnvironment()
               ..aliases['run_ci'] = 'dart run ${join('bin', 'run_ci.dart')}');
-        await shell.run('run_ci --offline --pub-get ..');
+        await shell.run('run_ci --offline --pub-get --no-override ..');
         try {
           await shell.run('run_ci --offline --pub-get .. --no-recursive');
           fail('should fail');

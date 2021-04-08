@@ -44,7 +44,11 @@ class PackageRunCiOptions {
   final bool buildOnly;
   final bool analyzeOnly;
   final bool pubGetOnly;
+  final bool dryRun;
   final int? poolSize;
+
+  /// Do not run `run_ci_override.dart`, typically to use in this file
+  final bool noOverride;
 
   PackageRunCiOptions(
       {this.formatOnly = false,
@@ -65,7 +69,9 @@ class PackageRunCiOptions {
       this.noBuild = false,
       this.offline = false,
       this.noNpmInstall = false,
-      this.poolSize}) {
+      this.poolSize,
+      this.noOverride = false,
+      this.dryRun = false}) {
     var isOnlyAction = (formatOnly ||
         buildOnly ||
         testOnly ||
@@ -80,6 +86,30 @@ class PackageRunCiOptions {
       noFormat = !formatOnly;
     }
   }
+
+  /// Clone the options
+  PackageRunCiOptions clone() => PackageRunCiOptions(
+      formatOnly: formatOnly,
+      testOnly: testOnly,
+      buildOnly: buildOnly,
+      analyzeOnly: analyzeOnly,
+      pubGetOnly: pubGetOnly,
+      verbose: verbose,
+      recursive: recursive,
+      pubUpgradeOnly: pubUpgradeOnly,
+      noNodeTest: noNodeTest,
+      noVmTest: noVmTest,
+      noBrowserTest: noBrowserTest,
+      noTest: noTest,
+      noAnalyze: noAnalyze,
+      noFormat: noFormat,
+      noPubGet: noPubGet,
+      noBuild: noBuild,
+      offline: offline,
+      noNpmInstall: noNpmInstall,
+      poolSize: poolSize,
+      noOverride: noOverride,
+      dryRun: dryRun);
 
   bool get noPubGetOrUpgrade =>
       (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;
