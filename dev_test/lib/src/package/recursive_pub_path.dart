@@ -145,6 +145,16 @@ List<String> removeDuplicates(List<String> dirs) {
 /// Each path is tested
 ///
 /// [poolSize] default to 4
+Future<void> recursivePackagesRun(List<String> paths,
+        {required FutureOr<dynamic> Function(String package) action,
+        bool? verbose,
+        int? poolSize}) =>
+    recursiveActions(paths,
+        action: action, verbose: verbose, poolSize: poolSize);
+
+/// Each path is tested
+///
+/// [poolSize] default to 4
 Future<void> recursiveActions(List<String> paths,
     {required FutureOr<dynamic> Function(String package) action,
     bool? verbose,

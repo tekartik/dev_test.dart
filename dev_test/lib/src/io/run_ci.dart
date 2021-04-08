@@ -37,6 +37,7 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
     ..addFlag('offline', help: 'Offline', negatable: false)
+    ..addFlag('dry-run', help: 'Dry run', negatable: false)
     ..addOption('concurrency',
         abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
     ..addFlag('recursive',
@@ -75,6 +76,7 @@ Future<void> main(List<String> arguments) async {
   var buildOnly = result['build'] as bool;
   var pubGetOnly = result['pub-get'] as bool;
   var pubUpgradeOnly = result['pub-upgrade'] as bool;
+  var dryRun = result['dry-run'] as bool;
   // default to true
   var recursive = result['recursive'] as bool;
 
@@ -101,6 +103,7 @@ Future<void> main(List<String> arguments) async {
     pubGetOnly: pubGetOnly,
     pubUpgradeOnly: pubUpgradeOnly,
     noOverride: noOverride,
+    dryRun: dryRun,
   );
 
   Future _runDir(String dir) async {
