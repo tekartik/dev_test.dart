@@ -4,9 +4,9 @@
 
 ## Testing
 
-### IO utility
+### IO utility `run_ci`
 
-There is convenient way to run a validation test on your package:
+There is a convenient way to run a validation test on your package:
 - analyze
 - format
 - test
