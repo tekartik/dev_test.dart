@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:process_run/src/shell_utils.dart'; // ignore: implementation_imports
+
 import 'package:dev_test/package.dart';
 import 'package:dev_test/src/mixin/package_io.dart';
 import 'package:dev_test/src/package/package.dart';
@@ -9,6 +9,7 @@ import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart'
     show getFlutterBinChannel, dartChannelStable;
 import 'package:process_run/shell_run.dart';
+import 'package:process_run/src/shell_utils.dart'; // ignore: implementation_imports
 import 'package:pub_semver/pub_semver.dart';
 
 import 'import.dart';
