@@ -3,9 +3,7 @@ import 'dart:io';
 
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:path/path.dart';
-import 'package:process_run/dartbin.dart';
 import 'package:process_run/shell_run.dart';
-import 'package:process_run/which.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 var minNnbdVersion = Version(2, 12, 0, pre: '0');
