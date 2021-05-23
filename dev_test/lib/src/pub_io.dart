@@ -4,7 +4,6 @@ import 'dart:io' as io;
 import 'package:path/path.dart';
 
 import 'mixin/package.dart';
-import 'package/package.dart';
 
 final String _pubspecYaml = 'pubspec.yaml';
 
