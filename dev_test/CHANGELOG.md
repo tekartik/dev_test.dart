@@ -1,4 +1,4 @@
-## 0.15.2+1
+## 0.15.2+2
 
 * Add `dry-run` options to `run_ci`.
 
