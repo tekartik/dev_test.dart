@@ -1,6 +1,8 @@
 @TestOn('vm')
 library dev_test.test.package_test;
 
+import 'dart:io';
+
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
@@ -161,6 +163,17 @@ environment:
       expect(await recursivePubPath(['..']), [devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
+    });
+
+    test('recursivePubPath ignore build', () async {
+      // Somehow on node, build contains pubspec.yaml at its root and should be ignored
+      // try to reproduce here
+      var outDir = join('.dart_tool', 'dev_test', 'test', 'recursive_test');
+      var file = File(join(outDir, 'build', 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString('name: dummy');
+
+      expect(await recursivePubPath([outDir]), []);
     });
 
     test('filterTopLevelDartDirs', () async {

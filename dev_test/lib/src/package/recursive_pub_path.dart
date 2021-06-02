@@ -101,13 +101,16 @@ Future<List<String>> recursivePubPath(List<String> dirs,
       final futures = <Future>[];
       await Directory(dir).list().listen((FileSystemEntity fse) {
         var subDir = fse.path;
-        if (isDirectoryNotLinkSynk(subDir)) {
-          futures.add(() async {
-            if (await isPubPackageRoot(subDir)) {
-              sub.add(subDir);
-            }
-            sub.addAll(await _getSubDirs(subDir));
-          }());
+        // Make sure it is not added even if it is a package root
+        if (!_isToBeIgnored(basename(subDir))) {
+          if (isDirectoryNotLinkSynk(subDir)) {
+            futures.add(() async {
+              if (await isPubPackageRoot(subDir)) {
+                sub.add(subDir);
+              }
+              sub.addAll(await _getSubDirs(subDir));
+            }());
+          }
         }
       }).asFuture();
       await Future.wait(futures);
@@ -169,45 +172,6 @@ Future<void> recursiveActions(List<String> paths,
 
   final packagePool = Pool(poolSize);
 
-  /*
-  if (verbose) {
-    stdout.writeln('Scanning $dirsOrFiles');
-  }
-// Handle pub sub path
-  for (var dirOrFile in dirsOrFiles) {
-    Directory dir;
-    if (FileSystemEntity.isDirectorySync(dirOrFile)) {
-      if (verbose) {
-        stdout.writeln('add dir to scan $dirOrFile');
-      }
-      dirs.add(dirOrFile);
-
-// Pkg dir, no need to look higher
-      if (await isPubPackageRoot(dirOrFile)) {
-        continue;
-      }
-    } else {
-      dir = File(dirOrFile).parent;
-      if (verbose) {
-        stdout.writeln('try parent $dir');
-      }
-    }
-
-    String packageDir;
-    try {
-      packageDir = await getPubPackageRoot(dir.path);
-    } catch (_) {}
-    if (packageDir != null) {
-      // Add package
-      packages.add(packageDir);
-    }
-  }
-
-// Also Handle recursive projects
-  if (verbose) {
-    stdout.writeln('handle dirs $dirs');
-  }
-  */
   var packages = await recursivePubPath(paths);
 
   // devPrint(packages);
