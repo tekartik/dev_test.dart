@@ -1,3 +1,7 @@
+## 0.15.3
+
+* recursivePubPath now check whether dart version is supported
+
 ## 0.15.2+2
 
 * Add `dry-run` options to `run_ci`.
