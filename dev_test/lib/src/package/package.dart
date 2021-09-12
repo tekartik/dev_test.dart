@@ -192,6 +192,7 @@ class VersionBoundaries {
   }
 }
 
+/// Get sdk boundaries
 VersionBoundaries? pubspecYamlGetSdkBoundaries(Map? map) {
   // environment:
   //   sdk: '>=2.8.0 <3.0.0'
