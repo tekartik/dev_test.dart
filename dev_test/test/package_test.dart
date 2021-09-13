@@ -21,7 +21,7 @@ void main() {
           isFalse);
       expect(pubspecYamlHasAnyDependencies(pubspecMap, ['build_web_compilers']),
           isTrue);
-      expect(pubspecYamlHasAnyDependencies(pubspecMap, ['pedantic']), isTrue);
+      expect(pubspecYamlHasAnyDependencies(pubspecMap, ['lints']), isTrue);
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
       expect(pubspecYamlSupportsWeb(pubspecMap), isTrue);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
