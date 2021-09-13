@@ -19,8 +19,8 @@ Iterable<String>? pubspecYamlGetDependenciesPackageName(Map yaml) {
   return ((yaml['dependencies'] as Map?)?.keys)?.cast<String>();
 }
 
-Version pubspecLockGetVersion(Map yaml, String packageName) =>
-    Version.parse(yaml['packages'][packageName]['version'] as String);
+Version pubspecLockGetVersion(Map yaml, String packageName) => Version.parse(
+    ((yaml['packages'] as Map)[packageName] as Map)['version'] as String);
 
 bool _hasKindDependency(Map yaml, String kind, String dependency) {
   var dependencies = yaml[kind] as Map?;
@@ -192,6 +192,7 @@ class VersionBoundaries {
   }
 }
 
+/// Get sdk boundaries
 VersionBoundaries? pubspecYamlGetSdkBoundaries(Map? map) {
   // environment:
   //   sdk: '>=2.8.0 <3.0.0'

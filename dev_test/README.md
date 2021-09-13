@@ -27,6 +27,7 @@ pub global run dev_test:run_ci <path>
 run_ci
 ```
 
+- By default it also checks subfolder projects (i.e. you can run it at the top of your repo)
 - You can override the behavior by creating a 'tool/run_ci_override.dart' file
 - You can skip a folder by creating an empty placeholder file '.local/.skip_run_ci'
 

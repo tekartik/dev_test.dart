@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/src/shell_utils.dart'; // ignore: implementation_imports
 import 'package:pub_semver/pub_semver.dart';
+import 'package:yaml/yaml.dart';
 
 import 'import.dart';
 import 'mixin/package.dart';
@@ -386,6 +387,23 @@ Future<void> singlePackageRunCiImpl(
           # Get dependencies
           dart pub get --offline
     ''');
+        }
+
+        // Check available dart test platforms
+        var dartTestFile = File(join(path, 'dart_test.yaml'));
+        if (dartTestFile.existsSync()) {
+          try {
+            var dartTestPlatforms = (loadYaml(await dartTestFile.readAsString())
+                as Map)['platforms'];
+            // Single one?
+            if (dartTestPlatforms is String) {
+              dartTestPlatforms = [dartTestPlatforms];
+            }
+            if (dartTestPlatforms is List) {
+              var list = dartTestPlatforms;
+              platforms.removeWhere((platform) => !list.contains(platform));
+            }
+          } catch (_) {}
         }
 
         if (platforms.isNotEmpty) {

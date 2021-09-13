@@ -1,11 +1,14 @@
 @TestOn('vm')
 library dev_test.test.package_test;
 
+import 'dart:io';
+
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
 import 'package:dev_test/test.dart';
 import 'package:path/path.dart';
+import 'package:process_run/cmd_run.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
@@ -18,7 +21,7 @@ void main() {
           isFalse);
       expect(pubspecYamlHasAnyDependencies(pubspecMap, ['build_web_compilers']),
           isTrue);
-      expect(pubspecYamlHasAnyDependencies(pubspecMap, ['pedantic']), isTrue);
+      expect(pubspecYamlHasAnyDependencies(pubspecMap, ['lints']), isTrue);
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
       expect(pubspecYamlSupportsWeb(pubspecMap), isTrue);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
@@ -161,6 +164,48 @@ environment:
       expect(await recursivePubPath(['..']), [devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
+    });
+
+    test('recursivePubPath ignore build', () async {
+      // Somehow on node, build contains pubspec.yaml at its root and should be ignored
+      // try to reproduce here
+      var outDir = join('.dart_tool', 'dev_test', 'test', 'recursive_test');
+      var file = File(join(outDir, 'build', 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString('name: dummy');
+
+      expect(await recursivePubPath([outDir]), []);
+    });
+
+    test('check isPubPackageRoot', () async {
+      // Check dart version boundaries
+      var outDir =
+          join('.dart_tool', 'dev_test', 'test', 'is_pub_package_root');
+      var file = File(join(outDir, 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString('''
+      environment:
+        sdk: '>=$dartVersion'
+      ''');
+      expect(await recursivePubPath([outDir]), [outDir]);
+
+      await file.writeAsString('''
+      environment:
+        sdk: '>$dartVersion'
+      ''');
+      expect(await recursivePubPath([outDir]), []);
+
+      await file.writeAsString('''
+      environment:
+        sdk: '<=$dartVersion'
+      ''');
+      expect(await recursivePubPath([outDir]), [outDir]);
+
+      await file.writeAsString('''
+      environment:
+        sdk: '<$dartVersion'
+      ''');
+      expect(await recursivePubPath([outDir]), []);
     });
 
     test('filterTopLevelDartDirs', () async {
