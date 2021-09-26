@@ -93,16 +93,16 @@ environment:
       expect(boundaries.match(Version(3, 0, 0)), isFalse);
       expect(boundaries.match(Version(2, 8, 0, pre: 'dev')), isFalse);
 
-      expect(VersionBoundaries.tryParse('0.0.1').toString(), '0.0.1');
-      expect(VersionBoundaries.tryParse('^0.0.1').toString(), '>=0.0.1 <0.0.2');
-      expect(VersionBoundaries.tryParse('^0.1.2').toString(), '>=0.1.2 <0.2.0');
-      expect(VersionBoundaries.tryParse('^1.2.3').toString(), '>=1.2.3 <2.0.0');
+      expect(VersionBoundaries.parse('0.0.1').toString(), '0.0.1');
+      expect(VersionBoundaries.parse('^0.0.1').toString(), '>=0.0.1 <0.0.2');
+      expect(VersionBoundaries.parse('^0.1.2').toString(), '>=0.1.2 <0.2.0');
+      expect(VersionBoundaries.parse('^1.2.3').toString(), '>=1.2.3 <2.0.0');
 
-      boundaries = VersionBoundaries.tryParse('>1.0.0')!;
+      boundaries = VersionBoundaries.parse('>1.0.0');
       expect(boundaries.match(Version(1, 1, 0)), isTrue);
       expect(boundaries.match(Version(2, 1, 0)), isTrue);
       expect(boundaries.match(Version(1, 0, 0)), isFalse);
-      boundaries = VersionBoundaries.tryParse('<=3.0.0')!;
+      boundaries = VersionBoundaries.parse('<=3.0.0');
       expect(boundaries.match(Version(3, 0, 0)), isTrue);
       expect(boundaries.match(Version(3, 0, 1)), isFalse);
     });
