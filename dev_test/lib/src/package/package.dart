@@ -124,48 +124,45 @@ class VersionBoundaries {
 
   VersionBoundaries(this.min, this.max);
 
-  static VersionBoundaries? tryParse(String text) {
-    if (text is String) {
-      var parts = text.trim().split(' ');
-      VersionBoundary? min;
-      VersionBoundary? max;
-      for (var part in parts) {
-        if (part.startsWith('>=')) {
-          try {
-            min = VersionBoundary(Version.parse(part.substring(2)), true);
-          } catch (_) {}
-        } else if (part.startsWith('>')) {
-          try {
-            min = VersionBoundary(Version.parse(part.substring(1)), false);
-          } catch (_) {}
-        } else if (part.startsWith('<=')) {
-          try {
-            max = VersionBoundary(Version.parse(part.substring(2)), true);
-          } catch (_) {}
-        } else if (part.startsWith('<')) {
-          try {
-            max = VersionBoundary(Version.parse(part.substring(1)), false);
-          } catch (_) {}
-        } else if (part.startsWith('^')) {
-          try {
-            min = VersionBoundary(Version.parse(part.substring(1)), true);
-            if (min.value.major != 0) {
-              max = VersionBoundary(Version(min.value.major + 1, 0, 0), false);
-            } else if (min.value.minor != 0) {
-              max = VersionBoundary(Version(0, min.value.minor + 1, 0), false);
-            } else {
-              max = VersionBoundary(Version(0, 0, min.value.patch + 1), false);
-            }
-          } catch (_) {}
-        } else {
-          try {
-            min = max = VersionBoundary(Version.parse(part), true);
-          } catch (_) {}
-        }
+  static VersionBoundaries parse(String text) {
+    var parts = text.trim().split(' ');
+    VersionBoundary? min;
+    VersionBoundary? max;
+    for (var part in parts) {
+      if (part.startsWith('>=')) {
+        try {
+          min = VersionBoundary(Version.parse(part.substring(2)), true);
+        } catch (_) {}
+      } else if (part.startsWith('>')) {
+        try {
+          min = VersionBoundary(Version.parse(part.substring(1)), false);
+        } catch (_) {}
+      } else if (part.startsWith('<=')) {
+        try {
+          max = VersionBoundary(Version.parse(part.substring(2)), true);
+        } catch (_) {}
+      } else if (part.startsWith('<')) {
+        try {
+          max = VersionBoundary(Version.parse(part.substring(1)), false);
+        } catch (_) {}
+      } else if (part.startsWith('^')) {
+        try {
+          min = VersionBoundary(Version.parse(part.substring(1)), true);
+          if (min.value.major != 0) {
+            max = VersionBoundary(Version(min.value.major + 1, 0, 0), false);
+          } else if (min.value.minor != 0) {
+            max = VersionBoundary(Version(0, min.value.minor + 1, 0), false);
+          } else {
+            max = VersionBoundary(Version(0, 0, min.value.patch + 1), false);
+          }
+        } catch (_) {}
+      } else {
+        try {
+          min = max = VersionBoundary(Version.parse(part), true);
+        } catch (_) {}
       }
-      return VersionBoundaries(min, max);
     }
-    return null;
+    return VersionBoundaries(min, max);
   }
 
   // True if a version match the boundaries
@@ -198,7 +195,7 @@ VersionBoundaries? pubspecYamlGetSdkBoundaries(Map? map) {
   //   sdk: '>=2.8.0 <3.0.0'
   var rawSdk = mapValueFromParts(map, ['environment', 'sdk']);
   if (rawSdk is String) {
-    return VersionBoundaries.tryParse(rawSdk);
+    return VersionBoundaries.parse(rawSdk);
   }
   return null;
 }
