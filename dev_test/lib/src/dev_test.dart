@@ -49,7 +49,7 @@ void test(String description, Function() body,
     {String? testOn,
     Timeout? timeout,
     skip,
-    @deprecated bool solo = false,
+    @Deprecated('Dev only') bool solo = false,
     Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
@@ -65,7 +65,7 @@ void group(String description, void Function() body,
     {String? testOn,
     Timeout? timeout,
     skip,
-    @deprecated bool solo = false,
+    @Deprecated('Dev only') bool solo = false,
     Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
@@ -105,14 +105,14 @@ void expect(actual, matcher, {String? reason, skip}) {
 /// Run the test solo temporarily
 /// mark as deprecated so that you don't checkin such code
 ///
-@deprecated
+@Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
     solo_test(String description, Function() body,
         {String? testOn,
         Timeout? timeout,
         skip,
-        @deprecated bool solo = false,
+        @Deprecated('Dev only') bool solo = false,
         Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
@@ -127,14 +127,14 @@ void
 /// Run the group solo temporarily
 /// mark as deprecated so that you don't checkin such code
 ///
-@deprecated
+@Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
     solo_group(String description, void Function() body,
         {String? testOn,
         Timeout? timeout,
         skip,
-        @deprecated bool solo = false,
+        @Deprecated('Dev only') bool solo = false,
         Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,
@@ -149,14 +149,14 @@ void
 /// mark as deprecated so that you don't checkin such code
 /// to permanently skip a test use the skip paremeter
 ///
-@deprecated
+@Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
     skip_test(String description, Function() body,
         {String? testOn,
         Timeout? timeout,
         skip,
-        @deprecated bool solo = false,
+        @Deprecated('Dev only') bool solo = false,
         Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
       testOn: testOn,
@@ -172,14 +172,14 @@ void
 /// mark as deprecated so that you don't checkin such code
 /// to permanently skip a group use the skip paremeter
 ///
-@deprecated
+@Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
     skip_group(String description, void Function() body,
         {String? testOn,
         Timeout? timeout,
         skip,
-        @deprecated bool solo = false,
+        @Deprecated('Dev only') bool solo = false,
         Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
       testOn: testOn,

@@ -71,14 +71,14 @@ List<T>? cloneList<T>(List<T>? original) {
     return null;
   }
   var clone = <T?>[];
-  original.forEach((dynamic item) {
+  for (var item in original) {
     if (item is List) {
-      item = cloneList(item);
+      item = cloneList(item) as T;
     } else if (item is Map) {
-      item = cloneMap(item);
+      item = cloneMap(item) as T;
     }
-    clone.add(item as T?);
-  });
+    clone.add(item);
+  }
   return clone as List<T>;
 }
 
@@ -87,11 +87,11 @@ List<T>? cloneList<T>(List<T>? original) {
 List<T> intersectList<T>(List<T> original1, List<T> original2) {
   var list = <T>[];
 
-  original1.forEach((element) {
+  for (var element in original1) {
     if (original2.contains(element)) {
       list.add(element);
     }
-  });
+  }
 
   return list;
 }

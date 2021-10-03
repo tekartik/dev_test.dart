@@ -9,7 +9,7 @@ class DartTest implements Test {
       {String? testOn,
       Timeout? timeout,
       skip,
-      @deprecated bool solo = false,
+      @Deprecated('Dev only') bool solo = false,
       Map<String, Object?>? onPlatform}) {
     _impl.test(description, body,
         testOn: testOn,
@@ -26,7 +26,7 @@ class DartTest implements Test {
       {String? testOn,
       Timeout? timeout,
       skip,
-      @deprecated bool solo = false,
+      @Deprecated('Dev only') bool solo = false,
       Map<String, Object?>? onPlatform}) {
     _impl.group(description, body,
         testOn: testOn,

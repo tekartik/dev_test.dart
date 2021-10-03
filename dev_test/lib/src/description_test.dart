@@ -21,7 +21,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       {String? testOn,
       Timeout? timeout,
       skip,
-      @deprecated bool solo = false,
+      @Deprecated('Dev only') bool solo = false,
       Map<String, Object?>? onPlatform}) {
     var descriptions = List<String>.from(_descriptions)..add(description);
     _impl.test(description, () {
@@ -41,7 +41,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
       {String? testOn,
       Timeout? timeout,
       skip,
-      @deprecated bool solo = false,
+      @Deprecated('Dev only') bool solo = false,
       Map<String, Object?>? onPlatform}) {
     _impl.group(description, () {
       _descriptions.add(description);
@@ -99,8 +99,8 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
   dynamic _wrap(List<String> descriptions, Function() body) {
     _currentDescriptions = descriptions;
-    var result;
-    var error;
+    Object? result;
+    Object? error;
     try {
       result = body();
     } catch (e) {

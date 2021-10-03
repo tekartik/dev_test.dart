@@ -132,7 +132,7 @@ void setPartsMapValue<T>(Map map, List<String> parts, value) {
   for (var i = 0; i < parts.length - 1; i++) {
     var part = parts[i];
     dynamic sub = map[part];
-    if (!(sub is Map)) {
+    if (sub is! Map) {
       sub = <String, dynamic>{};
       map[part] = sub;
     }
