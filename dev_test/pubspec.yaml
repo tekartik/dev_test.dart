@@ -1,5 +1,5 @@
 name: dev_test
-version: 0.15.3+1
+version: 0.15.4
 homepage: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 description: Brings (back) the solo and skip features on top of the test package
 
