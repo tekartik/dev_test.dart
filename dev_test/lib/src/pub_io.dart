@@ -11,14 +11,14 @@ final String _pubspecYaml = 'pubspec.yaml';
 /// return true if root package
 
 /// Check whether the package contains a supported version
-Future<bool> isPubPackageRoot(String dirPath) async {
+Future<bool> isPubPackageRoot(String dirPath, {bool verbose = false}) async {
   var pubspecYamlPath = join(dirPath, _pubspecYaml);
   // ignore: avoid_slow_async_io
   if (await io.FileSystemEntity.isFile(pubspecYamlPath)) {
     var map = await pathGetPubspecYamlMap(dirPath);
     var boundaries = pubspecYamlGetSdkBoundaries(map);
     if (boundaries != null) {
-      return boundaries.match(dartVersion);
+      return boundaries.matches(dartVersion);
     }
   }
   return false;

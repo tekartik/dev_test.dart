@@ -50,6 +50,11 @@ class PackageRunCiOptions {
   /// Do not run `run_ci_override.dart`, typically to use in this file
   final bool noOverride;
 
+  /// Extra project info displayed
+  final bool prjInfo;
+
+  /// No actions are performed, only project info if specified.
+  final bool noRunCi;
   PackageRunCiOptions(
       {this.formatOnly = false,
       this.testOnly = false,
@@ -71,7 +76,9 @@ class PackageRunCiOptions {
       this.noNpmInstall = false,
       this.poolSize,
       this.noOverride = false,
-      this.dryRun = false}) {
+      this.dryRun = false,
+      this.prjInfo = false,
+      this.noRunCi = false}) {
     var isOnlyAction = (formatOnly ||
         buildOnly ||
         testOnly ||
@@ -109,7 +116,9 @@ class PackageRunCiOptions {
       noNpmInstall: noNpmInstall,
       poolSize: poolSize,
       noOverride: noOverride,
-      dryRun: dryRun);
+      dryRun: dryRun,
+      prjInfo: prjInfo,
+      noRunCi: noRunCi);
 
   bool get noPubGetOrUpgrade =>
       (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;

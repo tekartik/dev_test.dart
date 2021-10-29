@@ -88,10 +88,20 @@ environment:
   sdk: '>=2.8.0 <3.0.0'
       ''');
       var boundaries = pubspecYamlGetSdkBoundaries(map)!;
-      expect(boundaries.match(Version(2, 8, 0)), isTrue);
-      expect(boundaries.match(Version(2, 9, 0)), isTrue);
-      expect(boundaries.match(Version(3, 0, 0)), isFalse);
-      expect(boundaries.match(Version(2, 8, 0, pre: 'dev')), isFalse);
+
+      expect(boundaries.matches(Version(2, 8, 0)), isTrue);
+      expect(boundaries.matchesMin(Version(2, 8, 0)), isTrue);
+      expect(boundaries.matchesMax(Version(2, 8, 0)), isTrue);
+      expect(boundaries.matches(Version(2, 9, 0)), isTrue);
+      expect(boundaries.matchesMin(Version(2, 9, 0)), isTrue);
+      expect(boundaries.matchesMax(Version(2, 9, 0)), isTrue);
+      expect(boundaries.matches(Version(3, 0, 0)), isFalse);
+      expect(boundaries.matchesMin(Version(3, 0, 0)), isTrue);
+      expect(boundaries.matchesMax(Version(3, 0, 0)), isFalse);
+      expect(boundaries.matchesMax(Version(2, 8, 0, pre: 'dev')), isTrue);
+      expect(boundaries.matches(Version(2, 8, 0, pre: 'dev')), isFalse);
+      expect(boundaries.matchesMin(Version(2, 8, 0, pre: 'dev')), isFalse);
+      expect(boundaries.matchesMin(Version(3, 0, 0)), isTrue);
 
       expect(VersionBoundaries.parse('0.0.1').toString(), '0.0.1');
       expect(VersionBoundaries.parse('^0.0.1').toString(), '>=0.0.1 <0.0.2');
@@ -99,12 +109,12 @@ environment:
       expect(VersionBoundaries.parse('^1.2.3').toString(), '>=1.2.3 <2.0.0');
 
       boundaries = VersionBoundaries.parse('>1.0.0');
-      expect(boundaries.match(Version(1, 1, 0)), isTrue);
-      expect(boundaries.match(Version(2, 1, 0)), isTrue);
-      expect(boundaries.match(Version(1, 0, 0)), isFalse);
+      expect(boundaries.matches(Version(1, 1, 0)), isTrue);
+      expect(boundaries.matches(Version(2, 1, 0)), isTrue);
+      expect(boundaries.matches(Version(1, 0, 0)), isFalse);
       boundaries = VersionBoundaries.parse('<=3.0.0');
-      expect(boundaries.match(Version(3, 0, 0)), isTrue);
-      expect(boundaries.match(Version(3, 0, 1)), isFalse);
+      expect(boundaries.matches(Version(3, 0, 0)), isTrue);
+      expect(boundaries.matches(Version(3, 0, 1)), isFalse);
     });
 
     test('pubspecYamlHasAnyDependencies', () {

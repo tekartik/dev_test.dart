@@ -232,15 +232,46 @@ Future<void> singlePackageRunCi(String path,
   await singlePackageRunCiImpl(path, options);
 }
 
+var _minNullableVersion = Version(2, 12, 0);
+var _unsetVersion = Version(1, 0, 0);
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> singlePackageRunCiImpl(
     String path, PackageRunCiOptions options) async {
   options = options.clone();
 
-  print('# package: $path');
+  if (options.prjInfo) {
+    stdout.writeln('# package: ${normalize(absolute(path))}');
+  } else {
+    stdout.writeln('# package: $path');
+  }
   var shell = Shell(workingDirectory: path);
-  // Override?
+  // Project info
+  if (options.prjInfo) {
+    try {
+      var pubspecMap = await pathGetPubspecYamlMap(path);
+      var boundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
+      if (boundaries != null) {
+        var minSdkVersion = boundaries.min?.value ?? _unsetVersion;
+        // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
+        var tags = <String>[
+          if (pubspecYamlSupportsFlutter(pubspecMap)) 'flutter',
+          if (minSdkVersion < _minNullableVersion) 'non-nullable'
+        ];
+        if (tags.isNotEmpty) {
+          stdout.writeln('sdk: $boundaries (${tags.join(',')})');
+        } else {
+          stdout.writeln('sdk: $boundaries');
+        }
+      }
+    } catch (e, _) {
+      print(e);
+    }
+  }
+  if (options.noRunCi) {
+    return;
+  }
 
   if (!options.noOverride &&
       File(join('.local', '.skip_run_ci')).existsSync()) {
@@ -253,7 +284,7 @@ Future<void> singlePackageRunCiImpl(
 
   var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
 
-  if (!sdkBoundaries.match(dartVersion)) {
+  if (!sdkBoundaries.matches(dartVersion)) {
     stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
     return;
   }
