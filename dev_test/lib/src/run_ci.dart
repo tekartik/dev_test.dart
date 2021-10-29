@@ -343,6 +343,10 @@ Future<void> singlePackageRunCiImpl(
     // Formatting change in 2.9 with hashbang first line
     await checkAndActivatePackage('dart_style');
     try {
+      // Needed otherwise formatter is stuck
+      if (filteredDartDirsArg.isEmpty) {
+        filteredDartDirsArg = '.';
+      }
       await _run('''
       # Formatting
       dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg

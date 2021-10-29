@@ -1,4 +1,4 @@
-## 0.15.4
+## 0.15.4+1
 
 * add flag `prj-info` (extra project information) to `run_ci` executable 
 * add flag `no-run-ci` (no action) to `run_ci` executable

@@ -3,6 +3,7 @@ library dev_test.test.package_test;
 
 import 'dart:io';
 
+import 'package:dev_test/package.dart';
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
@@ -246,6 +247,49 @@ environment:
 
     test('packageRunCi', () async {
       await packageRunCi('..', noTest: true);
+    });
+
+    test('analyze no dart code', () async {
+      // Somehow on node, build contains pubspec.yaml at its root and should be ignored
+      // try to reproduce here
+      var outDir =
+          join('.dart_tool', 'dev_test', 'test', 'analyze_no_dart_code_test');
+      var file = File(join(outDir, 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString('''
+name: no_dart_code
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+''');
+
+      await packageRunCi(outDir,
+          options: PackageRunCiOptions(analyzeOnly: true, offline: true));
+    });
+    test('analyze no flutter code', () async {
+      // Somehow on node, build contains pubspec.yaml at its root and should be ignored
+      // try to reproduce here
+      var outDir = join('.dart_tool', 'dev_test', 'test',
+          'analyze_no_flutter_code_test', 'sub');
+      var file = File(join(outDir, 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString('''
+name: no_dart_code
+environment:
+  sdk: '>=2.12.0 <3.0.0'
+dependencies:
+  flutter:
+    sdk: flutter
+''');
+
+      // Make it handles sub dir too
+      await packageRunCi(dirname(outDir),
+          options: PackageRunCiOptions(
+              analyzeOnly: true,
+              formatOnly: true,
+              offline: true,
+              recursive: true));
+      await packageRunCi(outDir,
+          options: PackageRunCiOptions(analyzeOnly: true, offline: true));
     });
   });
 }
