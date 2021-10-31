@@ -116,6 +116,10 @@ environment:
       boundaries = VersionBoundaries.parse('<=3.0.0');
       expect(boundaries.matches(Version(3, 0, 0)), isTrue);
       expect(boundaries.matches(Version(3, 0, 1)), isFalse);
+
+      expect(VersionBoundaries.tryParse(''), VersionBoundaries(null, null));
+      expect(
+          VersionBoundaries.tryParse('dummy'), VersionBoundaries(null, null));
     });
 
     test('pubspecYamlHasAnyDependencies', () {

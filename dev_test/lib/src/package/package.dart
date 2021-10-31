@@ -124,6 +124,11 @@ class VersionBoundaries {
 
   VersionBoundaries(this.min, this.max);
 
+  /// Compat
+  static VersionBoundaries? tryParse(String text) {
+    return parse(text);
+  }
+
   static VersionBoundaries parse(String text) {
     var parts = text.trim().split(' ');
     VersionBoundary? min;
@@ -202,6 +207,23 @@ class VersionBoundaries {
       }
     }
     return true;
+  }
+
+  @override
+  int get hashCode => (min?.hashCode ?? 0) + (max?.hashCode ?? 0);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is VersionBoundaries) {
+      if (other.min != min) {
+        return false;
+      }
+      if (other.max != max) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 }
 
