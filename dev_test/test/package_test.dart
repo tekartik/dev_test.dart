@@ -4,6 +4,7 @@ library dev_test.test.package_test;
 import 'dart:io';
 
 import 'package:dev_test/package.dart';
+import 'package:dev_test/src/build_support.dart';
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
@@ -294,6 +295,24 @@ dependencies:
               recursive: true));
       await packageRunCi(outDir,
           options: PackageRunCiOptions(analyzeOnly: true, offline: true));
+    });
+
+    group('.packages', () {
+      test('pathGetPackageConfigMap', () async {
+        var map = await pathGetPackageConfigMap('.');
+        var devTestPath =
+            pathPackageConfigMapGetPackagePath('.', map, 'dev_test')!;
+        expect(devTestPath, '.');
+        var processRunPath =
+            pathPackageConfigMapGetPackagePath('.', map, 'process_run')!;
+        expect(processRunPath, contains('process_run'));
+        var processRunPubspecYaml = await pathGetPubspecYamlMap(processRunPath);
+        expect(processRunPubspecYaml['name'], 'process_run');
+        expect(pathPackageConfigMapGetPackagePath('.', map, '_dummy'), isNull);
+
+        expect(File(join(devTestPath, 'pubspec.yaml')).existsSync(), isTrue);
+        expect(File(join(processRunPath, 'pubspec.yaml')).existsSync(), isTrue);
+      });
     });
   });
 }

@@ -25,3 +25,9 @@ Future<Map<String, Object?>> pathGetPubspecYamlMap(String packageDir) =>
 
 Future<Map<String, Object?>> pathGetAnalysisOptionsYamlMap(String packageDir) =>
     pathGetYaml(join(packageDir, 'analysis_options.yaml'));
+
+Future<Map<String, Object?>> pathGetPackageConfigMap(String packageDir) =>
+    pathGetYaml(join(pathGetDartToolDir(packageDir), 'package_config.json'));
+
+String pathGetDartToolDir(String packageDir) =>
+    normalize(absolute(join(packageDir, '.dart_tool')));

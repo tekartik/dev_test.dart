@@ -18,4 +18,7 @@ export 'package:dev_test/src/package/package.dart'
 ///
 /// Used internally.
 export 'package:dev_test/src/package/universal/package_universal.dart'
-    show pathGetPubspecYamlMap, pathGetAnalysisOptionsYamlMap;
+    show
+        pathGetPubspecYamlMap,
+        pathGetPackageConfigMap,
+        pathGetAnalysisOptionsYamlMap;
