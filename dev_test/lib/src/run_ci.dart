@@ -475,6 +475,15 @@ Future<void> singlePackageRunCiImpl(
           pubspecMap, ['build_web_compilers', 'build_runner'])) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           await checkAndActivatePackage('webdev');
+
+          // Work around for something that happens on windows
+          // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
+          // $ dart pub global run webdev build
+          // webdev could not run for this project.
+          // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+          if (Platform.isWindows) {
+            await _run('dart pub get');
+          }
           await _run('dart pub global run webdev build');
         }
       }
