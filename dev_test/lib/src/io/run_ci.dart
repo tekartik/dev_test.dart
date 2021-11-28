@@ -14,6 +14,13 @@ void printVersion() {
   stdout.writeln(version);
 }
 
+var prjInfoFlagName = 'prj-info';
+var noRunCiFlagName = 'no-run-ci';
+
+extension _ArgResults on ArgResults {
+  T getValue<T>(String key) => this[key] as T;
+}
+
 Future<void> main(List<String> arguments) async {
   var parser = ArgParser()
     ..addFlag('version', help: 'Application version', negatable: false)
@@ -37,6 +44,8 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
     ..addFlag('offline', help: 'Offline', negatable: false)
+    ..addFlag(prjInfoFlagName, help: 'Project info', negatable: false)
+    ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
     ..addFlag('dry-run', help: 'Dry run', negatable: false)
     ..addOption('concurrency',
         abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
@@ -79,6 +88,8 @@ Future<void> main(List<String> arguments) async {
   var dryRun = result['dry-run'] as bool;
   // default to true
   var recursive = result['recursive'] as bool;
+  var prjInfo = result[prjInfoFlagName] as bool;
+  var noRunCi = result.getValue<bool>(noRunCiFlagName);
 
   var poolSize = int.tryParse('concurrency');
 
@@ -104,6 +115,8 @@ Future<void> main(List<String> arguments) async {
     pubUpgradeOnly: pubUpgradeOnly,
     noOverride: noOverride,
     dryRun: dryRun,
+    prjInfo: prjInfo,
+    noRunCi: noRunCi,
   );
 
   Future _runDir(String dir) async {

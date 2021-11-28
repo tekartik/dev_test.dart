@@ -10,7 +10,8 @@ export 'package:dev_test/src/mixin/package.dart'
         VersionBoundaries,
         VersionBoundary,
         pathGetAnalysisOptionsYamlMap,
-        pathGetPubspecYamlMap;
+        pathGetPubspecYamlMap,
+        pathGetPackageConfigMap;
 export 'package:dev_test/src/node_support.dart'
     show nodeSetupCheck, isNodeSupportedSync;
 export 'package:process_run/shell.dart' show isFlutterSupportedSync;
@@ -30,4 +31,5 @@ export 'src/build_support.dart'
         flutterCreateProject,
         buildInitDart,
         dartTemplateConsoleSimple,
-        dartCreateProject;
+        dartCreateProject,
+        pathPackageConfigMapGetPackagePath;

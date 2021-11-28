@@ -7,7 +7,12 @@ import 'package:yaml/yaml.dart';
 
 Future<Map<String, Object?>> pathGetYaml(String path) async {
   var content = await File(path).readAsString();
-  return (loadYaml(content) as Map).cast<String, Object?>();
+  try {
+    return (loadYaml(content) as Map).cast<String, Object?>();
+  } catch (e) {
+    print('error in $path $e');
+    rethrow;
+  }
 }
 
 Future<Map<String, Object?>> pathGetJson(String path) async {
@@ -20,3 +25,9 @@ Future<Map<String, Object?>> pathGetPubspecYamlMap(String packageDir) =>
 
 Future<Map<String, Object?>> pathGetAnalysisOptionsYamlMap(String packageDir) =>
     pathGetYaml(join(packageDir, 'analysis_options.yaml'));
+
+Future<Map<String, Object?>> pathGetPackageConfigMap(String packageDir) =>
+    pathGetYaml(join(pathGetDartToolDir(packageDir), 'package_config.json'));
+
+String pathGetDartToolDir(String packageDir) =>
+    normalize(absolute(join(packageDir, '.dart_tool')));

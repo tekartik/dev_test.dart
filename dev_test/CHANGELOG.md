@@ -1,3 +1,8 @@
+## 0.15.4+2
+
+* add flag `prj-info` (extra project information) to `run_ci` executable 
+* add flag `no-run-ci` (no action) to `run_ci` executable
+ 
 ## 0.15.3+1
 
 * recursivePubPath now check whether dart version is supported

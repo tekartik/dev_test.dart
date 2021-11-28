@@ -124,6 +124,11 @@ class VersionBoundaries {
 
   VersionBoundaries(this.min, this.max);
 
+  /// Compat
+  static VersionBoundaries? tryParse(String text) {
+    return parse(text);
+  }
+
   static VersionBoundaries parse(String text) {
     var parts = text.trim().split(' ');
     VersionBoundary? min;
@@ -165,17 +170,19 @@ class VersionBoundaries {
     return VersionBoundaries(min, max);
   }
 
-  // True if a version match the boundaries
+  // TO deprecate
+  /// Prefer [matches]
   bool match(Version version) {
-    if (min != null) {
-      if (min!.include) {
-        if (version < min!.value) {
-          return false;
-        }
-      } else if (version <= min!.value) {
-        return false;
-      }
-    }
+    return matches(version);
+  }
+
+  // True if a version match the boundaries
+  bool matches(Version version) {
+    return matchesMin(version) && matchesMax(version);
+  }
+
+  // True if a version match the boundaries
+  bool matchesMax(Version version) {
     if (max != null) {
       if (max!.include) {
         if (version > max!.value) {
@@ -186,6 +193,37 @@ class VersionBoundaries {
       }
     }
     return true;
+  }
+
+  // True if a version match the boundaries
+  bool matchesMin(Version version) {
+    if (min != null) {
+      if (min!.include) {
+        if (version < min!.value) {
+          return false;
+        }
+      } else if (version <= min!.value) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  int get hashCode => (min?.hashCode ?? 0) + (max?.hashCode ?? 0);
+
+  @override
+  bool operator ==(Object other) {
+    if (other is VersionBoundaries) {
+      if (other.min != min) {
+        return false;
+      }
+      if (other.max != max) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 }
 
