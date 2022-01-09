@@ -272,4 +272,5 @@ String? pathPackageConfigMapGetPackagePath(
       }
     }
   }
+  return null;
 }
