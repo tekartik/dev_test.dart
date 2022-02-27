@@ -340,8 +340,14 @@ Future<void> singlePackageRunCiImpl(
   var filteredDartDirsArg = filteredDartDirs.join(' ');
 
   if (!options.noFormat) {
-    // Formatting change in 2.9 with hashbang first line
-    await checkAndActivatePackage('dart_style');
+    // Previous version were using dart_style, we now use dart format
+    // // Formatting change in 2.9 with hashbang first line
+    // await checkAndActivatePackage('dart_style');
+    // dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
+
+    //
+    // Since dart 2.16
+
     try {
       // Needed otherwise formatter is stuck
       if (filteredDartDirsArg.isEmpty) {
@@ -349,7 +355,7 @@ Future<void> singlePackageRunCiImpl(
       }
       await _run('''
       # Formatting
-      dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
+      dart format --set-exit-if-changed $filteredDartDirsArg
     ''');
     } catch (e) {
       // Sometimes we allow formatting errors...
