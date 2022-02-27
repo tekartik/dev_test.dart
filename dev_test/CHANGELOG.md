@@ -1,3 +1,7 @@
+## 0.15.5
+
+* Use `dart format` instead of `dart_style:format`
+
 ## 0.15.4+4
 
 * add flag `prj-info` (extra project information) to `run_ci` executable 
