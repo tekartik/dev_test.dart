@@ -38,7 +38,7 @@ V? mapValue<K, V>(Map<K, V>? map, K key, {V Function()? createIfNull}) {
   var value = map[key];
   if (value == null && createIfNull != null) {
     value = createIfNull();
-    map[key] = value!;
+    map[key] = value as V;
   }
   return value;
 }
