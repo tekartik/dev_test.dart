@@ -75,8 +75,8 @@ Future<List<String>> filterPubPath(List<String> dirs,
 
   for (final dir in dirs) {
     if (isDirectoryNotLinkSynk(dir)) {
-      final _handled = await _handleDir(dir, dependencies: dependencies);
-      if (_handled) {
+      final handled = await _handleDir(dir, dependencies: dependencies);
+      if (handled) {
         list.add(dir);
       }
     } else {

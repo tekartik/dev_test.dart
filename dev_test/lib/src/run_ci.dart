@@ -265,7 +265,7 @@ Future<void> singlePackageRunCiImpl(
           stdout.writeln('sdk: $boundaries');
         }
       }
-    } catch (e, _) {
+    } catch (e) {
       print(e);
     }
   }

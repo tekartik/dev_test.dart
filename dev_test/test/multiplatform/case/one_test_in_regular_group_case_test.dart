@@ -1,13 +1,13 @@
 import 'package:dev_test/test.dart';
-import 'package:test/test.dart' as _test;
+import 'package:test/test.dart' as test_impl;
 
 void main() {
-  _test.group('regular_group', () {
+  test_impl.group('regular_group', () {
     test('dev_test', () {
       expect(true, isTrue);
     });
 
-    _test.test('test', () {
+    test_impl.test('test', () {
       expect(true, isTrue);
     });
   });
