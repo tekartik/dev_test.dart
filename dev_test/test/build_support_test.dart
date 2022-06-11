@@ -21,35 +21,35 @@ void main() {
         join('.dart_tool', 'dev_test', 'raw_flutter_test1', 'test', 'project');
     var ensureCreated = false;
     var shell = Shell(workingDirectory: dir);
-    Future<void> _create() async {
+    Future<void> createProject() async {
       await flutterCreateProject(
         path: dir,
       );
       await shell.run('flutter config');
     }
 
-    Future<void> _ensureCreate() async {
+    Future<void> ensureCreate() async {
       if (!ensureCreated) {
         if (!Directory(dir).existsSync()) {
-          await _create();
+          await createProject();
         }
         ensureCreated = true;
       }
     }
 
-    Future<void> _iosBuild() async {
+    Future<void> iosBuild() async {
       if (buildSupportsIOS) {
         await shell.run('flutter build ios --release --no-codesign');
       }
     }
 
-    Future<void> _androidBuild() async {
+    Future<void> androidBuild() async {
       if (buildSupportsAndroid) {
         await shell.run('flutter build apk');
       }
     }
 
-    Future<void> _runCi() async {
+    Future<void> runCi() async {
       // Allow failure
       try {
         await packageRunCi(dir);
@@ -59,28 +59,28 @@ void main() {
     }
 
     test('create', () async {
-      await _create();
+      await createProject();
     }, timeout: const Timeout(Duration(minutes: 5)));
     test('run_ci', () async {
-      await _ensureCreate();
-      await _runCi();
+      await ensureCreate();
+      await runCi();
     }, timeout: const Timeout(Duration(minutes: 5)));
 
     test('build ios', () async {
-      await _ensureCreate();
-      await _iosBuild();
+      await ensureCreate();
+      await iosBuild();
     }, timeout: const Timeout(Duration(minutes: 5)));
 
     test('build android', () async {
-      await _ensureCreate();
-      await _androidBuild();
+      await ensureCreate();
+      await androidBuild();
     }, timeout: const Timeout(Duration(minutes: 5)));
     test('add sqflite', () async {
-      await _ensureCreate();
+      await ensureCreate();
       if (await pathPubspecAddDependency(dir, 'sqflite')) {
-        await _iosBuild();
-        await _androidBuild();
-        await _runCi();
+        await iosBuild();
+        await androidBuild();
+        await runCi();
       }
     }, timeout: const Timeout(Duration(minutes: 10)));
   }, skip: !isFlutterSupportedSync || isRunningOnTravis);
@@ -96,22 +96,22 @@ void main() {
           join('.dart_tool', 'dev_test', 'raw_dart_test1', 'test', 'project');
       var ensureCreated = false;
       var shell = Shell(workingDirectory: dir);
-      Future<void> _create() async {
+      Future<void> create() async {
         await dartCreateProject(
           path: dir,
         );
       }
 
-      Future<void> _ensureCreate() async {
+      Future<void> ensureCreate() async {
         if (!ensureCreated) {
           if (!Directory(dir).existsSync()) {
-            await _create();
+            await create();
           }
           ensureCreated = true;
         }
       }
 
-      Future<void> _runCi() async {
+      Future<void> runCi() async {
         // Don't allow failure
         try {
           await packageRunCi(dir);
@@ -122,15 +122,15 @@ void main() {
       }
 
       test('create', () async {
-        await _create();
+        await create();
       }, timeout: const Timeout(Duration(minutes: 5)));
       test('run_ci', () async {
-        await _ensureCreate();
-        await _runCi();
+        await ensureCreate();
+        await runCi();
       }, timeout: const Timeout(Duration(minutes: 5)));
 
       test('add dev_test', () async {
-        await _ensureCreate();
+        await ensureCreate();
         var readDependencyLines =
             await pathPubspecGetDependencyLines(dir, 'dev_test');
         if (readDependencyLines == ['dev_test:']) {
@@ -141,7 +141,7 @@ void main() {
               pubspecYamlHasAnyDependencies(
                   await pathGetPubspecYamlMap(dir), ['dev_test']),
               isTrue);
-          await _runCi();
+          await runCi();
         } else {
           expect(
               pubspecYamlHasAnyDependencies(
@@ -151,7 +151,7 @@ void main() {
       }, timeout: const Timeout(Duration(minutes: 10)));
 
       test('add dev_test_relative', () async {
-        await _ensureCreate();
+        await ensureCreate();
         var dependencyLines = ['path: ${join('..', '..', '..', '..', '..')}'];
 
         var readDependencyLines =
@@ -175,7 +175,7 @@ void main() {
               pubspecYamlHasAnyDependencies(
                   await pathGetPubspecYamlMap(dir), ['dev_test']),
               isTrue);
-          await _runCi();
+          await runCi();
         } else {
           expect(await pathPubspecGetDependencyLines(dir, 'dev_test'),
               dependencyLines);
