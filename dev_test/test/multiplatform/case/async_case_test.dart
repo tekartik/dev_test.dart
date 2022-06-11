@@ -4,7 +4,7 @@ import 'package:dev_test/test.dart';
 
 void main() {
   // check the description after a 1ms delay
-  Future _checkDelayedDescription() async {
+  Future checkDelayedDescription() async {
     var descriptions = testDescriptions;
     await Future.delayed(const Duration(milliseconds: 1));
     expect(testDescriptions, descriptions);
@@ -12,20 +12,20 @@ void main() {
 
   group('group', () {
     setUp(() async {
-      await _checkDelayedDescription();
+      await checkDelayedDescription();
     });
     // first test to make sure setUp is called
 
     test('test1', () async {
-      await _checkDelayedDescription();
+      await checkDelayedDescription();
     });
 
     // add another test to make sure tearDown is called
     test('test2', () async {
-      await _checkDelayedDescription();
+      await checkDelayedDescription();
     });
     tearDown(() async {
-      await _checkDelayedDescription();
+      await checkDelayedDescription();
     });
   });
 }

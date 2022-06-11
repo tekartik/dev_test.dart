@@ -301,7 +301,7 @@ Future<void> singlePackageRunCiImpl(
     options.noTest = true;
   }
 
-  Future<List<ProcessResult>> _run(String script) async {
+  Future<List<ProcessResult>> runScript(String script) async {
     if (options.dryRun) {
       scriptToCommands(script).forEach((command) {
         print('\$ $command');
@@ -315,15 +315,15 @@ Future<void> singlePackageRunCiImpl(
     var offlineSuffix = options.offline ? ' --offline' : '';
     if (isFlutterPackage) {
       if (options.pubUpgradeOnly) {
-        await _run('flutter pub upgrade$offlineSuffix');
+        await runScript('flutter pub upgrade$offlineSuffix');
       } else {
-        await _run('flutter pub get$offlineSuffix');
+        await runScript('flutter pub get$offlineSuffix');
       }
     } else {
       if (options.pubUpgradeOnly) {
-        await _run('dart pub upgrade$offlineSuffix');
+        await runScript('dart pub upgrade$offlineSuffix');
       } else {
-        await _run('dart pub get$offlineSuffix');
+        await runScript('dart pub get$offlineSuffix');
       }
     }
   }
@@ -332,7 +332,7 @@ Future<void> singlePackageRunCiImpl(
   if (!options.noOverride &&
       File(join(path, _runCiOverridePath)).existsSync()) {
     // Run it instead
-    await _run('dart run $_runCiOverridePath');
+    await runScript('dart run $_runCiOverridePath');
     return;
   }
 
@@ -353,7 +353,7 @@ Future<void> singlePackageRunCiImpl(
       if (filteredDartDirsArg.isEmpty) {
         filteredDartDirsArg = '.';
       }
-      await _run('''
+      await runScript('''
       # Formatting
       dart format --set-exit-if-changed $filteredDartDirsArg
     ''');
@@ -372,7 +372,7 @@ Future<void> singlePackageRunCiImpl(
 
   if (isFlutterPackage) {
     if (!options.noAnalyze) {
-      await _run('''
+      await runScript('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
@@ -381,7 +381,7 @@ Future<void> singlePackageRunCiImpl(
     if (!options.noTest) {
       // 'test', '--no-pub'
       // Flutter way
-      await _run('''
+      await runScript('''
       # Test
       flutter test --no-pub
     ''');
@@ -393,13 +393,13 @@ Future<void> singlePackageRunCiImpl(
       if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           // await checkAndActivatePackage('webdev');
-          await _run('flutter build web');
+          await runScript('flutter build web');
         }
       }
     }
   } else {
     if (!options.noAnalyze) {
-      await _run('''
+      await runScript('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
   ''');
@@ -424,7 +424,7 @@ Future<void> singlePackageRunCiImpl(
             // Workaround issue about complaining old pubspec on node...
             // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
           }
-          await _run('''
+          await runScript('''
           # Get dependencies
           dart pub get --offline
     ''');
@@ -448,7 +448,7 @@ Future<void> singlePackageRunCiImpl(
         }
 
         if (platforms.isNotEmpty) {
-          await _run('''
+          await runScript('''
     # Test
     dart test -p ${platforms.join(',')}
     ''');
@@ -465,7 +465,7 @@ Future<void> singlePackageRunCiImpl(
                     '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
               }
             } else {
-              await _run('''
+              await runScript('''
       # Build runner test
       dart pub run build_runner test -- -p chrome
       ''');
@@ -488,9 +488,9 @@ Future<void> singlePackageRunCiImpl(
           // webdev could not run for this project.
           // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
           if (Platform.isWindows) {
-            await _run('dart pub get');
+            await runScript('dart pub get');
           }
-          await _run('dart pub global run webdev build');
+          await runScript('dart pub global run webdev build');
         }
       }
     }

@@ -119,7 +119,7 @@ Future<void> main(List<String> arguments) async {
     noRunCi: noRunCi,
   );
 
-  Future _runDir(String dir) async {
+  Future runDir(String dir) async {
     await singlePackageRunCi(
       dir,
       options: options,
@@ -129,7 +129,7 @@ Future<void> main(List<String> arguments) async {
   if (recursive) {
     await recursiveActions(paths, verbose: verbose, poolSize: poolSize,
         action: (dir) async {
-      await _runDir(dir);
+      await runDir(dir);
     });
   } else {
     for (var path in paths) {
@@ -138,7 +138,7 @@ Future<void> main(List<String> arguments) async {
             '${absolute(path)} not a dart package, use --recursive option');
         exit(1);
       } else {
-        await _runDir(path);
+        await runDir(path);
       }
     }
   }

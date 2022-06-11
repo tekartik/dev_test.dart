@@ -94,7 +94,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
     {List<String>? dependencies}) async {
   var pubDirs = await filterPubPath(dirs, dependencies: dependencies);
 
-  Future<List<String>> _getSubDirs(String dir) async {
+  Future<List<String>> getSubDirs(String dir) async {
     if (!_isToBeIgnored(basename(dir))) {
       // devPrint('testing: $dir');
       final sub = <String>[];
@@ -108,7 +108,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
               if (await isPubPackageRoot(subDir)) {
                 sub.add(subDir);
               }
-              sub.addAll(await _getSubDirs(subDir));
+              sub.addAll(await getSubDirs(subDir));
             }());
           }
         }
@@ -121,7 +121,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
 
   for (final dir in dirs) {
     if (isDirectoryNotLinkSynk(dir)) {
-      pubDirs.addAll(await _getSubDirs(dir));
+      pubDirs.addAll(await getSubDirs(dir));
     } else {
       throw '$dir not a directory';
     }
