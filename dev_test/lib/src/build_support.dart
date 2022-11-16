@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:dev_test/src/io/file_utils.dart';
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
@@ -176,18 +177,6 @@ bool get buildSupportsLinux =>
 bool get buildSupportsWindows =>
     Platform.isWindows && [dartChannelMaster].contains(_flutterChannel);
 
-extension _DirectoryExt on Directory {
-  /// Create if needed
-  Future<void> prepare() async {
-    if (await exists()) {
-      try {
-        await delete(recursive: true);
-      } catch (_) {}
-    }
-    await parent.create(recursive: true);
-  }
-}
-
 /// console-simple: A simple command-line application. (default)
 const dartTemplateConsoleSimple = 'console-simple';
 
@@ -201,6 +190,9 @@ const dartTemplatePackageSimple = 'package-simple';
 const dartTemplateWebSimple = 'web-simple';
 
 const flutterTemplateApp = 'app';
+
+/// Flutter package shared dart code.
+const flutterTemplatePackage = 'package';
 
 Future<void> dartCreateProject(
     {String template = dartTemplateConsoleSimple, required String path}) async {

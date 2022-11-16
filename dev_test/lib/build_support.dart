@@ -28,6 +28,7 @@ export 'src/build_support.dart'
         pathPubspecGetDependencyLines,
         pathPubspecRemoveDependency,
         flutterTemplateApp,
+        flutterTemplatePackage,
         flutterCreateProject,
         buildInitDart,
         dartTemplateConsoleSimple,
