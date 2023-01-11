@@ -11,10 +11,10 @@ List<String> get testDescriptions =>
         : ['dev_test'];
 
 abstract class Test {
-  void test(String description, Function() body,
+  void test(String description, dynamic Function() body,
       {String? testOn,
       Timeout? timeout,
-      skip,
+      Object? skip,
       bool solo = false,
       Map<String, Object?>? onPlatform});
 
@@ -22,33 +22,33 @@ abstract class Test {
   void group(String description, void Function() body,
       {String? testOn,
       Timeout? timeout,
-      skip,
+      Object? skip,
       bool solo = false,
       Map<String, Object?>? onPlatform});
 
 // overriding  [_test.setUp]
-  void setUp(Function() callback);
+  void setUp(dynamic Function() callback);
 
 // overriding  [_test.tearDown]
-  void tearDown(Function() callback);
+  void tearDown(dynamic Function() callback);
 
 // overriding  [_test.setUp]
-  void setUpAll(Function() callback);
+  void setUpAll(dynamic Function() callback);
 
 // overriding  [_test.tearDown]
-  void tearDownAll(Function() callback);
+  void tearDownAll(dynamic Function() callback);
 
-  void expect(actual, matcher, {String? reason, skip});
+  void expect(Object? actual, Object? matcher, {String? reason, Object? skip});
 }
 
 abstract class WithTestDescriptions {
   List<String> get testDescriptions;
 }
 
-void test(String description, Function() body,
+void test(String description, dynamic Function() body,
     {String? testOn,
     Timeout? timeout,
-    skip,
+    Object? skip,
     @Deprecated('Dev only') bool solo = false,
     Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
@@ -64,7 +64,7 @@ void test(String description, Function() body,
 void group(String description, void Function() body,
     {String? testOn,
     Timeout? timeout,
-    skip,
+    Object? skip,
     @Deprecated('Dev only') bool solo = false,
     Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
@@ -76,26 +76,26 @@ void group(String description, void Function() body,
 }
 
 // overriding  [_test.setUp]
-void setUp(Function() callback) {
+void setUp(dynamic Function() callback) {
   testImplementation.setUp(callback);
 }
 
 // overriding  [_test.tearDown]
-void tearDown(Function() callback) {
+void tearDown(dynamic Function() callback) {
   testImplementation.tearDown(callback);
 }
 
 // overriding  [_test.setUp]
-void setUpAll(Function() callback) {
+void setUpAll(dynamic Function() callback) {
   testImplementation.setUpAll(callback);
 }
 
 // overriding  [_test.tearDown]
-void tearDownAll(Function() callback) {
+void tearDownAll(dynamic Function() callback) {
   testImplementation.tearDownAll(callback);
 }
 
-void expect(actual, matcher, {String? reason, skip}) {
+void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {
   testImplementation.expect(actual, matcher, reason: reason, skip: skip);
 }
 
@@ -108,10 +108,10 @@ void expect(actual, matcher, {String? reason, skip}) {
 @Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
-    solo_test(String description, Function() body,
+    solo_test(String description, dynamic Function() body,
         {String? testOn,
         Timeout? timeout,
-        skip,
+        Object? skip,
         @Deprecated('Dev only') bool solo = false,
         Map<String, Object?>? onPlatform}) {
   testImplementation.test(description, body,
@@ -133,7 +133,7 @@ void
     solo_group(String description, void Function() body,
         {String? testOn,
         Timeout? timeout,
-        skip,
+        Object? skip,
         @Deprecated('Dev only') bool solo = false,
         Map<String, Object?>? onPlatform}) {
   testImplementation.group(description, body,
@@ -152,7 +152,7 @@ void
 @Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
-    skip_test(String description, Function() body,
+    skip_test(String description, dynamic Function() body,
         {String? testOn,
         Timeout? timeout,
         skip,

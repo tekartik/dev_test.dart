@@ -7,7 +7,7 @@ void main() async {
     expect(true, isTrue);
   });
 
-  await Future.delayed(const Duration());
+  await Future<void>.delayed(const Duration());
 
   // this should fail running dart directly
   group('group2', () {

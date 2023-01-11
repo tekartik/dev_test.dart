@@ -37,7 +37,7 @@ void main() {
     for (var i = 0; i < 100; i++) {
       test('test$i', () async {
         expect(testDescriptions, ['multi', 'test$i']);
-        await Future.delayed(const Duration(milliseconds: 5));
+        await Future<void>.delayed(const Duration(milliseconds: 5));
         expect(testDescriptions, ['multi', 'test$i']);
       });
     }
