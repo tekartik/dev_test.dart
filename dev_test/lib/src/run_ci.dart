@@ -345,14 +345,18 @@ Future<void> singlePackageRunCiImpl(
     // await checkAndActivatePackage('dart_style');
     // dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
 
-    //
-    // Since dart 2.16
-
+    // Needed otherwise formatter is stuck
+    if (filteredDartDirsArg.isEmpty) {
+      filteredDartDirsArg = '.';
+    }
+    if (isFlutterPackage) {
+      // Flutter since 3.3.6
+      await runScript('''
+      # Formatting
+      flutter format --set-exit-if-changed $filteredDartDirsArg
+    ''');
+    }
     try {
-      // Needed otherwise formatter is stuck
-      if (filteredDartDirsArg.isEmpty) {
-        filteredDartDirsArg = '.';
-      }
       await runScript('''
       # Formatting
       dart format --set-exit-if-changed $filteredDartDirsArg

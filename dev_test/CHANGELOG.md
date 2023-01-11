@@ -1,6 +1,7 @@
-## 0.15.5+1
+## 0.15.5+2
 
 * Use `dart format` instead of `dart_style:format`
+* Requires sdk 2.18
 
 ## 0.15.4+4
 
