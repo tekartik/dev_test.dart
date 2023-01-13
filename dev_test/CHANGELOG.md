@@ -1,4 +1,4 @@
-## 0.15.6-1
+## 0.15.6
 
 * strict-casts and strict-inference support
 
