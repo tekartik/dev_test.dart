@@ -231,7 +231,7 @@ class VersionBoundaries {
 VersionBoundaries? pubspecYamlGetSdkBoundaries(Map? map) {
   // environment:
   //   sdk: '>=2.8.0 <3.0.0'
-  var rawSdk = mapValueFromParts(map, ['environment', 'sdk']);
+  var rawSdk = mapValueFromParts<Object?>(map, ['environment', 'sdk']);
   if (rawSdk is String) {
     return VersionBoundaries.parse(rawSdk);
   }
@@ -242,6 +242,7 @@ bool analysisOptionsSupportsNnbdExperiment(Map? map) {
   // analyzer:
   //   enable-experiment:
   //     - non-nullable
-  var experiments = mapValueFromParts(map, ['analyzer', 'enable-experiment']);
+  var experiments =
+      mapValueFromParts<Object?>(map, ['analyzer', 'enable-experiment']);
   return experiments is List && experiments.contains('non-nullable');
 }

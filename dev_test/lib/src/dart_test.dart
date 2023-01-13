@@ -39,25 +39,25 @@ class DartTest implements Test {
 
 // overriding  [_test.setUp]
   @override
-  void setUp(Function() callback) {
+  void setUp(dynamic Function() callback) {
     test_impl.setUp(callback);
   }
 
 // overriding  [_test.tearDown]
   @override
-  void tearDown(Function() callback) {
+  void tearDown(dynamic Function() callback) {
     test_impl.tearDown(callback);
   }
 
 // overriding  [_test.setUp]
   @override
-  void setUpAll(Function() callback) {
+  void setUpAll(dynamic Function() callback) {
     test_impl.setUpAll(callback);
   }
 
 // overriding  [_test.tearDown]
   @override
-  void tearDownAll(Function() callback) {
+  void tearDownAll(dynamic Function() callback) {
     test_impl.tearDownAll(callback);
   }
 

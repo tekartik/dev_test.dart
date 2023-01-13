@@ -104,10 +104,10 @@ T? mapValueFromParts<T>(Map? map, Iterable<String> parts) =>
     getPartsMapValue(map, parts);
 
 /// true if the key exists even if the value is null
-bool mapPartsExists<T>(Map map, Iterable<String> parts) {
+bool mapPartsExists(Map map, Iterable<String> parts) {
   assert(parts.isNotEmpty);
-  var lastMap =
-      getPartsMapValue(map, parts.toList().sublist(0, parts.length - 1));
+  var lastMap = getPartsMapValue<Object?>(
+      map, parts.toList().sublist(0, parts.length - 1));
   if (lastMap is Map) {
     if (lastMap.containsKey(parts.last)) {
       return true;
@@ -128,7 +128,7 @@ T? getPartsMapValue<T>(Map? map, Iterable<String> parts) {
   return value as T?;
 }
 
-void setPartsMapValue<T>(Map map, List<String> parts, value) {
+void setPartsMapValue<T>(Map map, List<String> parts, Object? value) {
   for (var i = 0; i < parts.length - 1; i++) {
     var part = parts[i];
     dynamic sub = map[part];

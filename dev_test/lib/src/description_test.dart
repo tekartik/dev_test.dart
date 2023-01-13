@@ -17,7 +17,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   WithDescriptionsTest(this._impl);
 
   @override
-  void test(String description, Function() body,
+  void test(String description, dynamic Function() body,
       {String? testOn,
       Timeout? timeout,
       skip,
@@ -58,7 +58,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.setUp]
   @override
-  void setUp(Function() body) {
+  void setUp(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
     _impl.setUp(() {
       return _wrap(descriptions, body);
@@ -67,7 +67,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.tearDown]
   @override
-  void tearDown(Function() body) {
+  void tearDown(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
     _impl.tearDown(() {
       return _wrap(descriptions, body);
@@ -76,7 +76,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.setUp]
   @override
-  void setUpAll(Function() body) {
+  void setUpAll(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
     _impl.setUpAll(() {
       return _wrap(descriptions, body);
@@ -85,7 +85,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
 // overriding  [_test.tearDown]
   @override
-  void tearDownAll(Function() body) {
+  void tearDownAll(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
     _impl.tearDownAll(() {
       return _wrap(descriptions, body);
@@ -97,7 +97,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
     _impl.expect(actual, matcher, reason: reason, skip: skip);
   }
 
-  dynamic _wrap(List<String> descriptions, Function() body) {
+  dynamic _wrap(List<String> descriptions, dynamic Function() body) {
     _currentDescriptions = descriptions;
     Object? result;
     Object? error;

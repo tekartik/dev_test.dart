@@ -37,7 +37,7 @@ Future<List<String>> topLevelDirs(String dir) async {
       // devPrint('adding top ${basename(event.path)}');
       list.add(basename(event.path));
     }
-  }).asFuture();
+  }).asFuture<void>();
   return list;
 }
 
@@ -56,7 +56,7 @@ Future<bool> hasDartFiles(String dir) async {
       hasOneDartFile = true;
       //subscription.cancel();
     }
-  }).asFuture();
+  }).asFuture<void>();
   if (!hasOneDartFile) {
     for (var subDir in dirs) {
       if (await hasDartFiles(join(dir, subDir))) {

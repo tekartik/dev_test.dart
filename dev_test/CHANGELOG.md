@@ -1,3 +1,7 @@
+## 0.15.6
+
+* strict-casts and strict-inference support
+
 ## 0.15.5+2
 
 * Use `dart format` instead of `dart_style:format`

@@ -112,7 +112,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
             }());
           }
         }
-      }).asFuture();
+      }).asFuture<void>();
       await Future.wait(futures);
       return sub;
     }
