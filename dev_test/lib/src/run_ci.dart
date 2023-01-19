@@ -240,263 +240,271 @@ var _unsetVersion = Version(1, 0, 0);
 Future<void> singlePackageRunCiImpl(
     String path, PackageRunCiOptions options) async {
   options = options.clone();
-
-  if (options.prjInfo) {
-    stdout.writeln('# package: ${normalize(absolute(path))}');
-  } else {
-    stdout.writeln('# package: $path');
-  }
-  var shell = Shell(workingDirectory: path);
-  // Project info
-  if (options.prjInfo) {
-    try {
-      var pubspecMap = await pathGetPubspecYamlMap(path);
-      var boundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
-      if (boundaries != null) {
-        var minSdkVersion = boundaries.min?.value ?? _unsetVersion;
-        // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
-        var tags = <String>[
-          if (pubspecYamlSupportsFlutter(pubspecMap)) 'flutter',
-          if (minSdkVersion < _minNullableVersion) 'non-nullable'
-        ];
-        if (tags.isNotEmpty) {
-          stdout.writeln('sdk: $boundaries (${tags.join(',')})');
-        } else {
-          stdout.writeln('sdk: $boundaries');
-        }
-      }
-    } catch (e) {
-      print(e);
+  try {
+    if (options.prjInfo) {
+      stdout.writeln('# package: ${normalize(absolute(path))}');
+    } else {
+      stdout.writeln('# package: $path');
     }
-  }
-  if (options.noRunCi) {
-    return;
-  }
-
-  if (!options.noOverride &&
-      File(join('.local', '.skip_run_ci')).existsSync()) {
-    print('Skipping run_ci');
-    return;
-  }
-
-  var pubspecMap = await pathGetPubspecYamlMap(path);
-  var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
-
-  var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
-
-  if (!sdkBoundaries.matches(dartVersion)) {
-    stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
-    return;
-  }
-
-  if (isFlutterPackage) {
-    if (!isFlutterSupportedSync) {
-      stderr.writeln('flutter not supported for package in $path');
+    var shell = Shell(workingDirectory: path);
+    // Project info
+    if (options.prjInfo) {
+      try {
+        var pubspecMap = await pathGetPubspecYamlMap(path);
+        var boundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
+        if (boundaries != null) {
+          var minSdkVersion = boundaries.min?.value ?? _unsetVersion;
+          // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
+          var tags = <String>[
+            if (pubspecYamlSupportsFlutter(pubspecMap)) 'flutter',
+            if (minSdkVersion < _minNullableVersion) 'non-nullable'
+          ];
+          if (tags.isNotEmpty) {
+            stdout.writeln('sdk: $boundaries (${tags.join(',')})');
+          } else {
+            stdout.writeln('sdk: $boundaries');
+          }
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+    if (options.noRunCi) {
       return;
     }
-  }
 
-  // ensure test exists
-  if (!Directory(join(path, 'test')).existsSync()) {
-    options.noTest = true;
-  }
-
-  Future<List<ProcessResult>> runScript(String script) async {
-    if (options.dryRun) {
-      scriptToCommands(script).forEach((command) {
-        print('\$ $command');
-      });
-      return <ProcessResult>[];
+    if (!options.noOverride &&
+        File(join('.local', '.skip_run_ci')).existsSync()) {
+      print('Skipping run_ci');
+      return;
     }
-    return await shell.run(script);
-  }
 
-  if (!options.noPubGetOrUpgrade) {
-    var offlineSuffix = options.offline ? ' --offline' : '';
+    var pubspecMap = await pathGetPubspecYamlMap(path);
+    var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
+
+    var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
+
+    if (!sdkBoundaries.matches(dartVersion)) {
+      stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
+      return;
+    }
+
     if (isFlutterPackage) {
-      if (options.pubUpgradeOnly) {
-        await runScript('flutter pub upgrade$offlineSuffix');
-      } else {
-        await runScript('flutter pub get$offlineSuffix');
-      }
-    } else {
-      if (options.pubUpgradeOnly) {
-        await runScript('dart pub upgrade$offlineSuffix');
-      } else {
-        await runScript('dart pub get$offlineSuffix');
+      if (!isFlutterSupportedSync) {
+        stderr.writeln('flutter not supported for package in $path');
+        return;
       }
     }
-  }
 
-  // Specific run
-  if (!options.noOverride &&
-      File(join(path, _runCiOverridePath)).existsSync()) {
-    // Run it instead
-    await runScript('dart run $_runCiOverridePath');
-    return;
-  }
-
-  var filteredDartDirs = await filterTopLevelDartDirs(path);
-  var filteredDartDirsArg = filteredDartDirs.join(' ');
-
-  if (!options.noFormat) {
-    // Previous version were using dart_style, we now use dart format
-    // // Formatting change in 2.9 with hashbang first line
-    // await checkAndActivatePackage('dart_style');
-    // dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
-
-    // Needed otherwise formatter is stuck
-    if (filteredDartDirsArg.isEmpty) {
-      filteredDartDirsArg = '.';
+    // ensure test exists
+    if (!Directory(join(path, 'test')).existsSync()) {
+      options.noTest = true;
     }
-    if (isFlutterPackage) {
-      // Flutter since 3.3.6
-      await runScript('''
+
+    Future<List<ProcessResult>> runScript(String script) async {
+      if (options.dryRun) {
+        scriptToCommands(script).forEach((command) {
+          print('\$ $command');
+        });
+        return <ProcessResult>[];
+      }
+      return await shell.run(script);
+    }
+
+    if (!options.noPubGetOrUpgrade) {
+      var offlineSuffix = options.offline ? ' --offline' : '';
+      if (isFlutterPackage) {
+        if (options.pubUpgradeOnly) {
+          await runScript('flutter pub upgrade$offlineSuffix');
+        } else {
+          await runScript('flutter pub get$offlineSuffix');
+        }
+      } else {
+        if (options.pubUpgradeOnly) {
+          await runScript('dart pub upgrade$offlineSuffix');
+        } else {
+          await runScript('dart pub get$offlineSuffix');
+        }
+      }
+    }
+
+    // Specific run
+    if (!options.noOverride &&
+        File(join(path, _runCiOverridePath)).existsSync()) {
+      // Run it instead
+      await runScript('dart run $_runCiOverridePath');
+      return;
+    }
+
+    var filteredDartDirs = await filterTopLevelDartDirs(path);
+    var filteredDartDirsArg = filteredDartDirs.join(' ');
+
+    if (!options.noFormat) {
+      // Previous version were using dart_style, we now use dart format
+      // // Formatting change in 2.9 with hashbang first line
+      // await checkAndActivatePackage('dart_style');
+      // dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
+
+      // Needed otherwise formatter is stuck
+      if (filteredDartDirsArg.isEmpty) {
+        filteredDartDirsArg = '.';
+      }
+      if (isFlutterPackage) {
+        // Flutter since 3.3.6
+        await runScript('''
       # Formatting
       flutter format --set-exit-if-changed $filteredDartDirsArg
     ''');
-    }
-    try {
-      await runScript('''
+      }
+      try {
+        await runScript('''
       # Formatting
       dart format --set-exit-if-changed $filteredDartDirsArg
     ''');
-    } catch (e) {
-      // Sometimes we allow formatting errors...
+      } catch (e) {
+        // Sometimes we allow formatting errors...
 
-      // if (supportsNnbdExperiment) {
-      //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
-      //} else {
-      //
+        // if (supportsNnbdExperiment) {
+        //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
+        //} else {
+        //
 
-      // but in general no!
-      rethrow;
+        // but in general no!
+        rethrow;
+      }
     }
-  }
 
-  if (isFlutterPackage) {
-    if (!options.noAnalyze) {
-      await runScript('''
+    if (isFlutterPackage) {
+      if (!options.noAnalyze) {
+        await runScript('''
       # Analyze code
       flutter analyze --no-pub .
     ''');
-    }
+      }
 
-    if (!options.noTest) {
-      // 'test', '--no-pub'
-      // Flutter way
-      await runScript('''
+      if (!options.noTest) {
+        // 'test', '--no-pub'
+        // Flutter way
+        await runScript('''
       # Test
       flutter test --no-pub
     ''');
-    }
-    if (!options.noBuild) {
-      /// Try building web if possible
+      }
+      if (!options.noBuild) {
+        /// Try building web if possible
 
-      /// requires at least beta
-      if (await flutterEnableWeb()) {
-        if (File(join(path, 'web', 'index.html')).existsSync()) {
-          // await checkAndActivatePackage('webdev');
-          await runScript('flutter build web');
+        /// requires at least beta
+        if (await flutterEnableWeb()) {
+          if (File(join(path, 'web', 'index.html')).existsSync()) {
+            // await checkAndActivatePackage('webdev');
+            await runScript('flutter build web');
+          }
         }
       }
-    }
-  } else {
-    if (!options.noAnalyze) {
-      await runScript('''
+    } else {
+      if (!options.noAnalyze) {
+        await runScript('''
       # Analyze code
       dart analyze --fatal-warnings --fatal-infos .
   ''');
-    }
+      }
 
-    // Test?
-    if (!options.noTest) {
-      if (filteredDartDirs.contains('test')) {
-        var platforms = <String>[if (!options.noVmTest) 'vm'];
+      // Test?
+      if (!options.noTest) {
+        if (filteredDartDirs.contains('test')) {
+          var platforms = <String>[if (!options.noVmTest) 'vm'];
 
-        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-        if (!options.noBrowserTest && isWeb) {
-          platforms.add('chrome');
-        }
-        // Add node for standard run test
-        var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
-        if (!options.noNodeTest && (isNodePackage && isNodeSupportedSync)) {
-          platforms.add('node');
-
-          if (!options.noNpmInstall) {
-            await nodeSetupCheck(path);
-            // Workaround issue about complaining old pubspec on node...
-            // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+          if (!options.noBrowserTest && isWeb) {
+            platforms.add('chrome');
           }
-          await runScript('''
+          // Add node for standard run test
+          var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
+          if (!options.noNodeTest && (isNodePackage && isNodeSupportedSync)) {
+            platforms.add('node');
+
+            if (!options.noNpmInstall) {
+              await nodeSetupCheck(path);
+              // Workaround issue about complaining old pubspec on node...
+              // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+            }
+            await runScript('''
           # Get dependencies
           dart pub get --offline
     ''');
-        }
+          }
 
-        // Check available dart test platforms
-        var dartTestFile = File(join(path, 'dart_test.yaml'));
-        if (dartTestFile.existsSync()) {
-          try {
-            var dartTestPlatforms = (loadYaml(await dartTestFile.readAsString())
-                as Map)['platforms'];
-            // Single one?
-            if (dartTestPlatforms is String) {
-              dartTestPlatforms = [dartTestPlatforms];
-            }
-            if (dartTestPlatforms is List) {
-              var list = dartTestPlatforms;
-              platforms.removeWhere((platform) => !list.contains(platform));
-            }
-          } catch (_) {}
-        }
+          // Check available dart test platforms
+          var dartTestFile = File(join(path, 'dart_test.yaml'));
+          if (dartTestFile.existsSync()) {
+            try {
+              var dartTestPlatforms =
+                  (loadYaml(await dartTestFile.readAsString())
+                      as Map)['platforms'];
+              // Single one?
+              if (dartTestPlatforms is String) {
+                dartTestPlatforms = [dartTestPlatforms];
+              }
+              if (dartTestPlatforms is List) {
+                var list = dartTestPlatforms;
+                platforms.removeWhere((platform) => !list.contains(platform));
+              }
+            } catch (_) {}
+          }
 
-        if (platforms.isNotEmpty) {
-          await runScript('''
+          if (platforms.isNotEmpty) {
+            await runScript('''
     # Test
     dart test -p ${platforms.join(',')}
     ''');
-        }
+          }
 
-        if (isWeb) {
-          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-            if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-              if (isRunningOnTravis) {
-                stderr.writeln(
-                    '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
+          if (isWeb) {
+            if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+              if (dartVersion >= Version(2, 10, 0, pre: '110')) {
+                if (isRunningOnTravis) {
+                  stderr.writeln(
+                      '\'dart pub run build_runner test -- -p chrome\' skipped on travis issue: https://github.com/dart-lang/sdk/issues/43589');
+                } else {
+                  stderr.writeln(
+                      '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
+                }
               } else {
-                stderr.writeln(
-                    '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
-              }
-            } else {
-              await runScript('''
+                await runScript('''
       # Build runner test
       dart pub run build_runner test -- -p chrome
       ''');
+              }
             }
+          }
+        }
+      }
+
+      if (!options.noBuild) {
+        /// Try web dev if possible
+        if (pubspecYamlHasAllDependencies(
+            pubspecMap, ['build_web_compilers', 'build_runner'])) {
+          if (File(join(path, 'web', 'index.html')).existsSync()) {
+            await checkAndActivatePackage('webdev');
+
+            // Work around for something that happens on windows
+            // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
+            // $ dart pub global run webdev build
+            // webdev could not run for this project.
+            // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+            if (Platform.isWindows) {
+              await runScript('dart pub get');
+            }
+            await runScript('dart pub global run webdev build');
           }
         }
       }
     }
-
-    if (!options.noBuild) {
-      /// Try web dev if possible
-      if (pubspecYamlHasAllDependencies(
-          pubspecMap, ['build_web_compilers', 'build_runner'])) {
-        if (File(join(path, 'web', 'index.html')).existsSync()) {
-          await checkAndActivatePackage('webdev');
-
-          // Work around for something that happens on windows
-          // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
-          // $ dart pub global run webdev build
-          // webdev could not run for this project.
-          // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
-          if (Platform.isWindows) {
-            await runScript('dart pub get');
-          }
-          await runScript('dart pub global run webdev build');
-        }
-      }
+  } catch (e) {
+    if (options.ignoreErrors) {
+      stderr.writeln('Ignoring error $e');
+    } else {
+      rethrow;
     }
   }
 }

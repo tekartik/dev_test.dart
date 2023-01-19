@@ -55,6 +55,9 @@ class PackageRunCiOptions {
 
   /// No actions are performed, only project info if specified.
   final bool noRunCi;
+
+  /// Ignore shell errors.
+  final bool ignoreErrors;
   PackageRunCiOptions(
       {this.formatOnly = false,
       this.testOnly = false,
@@ -78,7 +81,8 @@ class PackageRunCiOptions {
       this.noOverride = false,
       this.dryRun = false,
       this.prjInfo = false,
-      this.noRunCi = false}) {
+      this.noRunCi = false,
+      this.ignoreErrors = false}) {
     var isOnlyAction = (formatOnly ||
         buildOnly ||
         testOnly ||
@@ -118,7 +122,8 @@ class PackageRunCiOptions {
       noOverride: noOverride,
       dryRun: dryRun,
       prjInfo: prjInfo,
-      noRunCi: noRunCi);
+      noRunCi: noRunCi,
+      ignoreErrors: ignoreErrors);
 
   bool get noPubGetOrUpgrade =>
       (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;
