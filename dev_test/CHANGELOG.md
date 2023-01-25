@@ -1,3 +1,7 @@
+## 0.15.7
+
+* Add `--ignore-errors` options to `run_ci`
+
 ## 0.15.6
 
 * strict-casts and strict-inference support
