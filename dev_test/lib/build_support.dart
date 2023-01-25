@@ -32,5 +32,8 @@ export 'src/build_support.dart'
         flutterCreateProject,
         buildInitDart,
         dartTemplateConsoleSimple,
+        dartTemplateConsole,
+        dartTemplatePackage,
+        dartTemplateWeb,
         dartCreateProject,
         pathPackageConfigMapGetPackagePath;

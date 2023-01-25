@@ -2,7 +2,7 @@
 import 'dart:io';
 
 import 'package:dev_test/build_support.dart';
-import 'package:dev_test/src/run_ci.dart';
+import 'package:dev_test/package.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:test/test.dart';
@@ -83,8 +83,7 @@ void main() {
         await runCi();
       }
     }, timeout: const Timeout(Duration(minutes: 10)));
-  }, skip: !isFlutterSupportedSync || isRunningOnTravis);
-  // TODO @alex find a better to know the flutter build status
+  }, skip: !isFlutterSupportedSync);
 
   group(
     'dart test',
@@ -123,6 +122,16 @@ void main() {
 
       test('create', () async {
         await create();
+      }, timeout: const Timeout(Duration(minutes: 5)));
+
+      test('createOthers', () async {
+        for (var template in [
+          dartTemplateWeb,
+          dartTemplateConsole,
+          dartTemplatePackage,
+        ]) {
+          await dartCreateProject(path: dir, template: template);
+        }
       }, timeout: const Timeout(Duration(minutes: 5)));
       test('run_ci', () async {
         await ensureCreate();
