@@ -14,6 +14,7 @@ import 'import.dart';
 import 'mixin/package.dart';
 import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
+import 'pub_global.dart';
 
 Future main(List<String> arguments) async {
   String? path;
@@ -341,20 +342,11 @@ Future<void> singlePackageRunCiImpl(
 
     if (!options.noFormat) {
       // Previous version were using dart_style, we now use dart format
-      // // Formatting change in 2.9 with hashbang first line
-      // await checkAndActivatePackage('dart_style');
-      // dart pub global run dart_style:format -n --set-exit-if-changed $filteredDartDirsArg
+      // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was alloed
 
       // Needed otherwise formatter is stuck
       if (filteredDartDirsArg.isEmpty) {
         filteredDartDirsArg = '.';
-      }
-      if (isFlutterPackage) {
-        // Flutter since 3.3.6
-        await runScript('''
-      # Formatting
-      flutter format --set-exit-if-changed $filteredDartDirsArg
-    ''');
       }
       try {
         await runScript('''
@@ -480,7 +472,7 @@ Future<void> singlePackageRunCiImpl(
         if (pubspecYamlHasAllDependencies(
             pubspecMap, ['build_web_compilers', 'build_runner'])) {
           if (File(join(path, 'web', 'index.html')).existsSync()) {
-            await checkAndActivatePackage('webdev');
+            await checkAndActivateWebdev();
 
             // Work around for something that happens on windows
             // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
@@ -502,25 +494,6 @@ Future<void> singlePackageRunCiImpl(
       rethrow;
     }
   }
-}
-
-List<String>? _installedGlobalPackages;
-
-Future<void> checkAndActivatePackage(String package) async {
-  var list = await getInstalledGlobalPackages();
-  if (!list.contains(package)) {
-    await run('dart pub global activate $package');
-    list.add(package);
-  }
-}
-
-Future<List<String>> getInstalledGlobalPackages() async {
-  if (_installedGlobalPackages == null) {
-    var lines = (await run('dart pub global list', verbose: false)).outLines;
-    _installedGlobalPackages =
-        lines.map((line) => line.split(' ')[0]).toList(growable: true);
-  }
-  return _installedGlobalPackages!;
 }
 
 bool? _flutterWebEnabled;

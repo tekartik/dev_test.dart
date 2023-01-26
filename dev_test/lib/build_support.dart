@@ -37,3 +37,5 @@ export 'src/build_support.dart'
         dartTemplateWeb,
         dartCreateProject,
         pathPackageConfigMapGetPackagePath;
+export 'src/pub_global.dart'
+    show checkAndActivateWebdev, checkAndActivatePackage;
