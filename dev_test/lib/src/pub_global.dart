@@ -31,6 +31,17 @@ Future<List<String>> getInstalledGlobalPackages({bool? verbose}) async {
   return _installedGlobalPackages!;
 }
 
+Future<bool> isPackageActivated(String package, {bool? verbose}) async {
+  var list = await getInstalledGlobalPackages(verbose: verbose);
+  return list.contains(package);
+}
+
+Future<void> deactivatePackage(String package, {bool? verbose}) async {
+  var list = await getInstalledGlobalPackages(verbose: verbose);
+  await run('dart pub global deactivate $package', verbose: true);
+  list.remove(package);
+}
+
 Future<void> checkAndActivateWebdev({bool? verbose}) async {
   var webdev = 'webdev';
   verbose ??= false;
