@@ -1,3 +1,8 @@
+## 0.15.7+1
+
+* Add `--ignore-errors` options to `run_ci`
+* Use `dart format` instead of `flutter format` deprecated in dart 2.19
+
 ## 0.15.6
 
 * strict-casts and strict-inference support

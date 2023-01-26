@@ -1,6 +1,7 @@
 @TestOn('vm')
 library dev_test.test.test_app_test;
 
+import 'package:dev_test/build_support.dart';
 import 'package:dev_test/dev_test.dart';
 import 'package:process_run/dartbin.dart';
 
@@ -37,15 +38,15 @@ void main() {
         timeout: const Timeout(Duration(minutes: 5)));
     test('io app', () async {
       var path = join(topDir, 'test_io_app');
-      await dartGenerateAndRunCi(path: path, template: 'console-simple');
+      await dartGenerateAndRunCi(path: path, template: dartTemplateConsole);
     }, timeout: const Timeout(Duration(minutes: 5)));
     test('web app', () async {
       var path = join(topDir, 'test_web_app');
-      await dartGenerateAndRunCi(path: path, template: 'web-simple');
+      await dartGenerateAndRunCi(path: path, template: dartTemplateWeb);
     }, timeout: const Timeout(Duration(minutes: 5)));
     test('dart package', () async {
       var path = join(topDir, 'test_package');
-      await dartGenerateAndRunCi(path: path, template: 'package-simple');
+      await dartGenerateAndRunCi(path: path, template: dartTemplatePackage);
     }, timeout: const Timeout(Duration(minutes: 5)));
   });
 }

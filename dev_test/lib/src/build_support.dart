@@ -177,17 +177,29 @@ bool get buildSupportsLinux =>
 bool get buildSupportsWindows =>
     Platform.isWindows && [dartChannelMaster].contains(_flutterChannel);
 
+/// console: A command-line application. (default)
+const dartTemplateConsole = 'console';
+
 /// console-simple: A simple command-line application. (default)
-const dartTemplateConsoleSimple = 'console-simple';
+/// @Deprecated
+const dartTemplateConsoleSimple = dartTemplateConsole;
 
 /// console-full: A command-line application sample.
-const dartTemplateConsoleFull = 'console-full';
+/// @Deprecated
+const dartTemplateConsoleFull = dartTemplateConsole;
+
+/// package: A package containing shared Dart libraries
+const dartTemplatePackage = 'package';
 
 /// package-simple: A starting point for Dart libraries or applications.
-const dartTemplatePackageSimple = 'package-simple';
+const dartTemplatePackageSimple = dartTemplatePackage;
+
+/// web: A web app that uses only core Dart libraries.
+const dartTemplateWeb = 'web';
 
 /// web-simple: A web app that uses only core Dart libraries.
-const dartTemplateWebSimple = 'web-simple';
+/// @Deprecated
+const dartTemplateWebSimple = dartTemplateWeb;
 
 const flutterTemplateApp = 'app';
 

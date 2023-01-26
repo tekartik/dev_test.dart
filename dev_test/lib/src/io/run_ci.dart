@@ -37,6 +37,11 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('no-override',
         help: 'Do not run \'tool/run_ci_override.dart\' if found',
         negatable: false)
+    ..addFlag('ignore-errors',
+        abbr: 'i',
+        help:
+            'Ignore errors (stop the current package but run the other packages)',
+        negatable: false)
     ..addFlag('format', help: 'Format only', negatable: false)
     ..addFlag('test', help: 'Test only', negatable: false)
     ..addFlag('analyze', help: 'Analyze only', negatable: false)
@@ -86,6 +91,7 @@ Future<void> main(List<String> arguments) async {
   var pubGetOnly = result['pub-get'] as bool;
   var pubUpgradeOnly = result['pub-upgrade'] as bool;
   var dryRun = result['dry-run'] as bool;
+  var ignoreErrors = result['ignore-errors'] as bool;
   // default to true
   var recursive = result['recursive'] as bool;
   var prjInfo = result[prjInfoFlagName] as bool;
@@ -117,6 +123,7 @@ Future<void> main(List<String> arguments) async {
     dryRun: dryRun,
     prjInfo: prjInfo,
     noRunCi: noRunCi,
+    ignoreErrors: ignoreErrors,
   );
 
   Future runDir(String dir) async {

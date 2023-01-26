@@ -32,5 +32,10 @@ export 'src/build_support.dart'
         flutterCreateProject,
         buildInitDart,
         dartTemplateConsoleSimple,
+        dartTemplateConsole,
+        dartTemplatePackage,
+        dartTemplateWeb,
         dartCreateProject,
         pathPackageConfigMapGetPackagePath;
+export 'src/pub_global.dart'
+    show checkAndActivateWebdev, checkAndActivatePackage;
