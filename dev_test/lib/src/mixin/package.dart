@@ -12,7 +12,8 @@ export 'package:dev_test/src/package/package.dart'
         pubspecYamlGetSdkBoundaries,
         VersionBoundaries,
         VersionBoundary,
-        analysisOptionsSupportsNnbdExperiment;
+        analysisOptionsSupportsNnbdExperiment,
+        packageConfigGetPackages;
 
 /// Pseudo exports.
 ///

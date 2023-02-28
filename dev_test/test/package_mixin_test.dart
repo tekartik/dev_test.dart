@@ -25,6 +25,8 @@ void main() {
       pathGetAnalysisOptionsYamlMap;
       // ignore: unnecessary_statements
       pathGetPubspecYamlMap;
+      // ignore: unnecessary_statements
+      packageConfigGetPackages;
     });
   });
 }

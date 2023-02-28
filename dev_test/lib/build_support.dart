@@ -11,7 +11,8 @@ export 'package:dev_test/src/mixin/package.dart'
         VersionBoundary,
         pathGetAnalysisOptionsYamlMap,
         pathGetPubspecYamlMap,
-        pathGetPackageConfigMap;
+        pathGetPackageConfigMap,
+        packageConfigGetPackages;
 export 'package:dev_test/src/node_support.dart'
     show nodeSetupCheck, isNodeSupportedSync;
 export 'package:process_run/shell.dart' show isFlutterSupportedSync;
