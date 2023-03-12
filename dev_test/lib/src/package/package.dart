@@ -246,3 +246,9 @@ bool analysisOptionsSupportsNnbdExperiment(Map? map) {
       mapValueFromParts<Object?>(map, ['analyzer', 'enable-experiment']);
   return experiments is List && experiments.contains('non-nullable');
 }
+
+/// Get a list of packages
+List<String> packageConfigGetPackages(Map packageConfigMap) {
+  var packagesList = packageConfigMap['packages'] as Iterable;
+  return packagesList.map((e) => (e as Map)['name'] as String).toList();
+}

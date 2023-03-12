@@ -297,9 +297,12 @@ dependencies:
           options: PackageRunCiOptions(analyzeOnly: true, offline: true));
     });
 
-    group('.packages', () {
+    group('package_config.json', () {
       test('pathGetPackageConfigMap', () async {
         var map = await pathGetPackageConfigMap('.');
+        var packages = packageConfigGetPackages(map);
+        expect(packages, contains('process_run'));
+        expect(packages, isNot(contains('sqflite')));
         var devTestPath =
             pathPackageConfigMapGetPackagePath('.', map, 'dev_test')!;
         expect(devTestPath, '.');
