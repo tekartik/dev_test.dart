@@ -21,7 +21,15 @@ extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
 }
 
+const flagSkipRunCi = 'skip-run-ci';
+
 Future<void> main(List<String> arguments) async {
+  var configParser = ArgParser()
+    ..addFlag(flagSkipRunCi,
+        negatable: false,
+        help:
+            'Mark project folder as skipped locally (.local/ must be source control ignored)')
+    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
   var parser = ArgParser()
     ..addFlag('version', help: 'Application version', negatable: false)
     ..addFlag('verbose', abbr: 'v', help: 'Verbose mode', negatable: false)
@@ -58,18 +66,47 @@ Future<void> main(List<String> arguments) async {
         help: 'Recursive (try to find dart/flutter project recursively',
         defaultsTo: true,
         negatable: true)
-    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
+    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
+    ..addCommand('config', configParser);
   var result = parser.parse(arguments);
+  var paths = result.rest.isEmpty ? ['.'] : result.rest;
+
+  if (result['version'] as bool) {
+    printVersion();
+    exit(0);
+  }
+  var command = result.command?.name;
+  if (command == 'config') {
+    var configResult = result.command!;
+
+    if (configResult['help'] as bool) {
+      printVersion();
+      stdout.writeln();
+      stdout.writeln(
+          'Usage: pub run dev_test:run_ci config [<arguments>] [<path>]');
+      stdout.writeln();
+      stdout.writeln(configParser.usage);
+      exit(0);
+    }
+    var skipRunCi = configResult[flagSkipRunCi] as bool;
+    if (skipRunCi) {
+      var file = File(join(paths.first, skipRunCiFilePath));
+      if (!file.existsSync()) {
+        stdout.writeln('creating ${file.path}');
+        await file.parent.create(recursive: true);
+        await file.writeAsString('');
+      } else {
+        stdout.writeln('file $skipRunCiFilePath exists');
+      }
+    }
+    return;
+  }
   if (result['help'] as bool) {
     printVersion();
     stdout.writeln();
     stdout.writeln('Usage: pub run dev_test:run_ci [<path>] [<arguments>]');
     stdout.writeln();
     stdout.writeln(parser.usage);
-    exit(0);
-  }
-  if (result['version'] as bool) {
-    printVersion();
     exit(0);
   }
   var verbose = result['verbose'] as bool;
@@ -98,8 +135,6 @@ Future<void> main(List<String> arguments) async {
   var noRunCi = result.getValue<bool>(noRunCiFlagName);
 
   var poolSize = int.tryParse('concurrency');
-
-  var paths = result.rest.isEmpty ? ['.'] : result.rest;
 
   var options = PackageRunCiOptions(
     verbose: verbose,
