@@ -184,5 +184,8 @@ Future<void> main(List<String> arguments) async {
       }
     }
   }
+  if (ignoreErrors) {
+    stdout.writeln('run_ci done ignoring errors.');
+  }
   // var pubspecYaml = pathGetPubspecYamlMap(packageDir)
 }
