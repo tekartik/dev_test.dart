@@ -1,4 +1,8 @@
-## 0.15.7+1
+## 0.16.0
+
+* dart 3 support
+
+## 0.15.7+3
 
 * Add `--ignore-errors` options to `run_ci`
 * Use `dart format` instead of `flutter format` deprecated in dart 2.19

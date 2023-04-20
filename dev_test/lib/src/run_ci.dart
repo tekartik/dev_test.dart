@@ -16,6 +16,8 @@ import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 import 'pub_global.dart';
 
+var skipRunCiFilePath = join('.local', '.skip_run_ci');
+
 Future main(List<String> arguments) async {
   String? path;
   if (arguments.isNotEmpty) {
@@ -275,7 +277,7 @@ Future<void> singlePackageRunCiImpl(
     }
 
     if (!options.noOverride &&
-        File(join('.local', '.skip_run_ci')).existsSync()) {
+        File(join(path, skipRunCiFilePath)).existsSync()) {
       print('Skipping run_ci');
       return;
     }

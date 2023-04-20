@@ -1,10 +1,10 @@
 name: dev_test
-version: 0.15.7+1
+version: 0.16.0
 homepage: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 description: Development utilities for dart and flutter packages.
 
 environment:
-  sdk: '>=2.18.0 <3.0.0'
+  sdk: '>=2.18.0 <4.0.0'
 
 dependencies:
   test: '>=1.16.2 <3.0.0'
