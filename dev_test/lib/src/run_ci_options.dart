@@ -58,6 +58,9 @@ class PackageRunCiOptions {
 
   /// Ignore shell errors.
   final bool ignoreErrors;
+
+  /// Ignore sdk constraints
+  final bool ignoreSdkConstraints;
   PackageRunCiOptions(
       {this.formatOnly = false,
       this.testOnly = false,
@@ -82,7 +85,8 @@ class PackageRunCiOptions {
       this.dryRun = false,
       this.prjInfo = false,
       this.noRunCi = false,
-      this.ignoreErrors = false}) {
+      this.ignoreErrors = false,
+      this.ignoreSdkConstraints = false}) {
     var isOnlyAction = (formatOnly ||
         buildOnly ||
         testOnly ||

@@ -48,11 +48,13 @@ final List<String> _blackListedTargets = [
 ];
 
 /// True if the dir should be handled
-Future<bool> _handleDir(String dir, {List<String>? dependencies}) async {
+Future<bool> _handleDir(String dir,
+    {List<String>? dependencies, bool ignoreSdkConstraints = false}) async {
   // Ignore folder starting with .
   // don't event go below
   if (!_isToBeIgnored(basename(dir))) {
-    if (await isPubPackageRoot(dir)) {
+    if (await isPubPackageRoot(dir,
+        ignoreSdkConstraints: ignoreSdkConstraints)) {
       if (dependencies is List && dependencies!.isNotEmpty) {
         final yaml = await pathGetPubspecYamlMap(dir);
         if (pubspecYamlHasAnyDependencies(yaml, dependencies)) {
@@ -89,9 +91,11 @@ Future<List<String>> filterPubPath(List<String> dirs,
 /// if [forceRecursive] is true, we folder going deeper even if the current
 /// path is a dart project
 ///
+/// if [ignoreSdkConstraints] is true, it lists the project even if not compatible.
+///
 /// Returns the list of valid pub folder, including me
 Future<List<String>> recursivePubPath(List<String> dirs,
-    {List<String>? dependencies}) async {
+    {List<String>? dependencies, bool ignoreSdkConstraints = false}) async {
   var pubDirs = await filterPubPath(dirs, dependencies: dependencies);
 
   Future<List<String>> getSubDirs(String dir) async {
