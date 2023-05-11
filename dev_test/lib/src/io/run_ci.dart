@@ -16,6 +16,7 @@ void printVersion() {
 
 var prjInfoFlagName = 'prj-info';
 var noRunCiFlagName = 'no-run-ci';
+var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
 
 extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
@@ -66,6 +67,9 @@ Future<void> main(List<String> arguments) async {
         help: 'Recursive (try to find dart/flutter project recursively',
         defaultsTo: true,
         negatable: true)
+    ..addFlag(ignoreSdkConstraintsFlagName,
+        help: 'Ignore SDK constraints when selecting projects',
+        negatable: false)
     ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
     ..addCommand('config', configParser);
   var result = parser.parse(arguments);
@@ -133,33 +137,35 @@ Future<void> main(List<String> arguments) async {
   var recursive = result['recursive'] as bool;
   var prjInfo = result[prjInfoFlagName] as bool;
   var noRunCi = result.getValue<bool>(noRunCiFlagName);
+  var ignoreSdkConstraints =
+      result.getValue<bool>(ignoreSdkConstraintsFlagName);
 
   var poolSize = int.tryParse('concurrency');
 
   var options = PackageRunCiOptions(
-    verbose: verbose,
-    offline: offline,
-    noFormat: noFormat,
-    noTest: noTest,
-    noAnalyze: noAnalyze,
-    noBuild: noBuild,
-    noPubGet: noPubGet,
-    noVmTest: noVmTest,
-    noNodeTest: noNodeTest,
-    noNpmInstall: noNpmInstall,
-    noBrowserTest: noBrowserTest,
-    formatOnly: formatOnly,
-    testOnly: testOnly,
-    buildOnly: buildOnly,
-    analyzeOnly: analyzeOnly,
-    pubGetOnly: pubGetOnly,
-    pubUpgradeOnly: pubUpgradeOnly,
-    noOverride: noOverride,
-    dryRun: dryRun,
-    prjInfo: prjInfo,
-    noRunCi: noRunCi,
-    ignoreErrors: ignoreErrors,
-  );
+      verbose: verbose,
+      offline: offline,
+      noFormat: noFormat,
+      noTest: noTest,
+      noAnalyze: noAnalyze,
+      noBuild: noBuild,
+      noPubGet: noPubGet,
+      noVmTest: noVmTest,
+      noNodeTest: noNodeTest,
+      noNpmInstall: noNpmInstall,
+      noBrowserTest: noBrowserTest,
+      formatOnly: formatOnly,
+      testOnly: testOnly,
+      buildOnly: buildOnly,
+      analyzeOnly: analyzeOnly,
+      pubGetOnly: pubGetOnly,
+      pubUpgradeOnly: pubUpgradeOnly,
+      noOverride: noOverride,
+      dryRun: dryRun,
+      prjInfo: prjInfo,
+      noRunCi: noRunCi,
+      ignoreErrors: ignoreErrors,
+      ignoreSdkConstraints: ignoreSdkConstraints);
 
   Future runDir(String dir) async {
     await singlePackageRunCi(
