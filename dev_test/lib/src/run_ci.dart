@@ -74,7 +74,8 @@ Future<bool> hasDartFiles(String dir) async {
 /// Only return sub dirs that contains dart files
 ///
 /// Return top level are relative
-Future<List<String>> filterTopLevelDartDirs(String path) async {
+Future<List<String>> filterTopLevelDartDirs(String path,
+    {bool ignoreSdkConstraints = false}) async {
   var dirs = await topLevelDirs(path);
   var sanitized = <String>[];
   for (var dirname in dirs) {
@@ -86,7 +87,8 @@ Future<List<String>> filterTopLevelDartDirs(String path) async {
       continue;
     }
     // Ignore nested-projects
-    if (await isPubPackageRoot(dirPath)) {
+    if (await isPubPackageRoot(dirPath,
+        ignoreSdkConstraints: ignoreSdkConstraints)) {
       continue;
     }
     if (!await hasDartFiles(dirPath)) {
@@ -192,7 +194,8 @@ Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
       await singlePackageRunCi(dir, options: options);
     });
   } else {
-    if (!(await isPubPackageRoot(path))) {
+    if (!(await isPubPackageRoot(path,
+        ignoreSdkConstraints: options.ignoreSdkConstraints))) {
       stderr.writeln(
           '${absolute(path)} not a dart package, use --recursive option');
     } else {
@@ -339,7 +342,8 @@ Future<void> singlePackageRunCiImpl(
       return;
     }
 
-    var filteredDartDirs = await filterTopLevelDartDirs(path);
+    var filteredDartDirs = await filterTopLevelDartDirs(path,
+        ignoreSdkConstraints: options.ignoreSdkConstraints);
     var filteredDartDirsArg = filteredDartDirs.join(' ');
 
     if (!options.noFormat) {
