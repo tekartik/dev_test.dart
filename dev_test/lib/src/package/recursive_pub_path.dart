@@ -72,12 +72,14 @@ Future<bool> _handleDir(String dir,
 /// if [forceRecursive] is true, we folder going deeper even if the current
 /// path is a dart project
 Future<List<String>> filterPubPath(List<String> dirs,
-    {List<String>? dependencies}) async {
+    {List<String>? dependencies, bool ignoreSdkConstraints = false}) async {
   var list = <String>[];
 
   for (final dir in dirs) {
     if (isDirectoryNotLinkSynk(dir)) {
-      final handled = await _handleDir(dir, dependencies: dependencies);
+      final handled = await _handleDir(dir,
+          dependencies: dependencies,
+          ignoreSdkConstraints: ignoreSdkConstraints);
       if (handled) {
         list.add(dir);
       }
