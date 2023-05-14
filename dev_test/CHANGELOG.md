@@ -1,6 +1,7 @@
-## 0.16.1+2
+## 0.16.1+3
 
 * dart 3 support
+* Add `--ignore-sdk-constraints`, `--min-sdk` and `--max-sdk` options to `run_ci`
 
 ## 0.15.7+3
 
