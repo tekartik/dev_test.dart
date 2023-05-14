@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:dev_test/package.dart';
 import 'package:path/path.dart';
 
 Future<List<String>> topLevelDir(String dir) async {
@@ -60,33 +61,39 @@ class PackageRunCiOptions {
   final bool ignoreErrors;
 
   /// Ignore sdk constraints
-  final bool ignoreSdkConstraints;
-  PackageRunCiOptions(
-      {this.formatOnly = false,
-      this.testOnly = false,
-      this.buildOnly = false,
-      this.analyzeOnly = false,
-      this.pubGetOnly = false,
-      this.verbose = false,
-      this.recursive = false,
-      this.pubUpgradeOnly = false,
-      this.noNodeTest = false,
-      this.noVmTest = false,
-      this.noBrowserTest = false,
-      this.noTest = false,
-      this.noAnalyze = false,
-      this.noFormat = false,
-      this.noPubGet = false,
-      this.noBuild = false,
-      this.offline = false,
-      this.noNpmInstall = false,
-      this.poolSize,
-      this.noOverride = false,
-      this.dryRun = false,
-      this.prjInfo = false,
-      this.noRunCi = false,
-      this.ignoreErrors = false,
-      this.ignoreSdkConstraints = false}) {
+  final FilterDartProjectOptions? filterDartProjectOptions;
+
+  /// Just print the path
+  final bool printPath;
+
+  PackageRunCiOptions({
+    this.formatOnly = false,
+    this.testOnly = false,
+    this.buildOnly = false,
+    this.analyzeOnly = false,
+    this.pubGetOnly = false,
+    this.verbose = false,
+    this.recursive = false,
+    this.pubUpgradeOnly = false,
+    this.noNodeTest = false,
+    this.noVmTest = false,
+    this.noBrowserTest = false,
+    this.noTest = false,
+    this.noAnalyze = false,
+    this.noFormat = false,
+    this.noPubGet = false,
+    this.noBuild = false,
+    this.offline = false,
+    this.noNpmInstall = false,
+    this.poolSize,
+    this.noOverride = false,
+    this.dryRun = false,
+    this.prjInfo = false,
+    this.noRunCi = false,
+    this.ignoreErrors = false,
+    this.filterDartProjectOptions,
+    this.printPath = false,
+  }) {
     var isOnlyAction = (formatOnly ||
         buildOnly ||
         testOnly ||
@@ -127,7 +134,9 @@ class PackageRunCiOptions {
       dryRun: dryRun,
       prjInfo: prjInfo,
       noRunCi: noRunCi,
-      ignoreErrors: ignoreErrors);
+      ignoreErrors: ignoreErrors,
+      filterDartProjectOptions: filterDartProjectOptions,
+      printPath: printPath);
 
   bool get noPubGetOrUpgrade =>
       (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;

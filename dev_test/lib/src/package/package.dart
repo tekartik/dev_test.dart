@@ -86,7 +86,7 @@ class VersionBoundary {
   final Version value;
   final bool include;
 
-  VersionBoundary(this.value, this.include);
+  const VersionBoundary(this.value, this.include);
 
   @override
   String toString() => '$value $include';
@@ -124,9 +124,17 @@ class VersionBoundaries {
 
   VersionBoundaries(this.min, this.max);
 
+  VersionBoundaries.version(Version version)
+      : min = VersionBoundary(version, true),
+        max = VersionBoundary(version, true);
+
   /// Compat
   static VersionBoundaries? tryParse(String text) {
-    return parse(text);
+    try {
+      return parse(text);
+    } catch (_) {
+      return null;
+    }
   }
 
   static VersionBoundaries parse(String text) {

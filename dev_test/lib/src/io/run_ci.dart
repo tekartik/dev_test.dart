@@ -15,7 +15,11 @@ void printVersion() {
 }
 
 var prjInfoFlagName = 'prj-info';
+var printPathFlagName = 'print-path';
 var noRunCiFlagName = 'no-run-ci';
+var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
+var minSdkOptionName = 'min-sdk';
+var maxSdkOptionName = 'max-sdk';
 
 extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
@@ -66,6 +70,15 @@ Future<void> main(List<String> arguments) async {
         help: 'Recursive (try to find dart/flutter project recursively',
         defaultsTo: true,
         negatable: true)
+    ..addFlag(ignoreSdkConstraintsFlagName,
+        help: 'Ignore SDK constraints when selecting projects',
+        negatable: false)
+    ..addOption(minSdkOptionName,
+        help: 'Minimum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')')
+    ..addOption(maxSdkOptionName,
+        help: 'Maximum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')')
+    ..addFlag(printPathFlagName,
+        help: 'Just print the package path (no action)', negatable: false)
     ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
     ..addCommand('config', configParser);
   var result = parser.parse(arguments);
@@ -133,33 +146,51 @@ Future<void> main(List<String> arguments) async {
   var recursive = result['recursive'] as bool;
   var prjInfo = result[prjInfoFlagName] as bool;
   var noRunCi = result.getValue<bool>(noRunCiFlagName);
+  var ignoreSdkConstraints =
+      result.getValue<bool>(ignoreSdkConstraintsFlagName);
+  var minSdkVersion = result.getValue<String?>(minSdkOptionName);
+  var maxSdkVersion = result.getValue<String?>(maxSdkOptionName);
+  var printPath = result.getValue<bool>(printPathFlagName);
 
   var poolSize = int.tryParse('concurrency');
 
+  FilterDartProjectOptions? filterDartProjectOptions;
+  if (ignoreSdkConstraints) {
+    filterDartProjectOptions =
+        FilterDartProjectOptions(ignoreSdkConstraints: ignoreSdkConstraints);
+  } else if (minSdkVersion != null || maxSdkVersion != null) {
+    filterDartProjectOptions = FilterDartProjectOptions(
+      minSdk:
+          minSdkVersion != null ? VersionBoundaries.parse(minSdkVersion) : null,
+      maxSdk:
+          maxSdkVersion != null ? VersionBoundaries.parse(maxSdkVersion) : null,
+    );
+  }
   var options = PackageRunCiOptions(
-    verbose: verbose,
-    offline: offline,
-    noFormat: noFormat,
-    noTest: noTest,
-    noAnalyze: noAnalyze,
-    noBuild: noBuild,
-    noPubGet: noPubGet,
-    noVmTest: noVmTest,
-    noNodeTest: noNodeTest,
-    noNpmInstall: noNpmInstall,
-    noBrowserTest: noBrowserTest,
-    formatOnly: formatOnly,
-    testOnly: testOnly,
-    buildOnly: buildOnly,
-    analyzeOnly: analyzeOnly,
-    pubGetOnly: pubGetOnly,
-    pubUpgradeOnly: pubUpgradeOnly,
-    noOverride: noOverride,
-    dryRun: dryRun,
-    prjInfo: prjInfo,
-    noRunCi: noRunCi,
-    ignoreErrors: ignoreErrors,
-  );
+      verbose: verbose,
+      offline: offline,
+      noFormat: noFormat,
+      noTest: noTest,
+      noAnalyze: noAnalyze,
+      noBuild: noBuild,
+      noPubGet: noPubGet,
+      noVmTest: noVmTest,
+      noNodeTest: noNodeTest,
+      noNpmInstall: noNpmInstall,
+      noBrowserTest: noBrowserTest,
+      formatOnly: formatOnly,
+      testOnly: testOnly,
+      buildOnly: buildOnly,
+      analyzeOnly: analyzeOnly,
+      pubGetOnly: pubGetOnly,
+      pubUpgradeOnly: pubUpgradeOnly,
+      noOverride: noOverride,
+      dryRun: dryRun,
+      prjInfo: prjInfo,
+      noRunCi: noRunCi,
+      ignoreErrors: ignoreErrors,
+      filterDartProjectOptions: filterDartProjectOptions,
+      printPath: printPath);
 
   Future runDir(String dir) async {
     await singlePackageRunCi(
@@ -169,13 +200,17 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (recursive) {
-    await recursiveActions(paths, verbose: verbose, poolSize: poolSize,
+    await recursiveActions(paths,
+        verbose: verbose,
+        poolSize: poolSize,
+        filterDartProjectOptions: filterDartProjectOptions,
         action: (dir) async {
       await runDir(dir);
     });
   } else {
     for (var path in paths) {
-      if (!(await isPubPackageRoot(path))) {
+      if (!(await isPubPackageRoot(path,
+          filterDartProjectOptions: filterDartProjectOptions))) {
         stderr.writeln(
             '${absolute(path)} not a dart package, use --recursive option');
         exit(1);

@@ -12,19 +12,21 @@ final String _pubspecYaml = 'pubspec.yaml';
 
 /// Check whether the package contains a supported version
 Future<bool> isPubPackageRoot(String dirPath,
-    {bool verbose = false, bool ignoreSdkConstraints = false}) async {
+    {bool verbose = false,
+    FilterDartProjectOptions? filterDartProjectOptions}) async {
   var pubspecYamlPath = join(dirPath, _pubspecYaml);
   // ignore: avoid_slow_async_io
   if (await io.FileSystemEntity.isFile(pubspecYamlPath)) {
     try {
       var map = await pathGetPubspecYamlMap(dirPath);
-      if (ignoreSdkConstraints) {
-        return true;
-      }
       var boundaries = pubspecYamlGetSdkBoundaries(map);
-      if (boundaries != null) {
-        return boundaries.matches(dartVersion);
+      if (boundaries == null) {
+        return false;
       }
+      if (filterDartProjectOptions?.hasConstraintsOverride() ?? false) {
+        return filterDartProjectOptions!.matchesBoundaries(boundaries);
+      }
+      return boundaries.matches(dartVersion);
     } catch (_) {}
   }
   return false;
@@ -48,13 +50,13 @@ Future<bool> isFlutterPackageRoot(String dirPath) async {
 
 /// throws if no project found
 Future<String> getPubPackageRoot(String resolverPath,
-    {bool ignoreSdkConstraints = false}) async {
+    {FilterDartProjectOptions? filterDartProjectOptions}) async {
   var dirPath = normalize(absolute(resolverPath));
 
   while (true) {
     // Find the project root path
     if (await isPubPackageRoot(dirPath,
-        ignoreSdkConstraints: ignoreSdkConstraints)) {
+        filterDartProjectOptions: filterDartProjectOptions)) {
       return dirPath;
     }
     var parentDirPath = dirname(dirPath);
