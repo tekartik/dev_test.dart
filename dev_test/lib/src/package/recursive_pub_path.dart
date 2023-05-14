@@ -49,12 +49,13 @@ final List<String> _blackListedTargets = [
 
 /// True if the dir should be handled
 Future<bool> _handleDir(String dir,
-    {List<String>? dependencies, bool ignoreSdkConstraints = false}) async {
+    {List<String>? dependencies,
+    FilterDartProjectOptions? filterDartProjectOptions}) async {
   // Ignore folder starting with .
   // don't event go below
   if (!_isToBeIgnored(basename(dir))) {
     if (await isPubPackageRoot(dir,
-        ignoreSdkConstraints: ignoreSdkConstraints)) {
+        filterDartProjectOptions: filterDartProjectOptions)) {
       if (dependencies is List && dependencies!.isNotEmpty) {
         final yaml = await pathGetPubspecYamlMap(dir);
         if (pubspecYamlHasAnyDependencies(yaml, dependencies)) {
@@ -72,14 +73,15 @@ Future<bool> _handleDir(String dir,
 /// if [forceRecursive] is true, we folder going deeper even if the current
 /// path is a dart project
 Future<List<String>> filterPubPath(List<String> dirs,
-    {List<String>? dependencies, bool ignoreSdkConstraints = false}) async {
+    {List<String>? dependencies,
+    FilterDartProjectOptions? filterDartProjectOptions}) async {
   var list = <String>[];
 
   for (final dir in dirs) {
     if (isDirectoryNotLinkSynk(dir)) {
       final handled = await _handleDir(dir,
           dependencies: dependencies,
-          ignoreSdkConstraints: ignoreSdkConstraints);
+          filterDartProjectOptions: filterDartProjectOptions);
       if (handled) {
         list.add(dir);
       }
@@ -97,7 +99,8 @@ Future<List<String>> filterPubPath(List<String> dirs,
 ///
 /// Returns the list of valid pub folder, including me
 Future<List<String>> recursivePubPath(List<String> dirs,
-    {List<String>? dependencies, bool ignoreSdkConstraints = false}) async {
+    {List<String>? dependencies,
+    FilterDartProjectOptions? filterDartProjectOptions}) async {
   var pubDirs = await filterPubPath(dirs, dependencies: dependencies);
 
   Future<List<String>> getSubDirs(String dir) async {
@@ -111,7 +114,8 @@ Future<List<String>> recursivePubPath(List<String> dirs,
         if (!_isToBeIgnored(basename(subDir))) {
           if (isDirectoryNotLinkSynk(subDir)) {
             futures.add(() async {
-              if (await isPubPackageRoot(subDir)) {
+              if (await isPubPackageRoot(subDir,
+                  filterDartProjectOptions: filterDartProjectOptions)) {
                 sub.add(subDir);
               }
               sub.addAll(await getSubDirs(subDir));

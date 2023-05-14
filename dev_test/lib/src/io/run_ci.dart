@@ -15,8 +15,11 @@ void printVersion() {
 }
 
 var prjInfoFlagName = 'prj-info';
+var printPathFlagName = 'print-path';
 var noRunCiFlagName = 'no-run-ci';
 var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
+var minSdkOptionName = 'min-sdk';
+var maxSdkOptionName = 'max-sdk';
 
 extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
@@ -70,6 +73,12 @@ Future<void> main(List<String> arguments) async {
     ..addFlag(ignoreSdkConstraintsFlagName,
         help: 'Ignore SDK constraints when selecting projects',
         negatable: false)
+    ..addOption(minSdkOptionName,
+        help: 'Minimum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')')
+    ..addOption(maxSdkOptionName,
+        help: 'Maximum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')')
+    ..addFlag(printPathFlagName,
+        help: 'Just print the package path (no action)', negatable: false)
     ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
     ..addCommand('config', configParser);
   var result = parser.parse(arguments);
@@ -139,9 +148,22 @@ Future<void> main(List<String> arguments) async {
   var noRunCi = result.getValue<bool>(noRunCiFlagName);
   var ignoreSdkConstraints =
       result.getValue<bool>(ignoreSdkConstraintsFlagName);
+  var minSdkVersion = result.getValue<String?>(minSdkOptionName);
+  var maxSdkVersion = result.getValue<String?>(maxSdkOptionName);
+  var printPath = result.getValue<bool>(printPathFlagName);
 
   var poolSize = int.tryParse('concurrency');
 
+  FilterDartProjectOptions? filterDartProjectOptions;
+  if (ignoreSdkConstraints) {
+    filterDartProjectOptions =
+        FilterDartProjectOptions(ignoreSdkConstraints: ignoreSdkConstraints);
+  } else if (minSdkVersion != null || maxSdkVersion != null) {
+    filterDartProjectOptions = FilterDartProjectOptions(
+      minSdk: VersionBoundaries.tryParse(minSdkVersion ?? ''),
+      maxSdk: VersionBoundaries.tryParse(maxSdkVersion ?? ''),
+    );
+  }
   var options = PackageRunCiOptions(
       verbose: verbose,
       offline: offline,
@@ -165,7 +187,8 @@ Future<void> main(List<String> arguments) async {
       prjInfo: prjInfo,
       noRunCi: noRunCi,
       ignoreErrors: ignoreErrors,
-      ignoreSdkConstraints: ignoreSdkConstraints);
+      filterDartProjectOptions: filterDartProjectOptions,
+      printPath: printPath);
 
   Future runDir(String dir) async {
     await singlePackageRunCi(

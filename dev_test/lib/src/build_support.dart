@@ -218,6 +218,7 @@ Future<void> dartCreateProject(
 Future<void> flutterCreateProject({
   required String path,
   String template = flutterTemplateApp,
+  List<String>? platforms,
   bool? noAnalyze,
 }) async {
   await Directory(path).prepare();
@@ -225,7 +226,7 @@ Future<void> flutterCreateProject({
   var shell = Shell().cd(dirname(path));
 
   await shell.run(
-      'flutter create --template $template ${shellArgument(basename(path))}');
+      'flutter create --template $template ${shellArgument(basename(path))}${platforms != null ? ' --platforms ${platforms.join(',')}' : ''}');
 }
 
 /// Build a file path.
