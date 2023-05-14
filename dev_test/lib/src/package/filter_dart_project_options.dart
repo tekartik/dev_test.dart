@@ -15,6 +15,30 @@ class FilterDartProjectOptions {
 
   FilterDartProjectOptions(
       {this.ignoreSdkConstraints, this.minSdk, this.maxSdk});
+
+  @override
+  String toString() {
+    var sb = StringBuffer('Filter(');
+    if (!hasConstraintsOverride()) {
+      sb.write('noConstraintsOverride');
+    } else {
+      if (ignoreSdkConstraints ?? false) {
+        sb.write('ignoreSdkConstraints');
+      } else {
+        if (minSdk != null) {
+          sb.write('minSdk: $minSdk');
+        }
+        if (maxSdk != null) {
+          if (minSdk != null) {
+            sb.write(', ');
+          }
+          sb.write('maxSdk: $maxSdk');
+        }
+      }
+    }
+    sb.write(')');
+    return sb.toString();
+  }
 }
 
 final _versionZero = Version(0, 0, 0);

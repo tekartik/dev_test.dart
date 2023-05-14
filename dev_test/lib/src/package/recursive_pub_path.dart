@@ -101,7 +101,9 @@ Future<List<String>> filterPubPath(List<String> dirs,
 Future<List<String>> recursivePubPath(List<String> dirs,
     {List<String>? dependencies,
     FilterDartProjectOptions? filterDartProjectOptions}) async {
-  var pubDirs = await filterPubPath(dirs, dependencies: dependencies);
+  var pubDirs = await filterPubPath(dirs,
+      dependencies: dependencies,
+      filterDartProjectOptions: filterDartProjectOptions);
 
   Future<List<String>> getSubDirs(String dir) async {
     if (!_isToBeIgnored(basename(dir))) {
@@ -171,7 +173,8 @@ Future<void> recursivePackagesRun(List<String> paths,
 Future<void> recursiveActions(List<String> paths,
     {required FutureOr<dynamic> Function(String package) action,
     bool? verbose,
-    int? poolSize}) async {
+    int? poolSize,
+    FilterDartProjectOptions? filterDartProjectOptions}) async {
   poolSize ??= 4;
   verbose ??= false;
 // filter what could be packages in the paths list
@@ -182,7 +185,8 @@ Future<void> recursiveActions(List<String> paths,
 
   final packagePool = Pool(poolSize);
 
-  var packages = await recursivePubPath(paths);
+  var packages = await recursivePubPath(paths,
+      filterDartProjectOptions: filterDartProjectOptions);
 
   // devPrint(packages);
   for (final pkg in packages) {
