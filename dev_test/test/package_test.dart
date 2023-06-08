@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:dev_test/package.dart';
 import 'package:dev_test/src/build_support.dart';
 import 'package:dev_test/src/mixin/package.dart';
+import 'package:dev_test/src/package/package.dart';
 import 'package:dev_test/src/package/recursive_pub_path.dart';
 import 'package:dev_test/src/run_ci.dart';
 import 'package:dev_test/test.dart';
@@ -317,5 +318,25 @@ dependencies:
         expect(File(join(processRunPath, 'pubspec.yaml')).existsSync(), isTrue);
       });
     });
+  });
+  test('DartPackageIo', () async {
+    var outDir = join('.dart_tool', 'dev_test', 'test', 'dart_package_io_test');
+    var file = File(join(outDir, 'pubspec.yaml'));
+    await file.parent.create(recursive: true);
+    await file.writeAsString('''
+name: dart_package_io
+version: 1.0.0
+environment:
+  sdk: 1
+''');
+    var package = DartPackageIo(outDir);
+    await package.ready;
+    expect(package.getVersion(), Version(1, 0, 0));
+    expect(package.setVersion(Version(1, 0, 1)), isTrue);
+    expect(package.getVersion(), Version(1, 0, 1));
+    await package.write();
+    package = DartPackageIo(outDir);
+    await package.ready;
+    expect(package.getVersion(), Version(1, 0, 1));
   });
 }

@@ -1,6 +1,41 @@
 // in dev tree
+import 'package:dev_test/src/content/lines.dart';
 import 'package:dev_test/src/map_utils.dart';
 import 'package:pub_semver/pub_semver.dart';
+
+/// Dart package.
+abstract class DartPackage {
+  factory DartPackage.withContent(String content) {
+    return _DartPackageImpl(YamlLinesContent.withText(content));
+  }
+  Map<String, Object?> get pubspecYaml;
+}
+
+mixin DartPackageMixin implements DartPackage {
+  late YamlLinesContent pubspecYamlContent;
+
+  @override
+  Map<String, Object?> get pubspecYaml => pubspecYamlContent.yaml;
+}
+
+class _DartPackageImpl with DartPackageMixin {
+  _DartPackageImpl(YamlLinesContent pubspecYamlContent);
+}
+
+extension DartPackageExt on DartPackage {
+  /// Get version from pubspec.yaml
+  Version getVersion() {
+    return pubspecYamlGetVersion(pubspecYaml);
+  }
+
+  DartPackageMixin get _mixin => this as DartPackageMixin;
+
+  /// True if changed
+  bool setVersion(Version version) {
+    return _mixin.pubspecYamlContent
+        .setOrAppendKey('version', version.toString());
+  }
+}
 
 String? pubspecYamlGetPackageName(Map yaml) => yaml['name'] as String?;
 

@@ -6,6 +6,8 @@ export 'src/mixin/package.dart'
         FilterDartProjectOptionsExt;
 export 'src/package/filter_dart_project_options.dart'
     show FilterDartProjectOptions, FilterDartProjectOptionsExt;
+export 'src/package/package.dart' show DartPackage, DartPackageExt;
+export 'src/package/package_io_impl.dart' show DartPackageIo, DartPackageIoExt;
 export 'src/package/recursive_pub_path.dart'
     show recursivePubPath, recursivePackagesRun;
 export 'src/run_ci.dart' show packageRunCi, ioPackageRunCi;
