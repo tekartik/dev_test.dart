@@ -1,3 +1,7 @@
+## 0.16.2-1
+
+* Add `DartPackage` and `DartPackageIo` helpers
+
 ## 0.16.1+4
 
 * dart 3 support
