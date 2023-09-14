@@ -80,7 +80,7 @@ class _YamlLinesContent with YamlLinesContentMixin {
     }
   }
   _YamlLinesContent.withLines(List<String> lines) {
-    lines = lines;
+    this.lines = lines;
   }
 
   @override
