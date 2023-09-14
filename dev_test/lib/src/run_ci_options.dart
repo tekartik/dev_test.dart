@@ -40,6 +40,7 @@ class PackageRunCiOptions {
   late bool noBuild;
   final bool recursive;
   final bool pubUpgradeOnly;
+  final bool pubDowngradeOnly;
   final bool formatOnly;
   final bool testOnly;
   final bool buildOnly;
@@ -75,6 +76,7 @@ class PackageRunCiOptions {
     this.verbose = false,
     this.recursive = false,
     this.pubUpgradeOnly = false,
+    this.pubDowngradeOnly = false,
     this.noNodeTest = false,
     this.noVmTest = false,
     this.noBrowserTest = false,
@@ -119,6 +121,7 @@ class PackageRunCiOptions {
       verbose: verbose,
       recursive: recursive,
       pubUpgradeOnly: pubUpgradeOnly,
+      pubDowngradeOnly: pubDowngradeOnly,
       noNodeTest: noNodeTest,
       noVmTest: noVmTest,
       noBrowserTest: noBrowserTest,

@@ -1,6 +1,8 @@
 /// Pseudo exports.
 ///
 /// Used internally.
+library;
+
 export 'package:dev_test/src/package/filter_dart_project_options.dart'
     show FilterDartProjectOptions, FilterDartProjectOptionsExt;
 export 'package:dev_test/src/package/package.dart'

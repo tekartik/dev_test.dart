@@ -60,6 +60,7 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('build', help: 'Build only', negatable: false)
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
+    ..addFlag('pub-downgrade', help: 'Run pub downgrade only', negatable: false)
     ..addFlag('offline', help: 'Offline', negatable: false)
     ..addFlag(prjInfoFlagName, help: 'Project info', negatable: false)
     ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
@@ -140,6 +141,7 @@ Future<void> main(List<String> arguments) async {
   var buildOnly = result['build'] as bool;
   var pubGetOnly = result['pub-get'] as bool;
   var pubUpgradeOnly = result['pub-upgrade'] as bool;
+  var pubDowngradeOnly = result['pub-downgrade'] as bool;
   var dryRun = result['dry-run'] as bool;
   var ignoreErrors = result['ignore-errors'] as bool;
   // default to true
@@ -184,6 +186,7 @@ Future<void> main(List<String> arguments) async {
       analyzeOnly: analyzeOnly,
       pubGetOnly: pubGetOnly,
       pubUpgradeOnly: pubUpgradeOnly,
+      pubDowngradeOnly: pubDowngradeOnly,
       noOverride: noOverride,
       dryRun: dryRun,
       prjInfo: prjInfo,

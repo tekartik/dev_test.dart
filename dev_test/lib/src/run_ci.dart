@@ -326,12 +326,16 @@ Future<void> singlePackageRunCiImpl(
       if (isFlutterPackage) {
         if (options.pubUpgradeOnly) {
           await runScript('flutter pub upgrade$offlineSuffix');
+        } else if (options.pubDowngradeOnly) {
+          await runScript('flutter pub downgrade$offlineSuffix');
         } else {
           await runScript('flutter pub get$offlineSuffix');
         }
       } else {
         if (options.pubUpgradeOnly) {
           await runScript('dart pub upgrade$offlineSuffix');
+        } else if (options.pubDowngradeOnly) {
+          await runScript('dart pub downgrade$offlineSuffix');
         } else {
           await runScript('dart pub get$offlineSuffix');
         }

@@ -1,3 +1,8 @@
+## 0.16.2-1
+
+* Add `DartPackage` and `DartPackageIo` helpers
+* Add `--pub-downgrade` option to `run_ci`
+
 ## 0.16.1+4
 
 * dart 3 support
