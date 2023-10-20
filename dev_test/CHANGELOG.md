@@ -1,4 +1,4 @@
-## 0.16.2+2
+## 0.16.2+3
 
 * Add `DartPackage` and `DartPackageIo` helpers
 * Add `--pub-downgrade` option to `run_ci`
