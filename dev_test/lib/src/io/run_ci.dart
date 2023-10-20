@@ -17,6 +17,7 @@ void printVersion() {
 var prjInfoFlagName = 'prj-info';
 var printPathFlagName = 'print-path';
 var noRunCiFlagName = 'no-run-ci';
+var fixFlagName = 'fix';
 var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
 var minSdkOptionName = 'min-sdk';
 var maxSdkOptionName = 'max-sdk';
@@ -57,6 +58,7 @@ Future<void> main(List<String> arguments) async {
     ..addFlag('format', help: 'Format only', negatable: false)
     ..addFlag('test', help: 'Test only', negatable: false)
     ..addFlag('analyze', help: 'Analyze only', negatable: false)
+    ..addFlag(fixFlagName, help: 'Fix only', negatable: false)
     ..addFlag('build', help: 'Build only', negatable: false)
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
@@ -153,6 +155,7 @@ Future<void> main(List<String> arguments) async {
   var minSdkVersion = result.getValue<String?>(minSdkOptionName);
   var maxSdkVersion = result.getValue<String?>(maxSdkOptionName);
   var printPath = result.getValue<bool>(printPathFlagName);
+  var fixOnly = result.getValue<bool>(fixFlagName);
 
   var poolSize = int.tryParse('concurrency');
 
@@ -187,6 +190,7 @@ Future<void> main(List<String> arguments) async {
       pubGetOnly: pubGetOnly,
       pubUpgradeOnly: pubUpgradeOnly,
       pubDowngradeOnly: pubDowngradeOnly,
+      fixOnly: fixOnly,
       noOverride: noOverride,
       dryRun: dryRun,
       prjInfo: prjInfo,

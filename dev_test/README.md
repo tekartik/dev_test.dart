@@ -25,6 +25,12 @@ pub global run dev_test:run_ci <path>
 
 # You might run it simply (if global pub path is in your paths)
 run_ci
+
+# Perform recursively a pub downgrade and analyze.
+run_ci --pub-downgrade --analyze --no-override --recursive
+
+# Perform dart fix --apply recursively
+run_ci --fix --recursive
 ```
 
 - By default it also checks subfolder projects (i.e. you can run it at the top of your repo)

@@ -41,6 +41,7 @@ class PackageRunCiOptions {
   final bool recursive;
   final bool pubUpgradeOnly;
   final bool pubDowngradeOnly;
+  final bool fixOnly;
   final bool formatOnly;
   final bool testOnly;
   final bool buildOnly;
@@ -77,6 +78,7 @@ class PackageRunCiOptions {
     this.recursive = false,
     this.pubUpgradeOnly = false,
     this.pubDowngradeOnly = false,
+    this.fixOnly = false,
     this.noNodeTest = false,
     this.noVmTest = false,
     this.noBrowserTest = false,
@@ -101,7 +103,8 @@ class PackageRunCiOptions {
         testOnly ||
         analyzeOnly ||
         pubGetOnly ||
-        pubUpgradeOnly);
+        pubUpgradeOnly ||
+        fixOnly);
     if (isOnlyAction) {
       noTest = !testOnly;
 
@@ -122,6 +125,7 @@ class PackageRunCiOptions {
       recursive: recursive,
       pubUpgradeOnly: pubUpgradeOnly,
       pubDowngradeOnly: pubDowngradeOnly,
+      fixOnly: fixOnly,
       noNodeTest: noNodeTest,
       noVmTest: noVmTest,
       noBrowserTest: noBrowserTest,
