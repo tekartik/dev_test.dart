@@ -1,3 +1,7 @@
+## 0.16.3
+
+* Add `--fix` option to `run_ci` to perform `dart fix --apply` recursively.
+
 ## 0.16.2+3
 
 * Add `DartPackage` and `DartPackageIo` helpers

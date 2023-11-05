@@ -342,6 +342,9 @@ Future<void> singlePackageRunCiImpl(
       }
     }
 
+    if (options.fixOnly) {
+      await runScript('dart fix --apply');
+    }
     // Specific run
     if (!options.noOverride &&
         File(join(path, _runCiOverridePath)).existsSync()) {
