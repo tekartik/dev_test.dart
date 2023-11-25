@@ -13,7 +13,16 @@ void main() {
         var shell = Shell(
             environment: ShellEnvironment()
               ..aliases['run_ci'] = 'dart run ${join('bin', 'run_ci.dart')}');
-        await shell.run('run_ci --offline --pub-get --no-override ..');
+        try {
+          // Should fail for dev_test
+          await shell.run('run_ci --offline --pub-get --no-override ..');
+        } on ShellException catch (e) {
+          expect(e.result!.exitCode, 1);
+        }
+
+        // No offline needed for dev_test!
+        await shell.run('run_ci --pub-get --no-override ..');
+
         try {
           await shell.run('run_ci --offline --pub-get .. --no-recursive');
           fail('should fail');
