@@ -1,7 +1,1 @@
-/// Pseudo exports.
-///
-/// Used internally.
-library;
-
-export 'package:dev_test/src/package/recursive_pub_path.dart'
-    show recursiveActions, recursivePubPath;
+export 'package:dev_build/src/mixin/package_io.dart';
