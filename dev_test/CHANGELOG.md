@@ -1,3 +1,7 @@
+## 0.16.4
+
+* Split build feature into a separate package `dev_build`
+
 ## 0.16.3
 
 * Add `--fix` option to `run_ci` to perform `dart fix --apply` recursively.
