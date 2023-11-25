@@ -1,18 +1,18 @@
 @TestOn('vm')
-library dev_test.test.package_test;
+library dev_build.test.package_test;
 
 import 'dart:io';
 
-import 'package:dev_test/package.dart';
-import 'package:dev_test/src/build_support.dart';
-import 'package:dev_test/src/mixin/package.dart';
-import 'package:dev_test/src/package/package.dart';
-import 'package:dev_test/src/package/recursive_pub_path.dart';
-import 'package:dev_test/src/run_ci.dart';
-import 'package:dev_test/test.dart';
+import 'package:dev_build/package.dart';
+import 'package:dev_build/src/build_support.dart';
+import 'package:dev_build/src/mixin/package.dart';
+import 'package:dev_build/src/package/package.dart';
+import 'package:dev_build/src/package/recursive_pub_path.dart';
+import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:test/test.dart';
 import 'package:yaml/yaml.dart';
 
 void main() {
@@ -23,10 +23,10 @@ void main() {
           pubspecYamlHasAnyDependencies(pubspecMap, ['build_node_compilers']),
           isFalse);
       expect(pubspecYamlHasAnyDependencies(pubspecMap, ['build_web_compilers']),
-          isTrue);
+          isFalse);
       expect(pubspecYamlHasAnyDependencies(pubspecMap, ['lints']), isTrue);
       expect(pubspecYamlSupportsFlutter(pubspecMap), isFalse);
-      expect(pubspecYamlSupportsWeb(pubspecMap), isTrue);
+      expect(pubspecYamlSupportsWeb(pubspecMap), isFalse);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
     });
 
@@ -176,28 +176,32 @@ environment:
     test('recursivePubPath', () async {
       var repoSupportEntry = join('..', 'repo_support');
       var devTestEntry = join('..', 'dev_test');
-      expect(await recursivePubPath(['.', '..']), ['.', repoSupportEntry]);
-      expect(await recursivePubPath(['..', '.']), ['.', repoSupportEntry]);
-      expect(await recursivePubPath(['..']), [devTestEntry, repoSupportEntry]);
+      var devBuildEntry = join('..', 'dev_build');
+      expect(await recursivePubPath(['.', '..']),
+          ['.', devTestEntry, repoSupportEntry]);
+      expect(await recursivePubPath(['..', '.']),
+          ['.', devTestEntry, repoSupportEntry]);
+      expect(await recursivePubPath(['..']),
+          [devBuildEntry, devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
-    }, skip: 'Depends on other packages nearby');
+    });
 
     test('recursivePubPath ignore build', () async {
       // Somehow on node, build contains pubspec.yaml at its root and should be ignored
       // try to reproduce here
-      var outDir = join('.dart_tool', 'dev_test', 'test', 'recursive_test');
+      var outDir = join('.dart_tool', 'dev_build', 'test', 'recursive_test');
       var file = File(join(outDir, 'build', 'pubspec.yaml'));
       await file.parent.create(recursive: true);
       await file.writeAsString('name: dummy');
 
-      expect(await recursivePubPath([outDir]), []);
+      expect(await recursivePubPath([outDir]), isEmpty);
     });
 
     test('check isPubPackageRoot', () async {
       // Check dart version boundaries
       var outDir =
-          join('.dart_tool', 'dev_test', 'test', 'is_pub_package_root');
+          join('.dart_tool', 'dev_build', 'test', 'is_pub_package_root');
       var file = File(join(outDir, 'pubspec.yaml'));
       await file.parent.create(recursive: true);
       await file.writeAsString('''
@@ -210,7 +214,7 @@ environment:
       environment:
         sdk: '>$dartVersion'
       ''');
-      expect(await recursivePubPath([outDir]), []);
+      expect(await recursivePubPath([outDir]), isEmpty);
 
       await file.writeAsString('''
       environment:
@@ -222,7 +226,7 @@ environment:
       environment:
         sdk: '<$dartVersion'
       ''');
-      expect(await recursivePubPath([outDir]), []);
+      expect(await recursivePubPath([outDir]), isEmpty);
     });
 
     test('filterTopLevelDartDirs', () async {
@@ -243,13 +247,17 @@ environment:
       await recursiveActions(['..'], action: (src) {
         list.add(src);
       });
-      expect(list, [join('..', 'dev_test'), join('..', 'repo_support')]);
+      expect(list, [
+        join('..', 'dev_build'),
+        join('..', 'dev_test'),
+        join('..', 'repo_support')
+      ]);
       list = <String>[];
       await recursiveActions(['.', '..'], action: (src) {
         list.add(src);
       });
-      expect(list, ['.', join('..', 'repo_support')]);
-    }, skip: 'Depends on other packages nearby');
+      expect(list, ['.', join('..', 'dev_test'), join('..', 'repo_support')]);
+    });
 
     test('packageRunCi', () async {
       await packageRunCi('..', noTest: true);
@@ -259,7 +267,7 @@ environment:
       // Somehow on node, build contains pubspec.yaml at its root and should be ignored
       // try to reproduce here
       var outDir =
-          join('.dart_tool', 'dev_test', 'test', 'analyze_no_dart_code_test');
+          join('.dart_tool', 'dev_build', 'test', 'analyze_no_dart_code_test');
       var file = File(join(outDir, 'pubspec.yaml'));
       await file.parent.create(recursive: true);
       await file.writeAsString('''
@@ -274,7 +282,7 @@ environment:
     test('analyze no flutter code', () async {
       // Somehow on node, build contains pubspec.yaml at its root and should be ignored
       // try to reproduce here
-      var outDir = join('.dart_tool', 'dev_test', 'test',
+      var outDir = join('.dart_tool', 'dev_build', 'test',
           'analyze_no_flutter_code_test', 'sub');
       var file = File(join(outDir, 'pubspec.yaml'));
       await file.parent.create(recursive: true);
@@ -305,7 +313,7 @@ dependencies:
         expect(packages, contains('process_run'));
         expect(packages, isNot(contains('sqflite')));
         var devTestPath =
-            pathPackageConfigMapGetPackagePath('.', map, 'dev_test')!;
+            pathPackageConfigMapGetPackagePath('.', map, 'dev_build')!;
         expect(devTestPath, '.');
         var processRunPath =
             pathPackageConfigMapGetPackagePath('.', map, 'process_run')!;
@@ -320,7 +328,8 @@ dependencies:
     });
   });
   test('DartPackageIo', () async {
-    var outDir = join('.dart_tool', 'dev_test', 'test', 'dart_package_io_test');
+    var outDir =
+        join('.dart_tool', 'dev_build', 'test', 'dart_package_io_test');
     var file = File(join(outDir, 'pubspec.yaml'));
     await file.parent.create(recursive: true);
     await file.writeAsString('''
