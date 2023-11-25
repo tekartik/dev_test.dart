@@ -181,7 +181,7 @@ environment:
       expect(await recursivePubPath(['..']), [devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
-    });
+    }, skip: 'Depends on other packages nearby');
 
     test('recursivePubPath ignore build', () async {
       // Somehow on node, build contains pubspec.yaml at its root and should be ignored
@@ -249,7 +249,7 @@ environment:
         list.add(src);
       });
       expect(list, ['.', join('..', 'repo_support')]);
-    });
+    }, skip: 'Depends on other packages nearby');
 
     test('packageRunCi', () async {
       await packageRunCi('..', noTest: true);

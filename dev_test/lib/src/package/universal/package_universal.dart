@@ -1,2 +1,1 @@
-export 'package_universal_stub.dart'
-    if (dart.library.io) 'package_universal_io.dart';
+export 'package:dev_build/src/package/universal/package_universal.dart';
