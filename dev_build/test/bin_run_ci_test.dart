@@ -17,7 +17,8 @@ void main() {
           // Should fail for dev_test
           await shell.run('run_ci --offline --pub-get --no-override ..');
         } on ShellException catch (e) {
-          expect(e.result!.exitCode, 1);
+          /// Github actions return 255...
+          expect(e.result!.exitCode, anyOf(1, 255));
         }
 
         // No offline needed for dev_test!
