@@ -45,6 +45,16 @@ Future<void> deactivatePackage(String package, {bool? verbose}) async {
   list.remove(package);
 }
 
+/// Typically the last line contains the version
+Version? extractWebdevVersionFromOutLines(List<String> lines) {
+  for (var line in lines.reversed) {
+    try {
+      return Version.parse(line.trim());
+    } catch (_) {}
+  }
+  return null;
+}
+
 /// Check if webdev is activated.
 Future<void> checkAndActivateWebdev({bool? verbose}) async {
   var webdev = 'webdev';
@@ -53,10 +63,15 @@ Future<void> checkAndActivateWebdev({bool? verbose}) async {
 
   var needUpdate = false;
   try {
-    var webdevVersion = Version.parse(
+    var lines =
         (await run('dart pub global run $webdev --version', verbose: verbose))
-            .outText
-            .trim());
+            .outLines
+            .toList();
+    var webdevVersion = extractWebdevVersionFromOutLines(lines);
+    if (webdevVersion == null) {
+      print('failed to get webdev version');
+      needUpdate = true;
+    } else
     // Handle flutter dart 2.19
     if (dartVersion >= Version(2, 19, 0, pre: '0') &&
         (webdevVersion <= Version(2, 7, 11))) {
