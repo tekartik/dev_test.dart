@@ -1,8 +1,14 @@
 @TestOn('vm')
+import 'dart:convert';
+
 import 'package:dev_build/build_support.dart';
 import 'package:dev_build/src/pub_global.dart'
-    show isPackageActivated, deactivatePackage;
+    show
+        deactivatePackage,
+        extractWebdevVersionFromOutLines,
+        isPackageActivated;
 import 'package:process_run/shell.dart';
+import 'package:pub_semver/pub_semver.dart';
 import 'package:test/test.dart';
 
 Future<void> main() async {
@@ -23,6 +29,20 @@ Future<void> main() async {
     });
     test('checkAndActivatePackage', () async {
       await checkAndActivatePackage('process_run');
+    });
+    test('extract', () {
+      var lines = LineSplitter.split('''
+Can't load Kernel binary: Invalid SDK hash.
+Building package executable... (1.3s)
+Built webdev:webdev.
+3.2.0
+''');
+      expect(
+          extractWebdevVersionFromOutLines(lines.toList()), Version(3, 2, 0));
+      lines = ['3.2.0'];
+
+      expect(
+          extractWebdevVersionFromOutLines(lines.toList()), Version(3, 2, 0));
     });
   });
 }
