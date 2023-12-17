@@ -16,6 +16,8 @@ void main() {
       pubspecYamlSupportsWeb;
       pubspecYamlSupportsNode;
 
+      pathPubspecAddDependency;
+      pathPubspecRemoveDependency;
       pubspecYamlGetSdkBoundaries;
       VersionBoundaries;
       pathGetPackageConfigMap;
