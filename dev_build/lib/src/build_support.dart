@@ -7,6 +7,8 @@ import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:pub_semver/pub_semver.dart';
 
+import 'build_support_common.dart';
+
 var minNnbdVersion = Version(2, 12, 0, pre: '0');
 
 /// Returns true if added
@@ -15,7 +17,7 @@ Future<bool> pathPubspecAddDependency(String dir, String dependency,
   var map = await pathGetPubspecYamlMap(dir);
   if (!pubspecYamlHasAnyDependencies(map, [dependency])) {
     var content = _loadPubspecContent(dir);
-    content = _pubspecStringAddDependency(content, dependency,
+    content = pubspecStringAddDependency(content, dependency,
         dependencyLines: dependencyLines);
     await _writePubspecContent(dir, content);
     return true;
@@ -74,66 +76,11 @@ Future<bool> pathPubspecRemoveDependency(String dir, String dependency) async {
   var map = await pathGetPubspecYamlMap(dir);
   if (pubspecYamlHasAnyDependencies(map, [dependency])) {
     var content = _loadPubspecContent(dir);
-    content = _pubspecStringRemoveDependency(content, dependency);
+    content = pubspecStringRemoveDependency(content, dependency);
     await _writePubspecContent(dir, content);
     return true;
   }
   return false;
-}
-
-/// Add a dependency in a brut force way
-///
-String _pubspecStringAddDependency(String content, String dependency,
-    {List<String>? dependencyLines}) {
-  var lines = LineSplitter.split(content).toList();
-  var index = lines.indexOf('dependencies:');
-  if (index < 0) {
-    // The template might create it commented out
-    index = lines.indexOf('#dependencies:');
-    if (index < 0) {
-      lines.add('\ndependencies:');
-      index = lines.length;
-    } else {
-      lines[index] = 'dependencies:';
-      index = index + 1;
-    }
-  } else {
-    index = index + 1;
-  }
-  lines.insert(index, '  $dependency:');
-  if (dependencyLines != null) {
-    for (var line in dependencyLines) {
-      lines.insert(++index, '    $line');
-    }
-  }
-  return lines.join('\n');
-}
-
-/// Remove a dependency in a brut force way
-///
-String _pubspecStringRemoveDependency(String content, String dependency) {
-  var lines = LineSplitter.split(content).toList();
-  int? deleteStartIndex;
-  int? deleteEndIndex;
-  var readLines = lines;
-  for (var i = 0; i < readLines.length; i++) {
-    var line = readLines[i];
-    if (deleteStartIndex != null) {
-      if (line.startsWith('  ')) {
-        deleteEndIndex = deleteEndIndex! + 1;
-      } else {
-        break;
-      }
-    } else if (line.startsWith('  $dependency:')) {
-      deleteStartIndex = i;
-      deleteEndIndex = i + 1;
-    }
-  }
-  if (deleteStartIndex != null) {
-    lines.removeRange(deleteStartIndex, deleteEndIndex!);
-  }
-
-  return lines.join('\n');
 }
 
 String? _flutterChannel;
