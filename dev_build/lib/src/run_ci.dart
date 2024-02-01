@@ -189,9 +189,17 @@ final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
     {bool recursive = false, int? poolSize}) async {
   if (recursive) {
+    var current = false;
     await recursiveActions([path], verbose: options.verbose, poolSize: poolSize,
         action: (dir) async {
-      await singlePackageRunCi(dir, options: options);
+      var isCurrent = !current;
+      current = current || isCurrent;
+      var streamer = StdioStreamer(current: isCurrent);
+      try {
+        await singlePackageRunCiImpl(dir, options, streamer: streamer);
+      } finally {
+        current = false;
+      }
     });
   } else {
     if (!(await isPubPackageRoot(path,
@@ -199,7 +207,61 @@ Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
       stderr.writeln(
           '${absolute(path)} not a dart package, use --recursive option');
     } else {
-      await singlePackageRunCi(path, options: options);
+      await singlePackageRunCiImpl(path, options);
+    }
+  }
+}
+
+enum StdioStreamType { out, err }
+
+class StdioStreamLine {
+  final StdioStreamType type;
+  final String line;
+
+  StdioStreamLine(this.type, this.line);
+}
+
+class StdioStreamer {
+  final bool current;
+  var lines = <StdioStreamLine>[];
+  final out = ShellLinesController();
+  final err = ShellLinesController();
+
+  void log(String message) {
+    if (current) {
+      stdout.writeln(message);
+    } else {
+      lines.add(StdioStreamLine(StdioStreamType.out, message));
+    }
+  }
+
+  void error(String message) {
+    if (current) {
+      stderr.writeln(message);
+    } else {
+      lines.add(StdioStreamLine(StdioStreamType.err, message));
+    }
+  }
+
+  StdioStreamer({this.current = false}) {
+    out.stream.listen((line) {
+      log(line);
+    });
+    err.stream.listen((line) {
+      error(line);
+    });
+  }
+  void close() {
+    out.close();
+    err.close();
+    if (!current) {
+      for (var line in lines) {
+        if (line.type == StdioStreamType.out) {
+          stdout.writeln(line.line);
+        } else {
+          stderr.writeln(line.line);
+        }
+      }
     }
   }
 }
@@ -243,20 +305,24 @@ var _unsetVersion = Version(1, 0, 0);
 
 /// Run basic tests on dart/flutter package
 ///
-Future<void> singlePackageRunCiImpl(
-    String path, PackageRunCiOptions options) async {
+Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
+    {StdioStreamer? streamer}) async {
+  streamer ??= StdioStreamer();
   options = options.clone();
   try {
     if (options.printPath) {
-      stdout.writeln(normalize(absolute(path)));
+      streamer.log(normalize(absolute(path)));
       return;
     }
     if (options.prjInfo) {
-      stdout.writeln('# package: ${normalize(absolute(path))}');
+      streamer.log('# package: ${normalize(absolute(path))}');
     } else {
-      stdout.writeln('# package: $path');
+      streamer.log('# package: $path');
     }
-    var shell = Shell(workingDirectory: path);
+    var shell = Shell(
+        workingDirectory: path,
+        stderr: streamer.err.sink,
+        stdout: streamer.out.sink);
     // Project info
     if (options.prjInfo) {
       try {
@@ -270,13 +336,13 @@ Future<void> singlePackageRunCiImpl(
             if (minSdkVersion < _minNullableVersion) 'non-nullable'
           ];
           if (tags.isNotEmpty) {
-            stdout.writeln('sdk: $boundaries (${tags.join(',')})');
+            streamer.log('sdk: $boundaries (${tags.join(',')})');
           } else {
-            stdout.writeln('sdk: $boundaries');
+            streamer.log('sdk: $boundaries');
           }
         }
       } catch (e) {
-        print(e);
+        streamer.error(e.toString());
       }
     }
     if (options.noRunCi) {
@@ -285,7 +351,7 @@ Future<void> singlePackageRunCiImpl(
 
     if (!options.noOverride &&
         File(join(path, skipRunCiFilePath)).existsSync()) {
-      print('Skipping run_ci');
+      streamer.log('Skipping run_ci');
       return;
     }
 
@@ -295,13 +361,13 @@ Future<void> singlePackageRunCiImpl(
     var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
 
     if (!sdkBoundaries.matches(dartVersion)) {
-      stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
+      streamer.error('Unsupported sdk boundaries for dart $dartVersion');
       return;
     }
 
     if (isFlutterPackage) {
       if (!isFlutterSupportedSync) {
-        stderr.writeln('flutter not supported for package in $path');
+        streamer.error('flutter not supported for package in $path');
         return;
       }
     }
@@ -314,7 +380,7 @@ Future<void> singlePackageRunCiImpl(
     Future<List<ProcessResult>> runScript(String script) async {
       if (options.dryRun) {
         scriptToCommands(script).forEach((command) {
-          print('\$ $command');
+          streamer!.log('\$ $command');
         });
         return <ProcessResult>[];
       }
@@ -470,7 +536,7 @@ Future<void> singlePackageRunCiImpl(
           if (isWeb) {
             if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
               if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-                stderr.writeln(
+                streamer.error(
                     '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
               } else {
                 await runScript('''
@@ -505,10 +571,12 @@ Future<void> singlePackageRunCiImpl(
     }
   } catch (e) {
     if (options.ignoreErrors) {
-      stderr.writeln('Ignoring error $e');
+      streamer.error('Ignoring error $e');
     } else {
       rethrow;
     }
+  } finally {
+    streamer.close();
   }
 }
 

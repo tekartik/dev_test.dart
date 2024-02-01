@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:dev_build/package.dart';
-import 'package:dev_build/src/package/recursive_pub_path.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
@@ -207,13 +206,10 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (recursive) {
-    await recursiveActions(paths,
-        verbose: verbose,
-        poolSize: poolSize,
-        filterDartProjectOptions: filterDartProjectOptions,
-        action: (dir) async {
-      await runDir(dir);
-    });
+    for (var path in paths) {
+      await packageRunCiImpl(path, options,
+          recursive: recursive, poolSize: poolSize);
+    }
   } else {
     for (var path in paths) {
       if (!(await isPubPackageRoot(path,
