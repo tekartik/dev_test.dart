@@ -188,16 +188,16 @@ Future<void> recursiveActions(List<String> paths,
   var packages = await recursivePubPath(paths,
       filterDartProjectOptions: filterDartProjectOptions);
 
-  // devPrint(packages);
+  var futures = <Future>[];
   for (final pkg in packages) {
-// devPrint(pkg);
-    await packagePool.withResource(() async {
+    futures.add(packagePool.withResource(() async {
       try {
         await action(pkg);
       } catch (e) {
         stderr.writeln('ERROR $e in $pkg');
         rethrow;
       }
-    });
+    }));
   }
+  await Future.wait(futures);
 }
