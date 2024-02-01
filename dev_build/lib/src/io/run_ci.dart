@@ -67,7 +67,7 @@ Future<void> main(List<String> arguments) async {
     ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
     ..addFlag('dry-run', help: 'Dry run', negatable: false)
     ..addOption('concurrency',
-        abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
+        abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '1')
     ..addFlag('recursive',
         help: 'Recursive (try to find dart/flutter project recursively',
         defaultsTo: true,
