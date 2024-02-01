@@ -1,5 +1,5 @@
 name: dev_build
-version: 0.16.4+1
+version: 0.16.4+2
 description: Development utilities for dart and flutter packages. CI and build helpers.
 repository: https://github.com/tekartik/dev_test.dart/tree/master/dev_build
 
@@ -18,6 +18,8 @@ dependencies:
 dev_dependencies:
   test: '>=1.24.0'
   lints: '>=2.1.1'
+  build_runner: '>=1.0.0'
+  build_version: '>=2.0.0'
 
 executables:
   # Run common dart/flutter project testing

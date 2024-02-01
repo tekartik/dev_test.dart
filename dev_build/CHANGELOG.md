@@ -1,4 +1,4 @@
-## 0.16.4+1
+## 0.16.4+2
 
 * Fix recursive pub path concurrency
 

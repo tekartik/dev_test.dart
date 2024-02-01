@@ -4,10 +4,10 @@ import 'package:args/args.dart';
 import 'package:dev_build/package.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
+import 'package:dev_build/src/version.dart';
 import 'package:path/path.dart';
-import 'package:pub_semver/pub_semver.dart';
 
-final version = Version(0, 1, 0);
+final version = packageVersion;
 
 void printVersion() {
   stdout.writeln(version);
