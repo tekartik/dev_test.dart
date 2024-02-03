@@ -20,6 +20,7 @@ var fixFlagName = 'fix';
 var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
 var minSdkOptionName = 'min-sdk';
 var maxSdkOptionName = 'max-sdk';
+var defaultConcurrency = 1;
 
 extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
@@ -67,7 +68,9 @@ Future<void> main(List<String> arguments) async {
     ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
     ..addFlag('dry-run', help: 'Dry run', negatable: false)
     ..addOption('concurrency',
-        abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '1')
+        abbr: 'j',
+        help: 'Package concurrency (poolSize)',
+        defaultsTo: '$defaultConcurrency')
     ..addFlag('recursive',
         help: 'Recursive (try to find dart/flutter project recursively',
         defaultsTo: true,
@@ -156,7 +159,8 @@ Future<void> main(List<String> arguments) async {
   var printPath = result.getValue<bool>(printPathFlagName);
   var fixOnly = result.getValue<bool>(fixFlagName);
 
-  var poolSize = int.tryParse('concurrency');
+  var poolSize = int.tryParse(result.getValue<String>('concurrency')) ??
+      defaultConcurrency;
 
   FilterDartProjectOptions? filterDartProjectOptions;
   if (ignoreSdkConstraints) {

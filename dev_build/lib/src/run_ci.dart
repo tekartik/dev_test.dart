@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:dev_build/package.dart';
@@ -181,7 +180,7 @@ Future<void> packageRunCi(String path,
       pubUpgradeOnly: pubUpgrade ?? false);
 
   await packageRunCiImpl(path, options,
-      recursive: recursive ?? options.recursive);
+      recursive: recursive ?? options.recursive, poolSize: poolSize);
 }
 
 final _runCiOverridePath = join('tool', 'run_ci_override.dart');
@@ -198,7 +197,10 @@ Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
       try {
         await singlePackageRunCiImpl(dir, options, streamer: streamer);
       } finally {
-        current = false;
+        // Re-enable the current flag if it was the current one.
+        if (isCurrent) {
+          current = false;
+        }
       }
     });
   } else {
