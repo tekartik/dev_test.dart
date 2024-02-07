@@ -2,13 +2,12 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:dev_build/package.dart';
-import 'package:dev_build/src/package/recursive_pub_path.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
+import 'package:dev_build/src/version.dart';
 import 'package:path/path.dart';
-import 'package:pub_semver/pub_semver.dart';
 
-final version = Version(0, 1, 0);
+final version = packageVersion;
 
 void printVersion() {
   stdout.writeln(version);
@@ -21,6 +20,7 @@ var fixFlagName = 'fix';
 var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
 var minSdkOptionName = 'min-sdk';
 var maxSdkOptionName = 'max-sdk';
+var defaultConcurrency = 1;
 
 extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
@@ -68,7 +68,9 @@ Future<void> main(List<String> arguments) async {
     ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
     ..addFlag('dry-run', help: 'Dry run', negatable: false)
     ..addOption('concurrency',
-        abbr: 'j', help: 'Package concurrency (poolSize)', defaultsTo: '4')
+        abbr: 'j',
+        help: 'Package concurrency (poolSize)',
+        defaultsTo: '$defaultConcurrency')
     ..addFlag('recursive',
         help: 'Recursive (try to find dart/flutter project recursively',
         defaultsTo: true,
@@ -157,7 +159,8 @@ Future<void> main(List<String> arguments) async {
   var printPath = result.getValue<bool>(printPathFlagName);
   var fixOnly = result.getValue<bool>(fixFlagName);
 
-  var poolSize = int.tryParse('concurrency');
+  var poolSize = int.tryParse(result.getValue<String>('concurrency')) ??
+      defaultConcurrency;
 
   FilterDartProjectOptions? filterDartProjectOptions;
   if (ignoreSdkConstraints) {
@@ -207,13 +210,10 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (recursive) {
-    await recursiveActions(paths,
-        verbose: verbose,
-        poolSize: poolSize,
-        filterDartProjectOptions: filterDartProjectOptions,
-        action: (dir) async {
-      await runDir(dir);
-    });
+    for (var path in paths) {
+      await packageRunCiImpl(path, options,
+          recursive: recursive, poolSize: poolSize);
+    }
   } else {
     for (var path in paths) {
       if (!(await isPubPackageRoot(path,
