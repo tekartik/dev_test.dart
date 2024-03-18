@@ -24,7 +24,7 @@ T? mapValueFromParts<T>(Map? map, Iterable<String> parts) =>
 /// true if the key exists even if the value is null
 bool mapPartsExists(Map map, Iterable<String> parts) {
   assert(parts.isNotEmpty);
-  var lastMap = _getPartsMapValue<Object?>(map, List<String>.from(parts));
+  var lastMap = _getPartsMapValue<Object?>(map, parts.take(parts.length - 1));
   if (lastMap is Map) {
     if (lastMap.containsKey(parts.last)) {
       return true;
