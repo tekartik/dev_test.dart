@@ -6,14 +6,12 @@ export 'package:dev_build/src/menu/menu.dart'
         solo_menu,
         // ignore: deprecated_member_use_from_same_package
         solo_item,
-        // MenuManager,
         prompt,
         menu,
         write,
         enter,
         item,
         leave,
+        // ignore: deprecated_member_use_from_same_package
+        devWrite,
         menuRun;
-export 'menu_io.dart' show initMenuConsole;
-// ? menuNewDeclarer,
-// ? menuRun

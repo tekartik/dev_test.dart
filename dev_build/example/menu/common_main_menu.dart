@@ -1,10 +1,11 @@
 library test_menu_console_interactive_test;
 
-import 'package:dev_build/menu/menu.dart';
+import 'package:dev_build/menu/menu_io.dart';
 
 void main(List<String> arguments) {
-  initMenuConsole(arguments);
-  commonMainMenu();
+  mainMenu(arguments, () {
+    commonMainMenu();
+  });
 }
 
 void commonMainMenu() {
