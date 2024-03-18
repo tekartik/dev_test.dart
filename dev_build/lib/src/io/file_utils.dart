@@ -1,5 +1,6 @@
 import 'dart:io';
 
+/// Directory extension
 extension DevDirectoryExt on Directory {
   /// Create if needed
   Future<void> prepare() async {

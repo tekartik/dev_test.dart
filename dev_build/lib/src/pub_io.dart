@@ -68,6 +68,7 @@ Future<String> getPubPackageRoot(String resolverPath,
   }
 }
 
+/// throws if no project found, returns the nearest pub package root from a given path (could be current dir using '.')
 String getPubPackageRootSync(String resolverPath) {
   var dirPath = normalize(absolute(resolverPath));
 

@@ -5,13 +5,18 @@ import 'package:pub_semver/pub_semver.dart';
 
 /// Dart package.
 abstract class DartPackage {
+  /// Dart package from a yaml content.
   factory DartPackage.withContent(String content) {
     return _DartPackageImpl(YamlLinesContent.withText(content));
   }
+
+  /// Pubspec yaml content.
   Map<String, Object?> get pubspecYaml;
 }
 
+/// Dart package.
 mixin DartPackageMixin implements DartPackage {
+  /// Pubspec yaml content.
   late YamlLinesContent pubspecYamlContent;
 
   @override
@@ -22,6 +27,7 @@ class _DartPackageImpl with DartPackageMixin {
   _DartPackageImpl(YamlLinesContent pubspecYamlContent);
 }
 
+/// Dart package.
 extension DartPackageExt on DartPackage {
   /// Get version from pubspec.yaml
   Version getVersion() {
@@ -37,11 +43,14 @@ extension DartPackageExt on DartPackage {
   }
 }
 
+/// Get the package name from pubspec.yaml
 String? pubspecYamlGetPackageName(Map yaml) => yaml['name'] as String?;
 
+/// Get the package version from pubspec.yaml
 Version pubspecYamlGetVersion(Map yaml) =>
     Version.parse(yaml['version'] as String);
 
+/// Get the test_dependencies packages name
 Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {
   if (yaml.containsKey('test_dependencies')) {
     var list = (yaml['test_dependencies'] as Iterable?)?.cast<String>();
@@ -50,10 +59,12 @@ Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {
   return null;
 }
 
+/// Get the dependencies packages name.
 Iterable<String>? pubspecYamlGetDependenciesPackageName(Map yaml) {
   return ((yaml['dependencies'] as Map?)?.keys)?.cast<String>();
 }
 
+/// Get the dev_dependencies packages name from pubspec.lock
 Version pubspecLockGetVersion(Map yaml, String packageName) => Version.parse(
     ((yaml['packages'] as Map)[packageName] as Map)['version'] as String);
 
@@ -80,6 +91,7 @@ bool _hasDependency(Map? yaml, String dependency) {
   return false;
 }
 
+/// True if the pubspec.yaml has any of the dependencies
 bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
   for (var dependency in dependencies) {
     if (_hasDependency(yaml, dependency)) {
@@ -89,6 +101,7 @@ bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
   return false;
 }
 
+/// True if the pubspec.yaml has all the dependencies.
 bool pubspecYamlHasAllDependencies(Map yaml, List<String> dependencies) {
   for (var dependency in dependencies) {
     if (!_hasDependency(yaml, dependency)) {
@@ -98,37 +111,52 @@ bool pubspecYamlHasAllDependencies(Map yaml, List<String> dependencies) {
   return true;
 }
 
+/// True if the pubspec.yaml has the flutter dependency.
 bool pubspecYamlSupportsFlutter(Map map) =>
     pubspecYamlHasAnyDependencies(map, ['flutter']);
 
+/// True if the pubspec.yaml has the web dependency.
 bool pubspecYamlSupportsWeb(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['build_web_compilers']);
 }
 
+/// True if the pubspec.yaml has the test dependency.
 bool pubspecYamlSupportsTest(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['test']);
 }
 
+/// True if the pubspec.yaml has the node build dependency.
+/// Not supported.
 bool pubspecYamlSupportsNode(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['build_node_compilers']);
 }
 
+/// True if the pubspec.yaml has the build_runner dependency.
 bool pubspecYamlSupportsBuildRunner(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['build_runner']);
 }
 
+/// Version boundary.
 class VersionBoundary {
+  /// Version.
   final Version value;
+
+  /// Include.
   final bool include;
 
+  /// Version boundary.
   const VersionBoundary(this.value, this.include);
 
   @override
   String toString() => '$value $include';
 }
 
+/// Version boundaries.
 class VersionBoundaries {
+  /// min.
   final VersionBoundary? min;
+
+  /// max.
   final VersionBoundary? max;
 
   @override
@@ -157,8 +185,10 @@ class VersionBoundaries {
     return sb.toString();
   }
 
+  /// Version boundaries.
   VersionBoundaries(this.min, this.max);
 
+  /// Version boundaries pinned.
   VersionBoundaries.version(Version version)
       : min = VersionBoundary(version, true),
         max = VersionBoundary(version, true);
@@ -172,6 +202,7 @@ class VersionBoundaries {
     }
   }
 
+  /// Parse
   static VersionBoundaries parse(String text) {
     var parts = text.trim().split(' ');
     VersionBoundary? min;
@@ -219,12 +250,12 @@ class VersionBoundaries {
     return matches(version);
   }
 
-  // True if a version match the boundaries
+  /// True if a version match the boundaries
   bool matches(Version version) {
     return matchesMin(version) && matchesMax(version);
   }
 
-  // True if a version match the boundaries
+  /// True if a version match the max boundary
   bool matchesMax(Version version) {
     if (max != null) {
       if (max!.include) {
@@ -238,7 +269,7 @@ class VersionBoundaries {
     return true;
   }
 
-  // True if a version match the boundaries
+  /// True if a version match the min boundary.
   bool matchesMin(Version version) {
     if (min != null) {
       if (min!.include) {
@@ -281,6 +312,8 @@ VersionBoundaries? pubspecYamlGetSdkBoundaries(Map? map) {
   return null;
 }
 
+/// True if the pubspec.yaml has the nnbd experiment enabled.
+/// No longer used after dart 3.0.0
 bool analysisOptionsSupportsNnbdExperiment(Map? map) {
   // analyzer:
   //   enable-experiment:

@@ -15,11 +15,12 @@ String unescapeKeyName(String name) {
   return name;
 }
 
-// escape with back tick
+/// escape with back tick
 String escapeKeyName(String name) {
   return '`$name`';
 }
 
+/// is already escaped (backtick)
 bool isKeyNameEscaped(String name) {
   final codeUnits = name.codeUnits;
   return _areCodeUnitsEscaped(codeUnits);
@@ -45,25 +46,34 @@ abstract class YamlLinesContent {
     return LineSplitter.split(content).toList();
   }
 
+  /// Create a YamlLinesContent from text.
   factory YamlLinesContent.withText(String content) {
     return _YamlLinesContent.withText(content);
   }
+
+  /// Create a YamlLinesContent from lines.
   factory YamlLinesContent.withLines(List<String> lines) {
     return _YamlLinesContent.withLines(lines);
   }
 
-  // Separator default to \n but on io it is \r\n
+  /// Separator default to \n but on io it is \r\n on windows
   String get separator;
+
+  /// Lines
   List<String> get lines;
+
+  /// Yaml decoded as a map
   Map<String, Object?> get yaml;
 }
 
+/// YamlLinesContentMixin.
 mixin YamlLinesContentMixin implements YamlLinesContent {
   @override
   late List<String> lines;
   @override
   late Map<String, Object?> yaml;
 
+  /// Reload yaml from lines.
   void reloadYaml() {
     yaml = (loadYaml(lines.join(separator)) as Map).cast<String, Object?>();
   }
@@ -87,6 +97,7 @@ class _YamlLinesContent with YamlLinesContentMixin {
   String get separator => '\n';
 }
 
+/// YamlLinesContentExtension
 extension YamlLinesContentExtension on YamlLinesContent {
   YamlLinesContentMixin get _mixin => this as YamlLinesContentMixin;
 
@@ -201,6 +212,7 @@ extension YamlLinesContentExtension on YamlLinesContent {
     return sb.toString();
   }
 
+  /// -1 if not found
   int indexOfSubLevelKey(String key, int depth, int startIndex) {
     for (var i = startIndex; i < lines.length; i++) {
       var line = lines[i];
@@ -222,11 +234,13 @@ extension YamlLinesContentExtension on YamlLinesContent {
     return -1;
   }
 
+  /// returns properly formatted lines.
   String toContent() {
     var content = '${lines.join(separator)}$separator';
     return content;
   }
 
+  /// true if the line is a top level key.
   static bool isTopLevelKey(String line) {
     if (startsWithWhitespace(line)) {
       return false;

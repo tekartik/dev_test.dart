@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:dev_test/src/dev_test.dart' show Test, WithTestDescriptions;
 import 'package:dev_test/test.dart' show Timeout;
 
+/// dWith descriptions test implementation.
 class WithDescriptionsTest implements Test, WithTestDescriptions {
   final Test _impl;
 
@@ -14,6 +15,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   List<String>? _currentDescriptions; // set when the test is ran
   final List<String> _descriptions = [];
 
+  /// With descriptions test implementation.
   WithDescriptionsTest(this._impl);
 
   @override

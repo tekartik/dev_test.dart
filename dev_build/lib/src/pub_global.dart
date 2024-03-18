@@ -69,6 +69,7 @@ Future<void> checkAndActivateWebdev({bool? verbose}) async {
             .toList();
     var webdevVersion = extractWebdevVersionFromOutLines(lines);
     if (webdevVersion == null) {
+      // ignore: avoid_print
       print('failed to get webdev version');
       needUpdate = true;
     } else
@@ -78,6 +79,7 @@ Future<void> checkAndActivateWebdev({bool? verbose}) async {
       needUpdate = true;
     }
   } catch (e) {
+    // ignore: avoid_print
     print('failed to get webdev version $e');
     needUpdate = true;
   }

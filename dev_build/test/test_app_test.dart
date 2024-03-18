@@ -14,6 +14,7 @@ var topDir = '.dart_tool/dev_build/test_app/tool';
 void main() {
   group('test_app', () {
     test('flutter version', () async {
+      // ignore: avoid_print
       print(await getFlutterBinVersion());
     }, skip: !isFlutterSupportedSync);
     test('flutter app', () async {

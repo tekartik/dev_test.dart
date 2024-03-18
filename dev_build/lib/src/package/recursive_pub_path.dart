@@ -7,10 +7,13 @@ import 'package:dev_build/src/pub_io.dart';
 import 'package:path/path.dart';
 import 'package:pool/pool.dart';
 
+/// false if symlink
 bool isDirectoryNotLinkSynk(String path) =>
     FileSystemEntity.isDirectorySync(path) &&
     !FileSystemEntity.isLinkSync(path);
 
+/// Normalize path using posix style
+/// Not valid if current path contains a part containing a backslash (not recommended)
 String posixNormalize(String path) {
   return posix.normalize(path.replaceAll('\\', '/'));
 }
@@ -142,6 +145,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
   return removeDuplicates(pubDirs)..sort();
 }
 
+/// Remove duplicates.
 List<String> removeDuplicates(List<String> dirs) {
   // remove duplicates
   var absolutes = <String>{};

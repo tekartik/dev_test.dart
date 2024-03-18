@@ -5,11 +5,8 @@ import 'package:dev_build/src/io/file_utils.dart';
 import 'package:dev_build/src/mixin/package.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
-import 'package:pub_semver/pub_semver.dart';
 
 import 'build_support_common.dart';
-
-var minNnbdVersion = Version(2, 12, 0, pre: '0');
 
 /// Returns true if added
 Future<bool> pathPubspecAddDependency(String dir, String dependency,
@@ -39,8 +36,8 @@ Future<void> _writePubspecContent(String dir, String content) async {
   await file.writeAsString(content);
 }
 
-// Null if not a dependency, formatted on a single line with depencency prefix or
-// multiple lines
+/// Null if not a dependency, formatted on a single line with depencency prefix or
+/// multiple lines
 Future<List<String>?> pathPubspecGetDependencyLines(
     String dir, String dependency) async {
   var map = await pathGetPubspecYamlMap(dir);
@@ -71,7 +68,7 @@ Future<List<String>?> pathPubspecGetDependencyLines(
   return null;
 }
 
-// Returns true if removed
+/// Returns true if removed
 Future<bool> pathPubspecRemoveDependency(String dir, String dependency) async {
   var map = await pathGetPubspecYamlMap(dir);
   if (pubspecYamlHasAnyDependencies(map, [dependency])) {
@@ -102,6 +99,7 @@ Future<void> buildInitFlutter() async {
   }
 }
 
+/// Build supports MacOS
 bool get buildSupportsMacOS =>
     Platform.isMacOS &&
     [dartChannelDev, dartChannelMaster].contains(_flutterChannel);
@@ -117,10 +115,12 @@ bool? _supportsAndroid;
 /// Always allowed for now
 bool get buildSupportsAndroid => _supportsAndroid ??= true;
 
+/// Build supports Linux
 bool get buildSupportsLinux =>
     Platform.isLinux &&
     [dartChannelDev, dartChannelMaster].contains(_flutterChannel);
 
+/// Build supports Windows
 bool get buildSupportsWindows =>
     Platform.isWindows && [dartChannelMaster].contains(_flutterChannel);
 
@@ -148,11 +148,13 @@ const dartTemplateWeb = 'web';
 /// @Deprecated
 const dartTemplateWebSimple = dartTemplateWeb;
 
+/// app: A Flutter application.
 const flutterTemplateApp = 'app';
 
 /// Flutter package shared dart code.
 const flutterTemplatePackage = 'package';
 
+/// Create a dart project.
 Future<void> dartCreateProject(
     {String template = dartTemplateConsoleSimple, required String path}) async {
   await Directory(path).prepare();
@@ -162,6 +164,7 @@ Future<void> dartCreateProject(
       .run('dart create --template $template ${shellArgument(basename(path))}');
 }
 
+/// Create a flutter project.
 Future<void> flutterCreateProject({
   required String path,
   String template = flutterTemplateApp,

@@ -13,6 +13,7 @@ class FilterDartProjectOptions {
   /// Constraint on maxSdk.
   final VersionBoundaries? maxSdk;
 
+  /// Create filter options.
   FilterDartProjectOptions(
       {this.ignoreSdkConstraints, this.minSdk, this.maxSdk});
 
@@ -43,6 +44,7 @@ class FilterDartProjectOptions {
 
 final _versionZero = Version(0, 0, 0);
 
+/// Filter dart project options extension.
 extension FilterDartProjectOptionsExt on FilterDartProjectOptions {
   /// Return true if the sdk constraints are ignored
   bool matchesBoundaries(VersionBoundaries? boundaries) {
