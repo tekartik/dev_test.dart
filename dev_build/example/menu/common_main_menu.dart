@@ -3,7 +3,7 @@ library test_menu_console_interactive_test;
 import 'package:dev_build/menu/menu_io.dart';
 
 void main(List<String> arguments) {
-  mainMenu(arguments, () {
+  mainMenuConsole(arguments, () {
     commonMainMenu();
   });
 }
