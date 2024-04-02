@@ -15,7 +15,7 @@ Future checkCaseTest(String name, int count, {String? testNameFilter}) async {
           '-p chrome${(testNameFilter != null) ? ' -n $testNameFilter' : ''}'
           ' ${caseNamePath(name)}'))
       .first;
-  print(runResult.outLines);
+  // print(runResult.outLines);
   expect(runResult.exitCode, 0,
       reason: '${runResult.stdout} (ERR: ${runResult.stderr}');
 

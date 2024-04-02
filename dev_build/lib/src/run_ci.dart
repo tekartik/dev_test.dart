@@ -15,6 +15,7 @@ import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 import 'pub_global.dart';
 
+/// Options for [packageRunCi]
 var skipRunCiFilePath = join('.local', '.skip_run_ci');
 
 Future main(List<String> arguments) async {
@@ -185,6 +186,7 @@ Future<void> packageRunCi(String path,
 
 final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 
+/// Package run ci.
 Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
     {bool recursive = false, int? poolSize}) async {
   if (recursive) {
@@ -214,21 +216,44 @@ Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
   }
 }
 
-enum StdioStreamType { out, err }
+/// Stream type.
+enum StdioStreamType {
+  /// Out
+  out,
 
+  /// Err
+  err
+}
+
+/// Stdio stream line.
 class StdioStreamLine {
+  /// Stream type.
   final StdioStreamType type;
+
+  /// Line.
   final String line;
 
+  /// Stdio stream line.
   StdioStreamLine(this.type, this.line);
 }
 
+/// Stdio streamer.
 class StdioStreamer {
-  final bool current;
+  /// Current.
+  bool get current => _current ?? false;
+
+  bool? _current;
+
+  /// Lines.
   var lines = <StdioStreamLine>[];
+
+  /// Out.
   final out = ShellLinesController();
+
+  /// Err.
   final err = ShellLinesController();
 
+  /// Log.
   void log(String message) {
     if (current) {
       stdout.writeln(message);
@@ -237,6 +262,7 @@ class StdioStreamer {
     }
   }
 
+  /// Error.
   void error(String message) {
     if (current) {
       stderr.writeln(message);
@@ -245,7 +271,9 @@ class StdioStreamer {
     }
   }
 
-  StdioStreamer({this.current = false}) {
+  /// Stdio streamer.could become true at any moment!
+  StdioStreamer({bool? current = false}) {
+    _current = current;
     out.stream.listen((line) {
       log(line);
     });
@@ -253,6 +281,8 @@ class StdioStreamer {
       error(line);
     });
   }
+
+  /// Close.
   void close() {
     out.close();
     err.close();
@@ -584,15 +614,24 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
 
 bool? _flutterWebEnabled;
 
+/// Enable flutter web if possible. No longer required.
 Future<bool> flutterEnableWeb() async {
   if (_flutterWebEnabled == null) {
+    if (isFlutterSupportedSync) {
+      // await checkAndActivatePackage('flutter');
+      // await run('flutter config --enable-web');
+      _flutterWebEnabled = true;
+    } else {
+      _flutterWebEnabled = false;
+    }
+    /*
     /// requires at least beta
     if (await getFlutterBinChannel() != dartChannelStable) {
       await run('flutter config --enable-web');
       _flutterWebEnabled = true;
     } else {
       _flutterWebEnabled = false;
-    }
+    }*/
   }
   return _flutterWebEnabled!;
 }

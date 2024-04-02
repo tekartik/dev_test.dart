@@ -17,6 +17,8 @@ pubspec.lock
 
 # IDE specific
 .idea/
+*.iml
+.vscode/
 
 # dartdoc
 doc/api/

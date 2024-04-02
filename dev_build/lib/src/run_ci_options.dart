@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dev_build/package.dart';
 import 'package:path/path.dart';
 
+/// Get the top level directories.
 Future<List<String>> topLevelDir(String dir) async {
   var list = <String>[];
   await Directory(dir).list(recursive: false).listen((event) {
@@ -15,6 +16,7 @@ Future<List<String>> topLevelDir(String dir) async {
 
 List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build'];
 
+/// Filter dart directories.
 List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
       if (element.startsWith('.')) {
         return false;
@@ -27,27 +29,70 @@ List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
 
 /// Package run options
 class PackageRunCiOptions {
+  /// Run in verbose mode.
   final bool verbose;
+
+  /// Run in offline mode.
   final bool offline;
+
+  /// Do not run node tests.
   final bool noNodeTest;
+
+  /// Do not run browser tests.
   final bool noBrowserTest;
+
+  /// Do not run any tests.
   late bool noTest;
+
+  /// Do not run vm tests.
   final bool noVmTest;
+
+  /// Do not run pub get.
   final bool noPubGet;
+
+  /// Do not run format.
   late bool noFormat;
+
+  /// Do not run analyze.
   late bool noAnalyze;
+
+  /// Do not run npm install.
   final bool noNpmInstall;
+
+  /// Do not build.
   late bool noBuild;
+
+  /// Only run the specified folder.
   final bool recursive;
+
+  /// Only run pub upgrade.
   final bool pubUpgradeOnly;
+
+  /// Only run pub downgrade.
   final bool pubDowngradeOnly;
+
+  /// Only run fix.
   final bool fixOnly;
+
+  /// Only run format.
   final bool formatOnly;
+
+  /// Only run test.
   final bool testOnly;
+
+  /// Only run build.
   final bool buildOnly;
+
+  /// Only run analyze.
   final bool analyzeOnly;
+
+  /// Only run pub get.
   final bool pubGetOnly;
+
+  /// Dry run (no execution)
   final bool dryRun;
+
+  /// Pool size
   final int? poolSize;
 
   /// Do not run `run_ci_override.dart`, typically to use in this file
@@ -68,6 +113,7 @@ class PackageRunCiOptions {
   /// Just print the path
   final bool printPath;
 
+  /// Package run ci options.
   PackageRunCiOptions({
     this.formatOnly = false,
     this.testOnly = false,
@@ -145,6 +191,7 @@ class PackageRunCiOptions {
       filterDartProjectOptions: filterDartProjectOptions,
       printPath: printPath);
 
+  /// True if no pub get or upgrade
   bool get noPubGetOrUpgrade =>
       (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;
 }

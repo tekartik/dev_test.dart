@@ -3,6 +3,7 @@ import 'package:dev_test/src/dev_test.dart' show Test;
 import 'package:test/test.dart' as test_impl;
 import 'package:test/test.dart' show Timeout;
 
+/// Dart test implementation.
 class DartTest implements Test {
   @override
   void test(String description, dynamic Function() body,

@@ -13,6 +13,7 @@ abstract class DartPackageIo with DartPackageMixin {
   /// Package path
   String get path;
 
+  /// Create a package from a path.
   factory DartPackageIo(String path) => _DartPackageIoImpl(path);
 
   /// File has been read and can be used.
@@ -22,6 +23,7 @@ abstract class DartPackageIo with DartPackageMixin {
   Future<void> write();
 }
 
+/// Io base implementation.
 extension DartPackageIoExt on DartPackageIo {
   /// Write a package version.
   Future<bool> writeVersion(Version version) async {
@@ -60,34 +62,42 @@ class _DartPackageIoImpl with DartPackageMixin implements DartPackageIo {
   }
 }
 
+/// Read yaml map from a path.
 Future<Map<String, Object?>> pathGetYaml(String path) async {
   var content = await pathGetString(path);
   try {
     return (loadYaml(content) as Map).cast<String, Object?>();
   } catch (e) {
+    // ignore: avoid_print
     print('error in $path $e');
     rethrow;
   }
 }
 
+/// Read a file as string.
 Future<String> pathGetString(String path) async {
   var content = await File(path).readAsString();
   return content;
 }
 
+/// Read json map from a path.
 Future<Map<String, Object?>> pathGetJson(String path) async {
   var content = await File(path).readAsString();
   return (loadYaml(content) as Map).cast<String, Object?>();
 }
 
+/// Read pubspec.yaml file (io only)
 Future<Map<String, Object?>> pathGetPubspecYamlMap(String packageDir) =>
     pathGetYaml(join(packageDir, 'pubspec.yaml'));
 
+/// Read analysis_options.yaml file (io only).
 Future<Map<String, Object?>> pathGetAnalysisOptionsYamlMap(String packageDir) =>
     pathGetYaml(join(packageDir, 'analysis_options.yaml'));
 
+/// Read package_config.json file (io only).
 Future<Map<String, Object?>> pathGetPackageConfigMap(String packageDir) =>
     pathGetYaml(join(pathGetDartToolDir(packageDir), 'package_config.json'));
 
+/// Get .dart_tool directory path.
 String pathGetDartToolDir(String packageDir) =>
     normalize(absolute(join(packageDir, '.dart_tool')));

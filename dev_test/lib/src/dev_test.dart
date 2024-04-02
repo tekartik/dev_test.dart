@@ -2,15 +2,18 @@ import 'package:dev_test/src/dart_test.dart';
 import 'package:dev_test/src/description_test.dart';
 import 'package:test/test.dart' show Timeout;
 
-// default implementation is a regular dart test
+/// default implementation is a regular dart test
 Test testImplementation = WithDescriptionsTest(DartTest());
 
+/// Test descriptions.
 List<String> get testDescriptions =>
     (testImplementation is WithTestDescriptions)
         ? (testImplementation as WithTestDescriptions).testDescriptions
         : ['dev_test'];
 
+/// Dart test implementation.
 abstract class Test {
+  /// Test a function.
   void test(String description, dynamic Function() body,
       {String? testOn,
       Timeout? timeout,
@@ -18,7 +21,7 @@ abstract class Test {
       bool solo = false,
       Map<String, Object?>? onPlatform});
 
-// overriding  [_test.group]
+  /// Test a group
   void group(String description, void Function() body,
       {String? testOn,
       Timeout? timeout,
@@ -26,25 +29,29 @@ abstract class Test {
       bool solo = false,
       Map<String, Object?>? onPlatform});
 
-// overriding  [_test.setUp]
+  /// overriding  [_test.setUp]
   void setUp(dynamic Function() callback);
 
-// overriding  [_test.tearDown]
+  /// overriding  [_test.tearDown]
   void tearDown(dynamic Function() callback);
 
-// overriding  [_test.setUp]
+  /// overriding  [_test.setUp]
   void setUpAll(dynamic Function() callback);
 
-// overriding  [_test.tearDown]
+  /// overriding  [_test.tearDown]
   void tearDownAll(dynamic Function() callback);
 
+  /// Expect
   void expect(Object? actual, Object? matcher, {String? reason, Object? skip});
 }
 
+/// Test descriptions.
 abstract class WithTestDescriptions {
+  /// Test descriptions.
   List<String> get testDescriptions;
 }
 
+/// test (see test.dart)
 void test(String description, dynamic Function() body,
     {String? testOn,
     Timeout? timeout,
@@ -60,7 +67,7 @@ void test(String description, dynamic Function() body,
       solo: solo);
 }
 
-// overriding  [_test.group]
+/// group (see test.dart)
 void group(String description, void Function() body,
     {String? testOn,
     Timeout? timeout,
@@ -75,26 +82,27 @@ void group(String description, void Function() body,
       solo: solo);
 }
 
-// overriding  [_test.setUp]
+/// overriding  [_test.setUp]
 void setUp(dynamic Function() callback) {
   testImplementation.setUp(callback);
 }
 
-// overriding  [_test.tearDown]
+/// overriding  [_test.tearDown]
 void tearDown(dynamic Function() callback) {
   testImplementation.tearDown(callback);
 }
 
-// overriding  [_test.setUp]
+/// overriding  [_test.setUp]
 void setUpAll(dynamic Function() callback) {
   testImplementation.setUpAll(callback);
 }
 
-// overriding  [_test.tearDown]
+/// overriding  [_test.tearDown]
 void tearDownAll(dynamic Function() callback) {
   testImplementation.tearDownAll(callback);
 }
 
+/// expect (see test.dart)
 void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {
   testImplementation.expect(actual, matcher, reason: reason, skip: skip);
 }

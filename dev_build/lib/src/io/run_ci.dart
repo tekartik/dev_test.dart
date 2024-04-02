@@ -7,25 +7,43 @@ import 'package:dev_build/src/run_ci.dart';
 import 'package:dev_build/src/version.dart';
 import 'package:path/path.dart';
 
+/// ci version
 final version = packageVersion;
 
+/// Print version.
 void printVersion() {
   stdout.writeln(version);
 }
 
+/// prj info
 var prjInfoFlagName = 'prj-info';
+
+/// print path
 var printPathFlagName = 'print-path';
+
+/// no run ci
 var noRunCiFlagName = 'no-run-ci';
+
+/// fix
 var fixFlagName = 'fix';
+
+/// ignore sdk constraints
 var ignoreSdkConstraintsFlagName = 'ignore-sdk-constraints';
+
+/// min sdk.
 var minSdkOptionName = 'min-sdk';
+
+/// max sdk.
 var maxSdkOptionName = 'max-sdk';
+
+/// default concurrency.
 var defaultConcurrency = 1;
 
 extension _ArgResults on ArgResults {
   T getValue<T>(String key) => this[key] as T;
 }
 
+/// Skip ci flag.
 const flagSkipRunCi = 'skip-run-ci';
 
 Future<void> main(List<String> arguments) async {
