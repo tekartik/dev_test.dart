@@ -1,4 +1,6 @@
 @TestOn('vm')
+library;
+
 import 'package:dev_test/build_support.dart';
 import 'package:test/test.dart';
 

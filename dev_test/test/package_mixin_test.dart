@@ -1,4 +1,6 @@
 @TestOn('vm')
+library;
+
 import 'package:dev_test/src/mixin/package.dart';
 import 'package:dev_test/test.dart';
 

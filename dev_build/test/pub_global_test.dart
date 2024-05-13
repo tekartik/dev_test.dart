@@ -1,4 +1,6 @@
 @TestOn('vm')
+library;
+
 import 'dart:convert';
 
 import 'package:dev_build/build_support.dart';
