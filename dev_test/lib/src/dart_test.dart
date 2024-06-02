@@ -17,7 +17,7 @@ class DartTest implements Test {
         timeout: timeout,
         skip: skip,
         onPlatform: onPlatform,
-        // ignore: deprecated_member_use
+        // ignore: deprecated_member_use, invalid_use_of_do_not_submit_member
         solo: solo);
   }
 
@@ -34,7 +34,7 @@ class DartTest implements Test {
         timeout: timeout,
         skip: skip,
         onPlatform: onPlatform,
-        // ignore: deprecated_member_use
+        // ignore: deprecated_member_use, invalid_use_of_do_not_submit_member
         solo: solo);
   }
 
