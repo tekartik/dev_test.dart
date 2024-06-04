@@ -1,3 +1,7 @@
+## 0.16.6
+
+* test using dart2wasm if supported.
+
 ## 0.16.5
 
 * Simple io menu
