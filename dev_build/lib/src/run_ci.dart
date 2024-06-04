@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dev_build/package.dart';
 import 'package:dev_build/src/package/package.dart';
+import 'package:dev_build/src/package/test_config.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
@@ -542,26 +543,20 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
 
           // Check available dart test platforms
           var dartTestFile = File(join(path, 'dart_test.yaml'));
+          Map? dartTestMap;
           if (dartTestFile.existsSync()) {
             try {
-              var dartTestPlatforms =
-                  (loadYaml(await dartTestFile.readAsString())
-                      as Map)['platforms'];
-              // Single one?
-              if (dartTestPlatforms is String) {
-                dartTestPlatforms = [dartTestPlatforms];
-              }
-              if (dartTestPlatforms is List) {
-                var list = dartTestPlatforms;
-                platforms.removeWhere((platform) => !list.contains(platform));
-              }
+              dartTestMap =
+                  (loadYaml(await dartTestFile.readAsString()) as Map);
             } catch (_) {}
           }
+          var testConfig =
+              buildTestConfig(platforms: platforms, dartTestMap: dartTestMap);
 
-          if (platforms.isNotEmpty) {
+          if (testConfig.isNotEmpty) {
             await runScript('''
     # Test
-    dart test -p ${platforms.join(',')}
+    dart test${testConfig.toCommandLineArgument()}
     ''');
           }
 
