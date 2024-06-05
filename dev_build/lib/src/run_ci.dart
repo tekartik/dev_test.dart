@@ -520,6 +520,11 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
       if (!options.noTest) {
         if (filteredDartDirs.contains('test')) {
           var platforms = <String>[if (!options.noVmTest) 'vm'];
+          var supportedPlatforms = <String>[
+            'vm',
+            'chrome',
+            if (isNodeSupportedSync) 'node'
+          ];
 
           var isWeb = pubspecYamlSupportsWeb(pubspecMap);
           if (!options.noBrowserTest && isWeb) {
@@ -550,8 +555,10 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
                   (loadYaml(await dartTestFile.readAsString()) as Map);
             } catch (_) {}
           }
-          var testConfig =
-              buildTestConfig(platforms: platforms, dartTestMap: dartTestMap);
+          var testConfig = buildTestConfig(
+              platforms: platforms,
+              supportedPlatforms: supportedPlatforms,
+              dartTestMap: dartTestMap);
 
           if (testConfig.isNotEmpty) {
             await runScript('''

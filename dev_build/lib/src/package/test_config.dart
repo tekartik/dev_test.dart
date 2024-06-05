@@ -13,9 +13,12 @@ class TestConfig {
 
 /// build test config on the supported platforms and dart_test.yaml config map.
 TestConfig buildTestConfig(
-    {required List<String> platforms, Map? dartTestMap}) {
+    {List<String>? platforms,
+    List<String>? supportedPlatforms,
+    Map? dartTestMap}) {
   var testConfig = TestConfig();
 
+  platforms = platforms?.toList() ?? <String>[];
   if (dartTestMap != null) {
     try {
       List<String> toStringList(Object? value) {
@@ -30,8 +33,18 @@ TestConfig buildTestConfig(
 
       var dartTestPlatforms = toStringList(dartTestMap['platforms']);
       if (dartTestPlatforms.isNotEmpty) {
-        platforms
-            .removeWhere((platform) => !dartTestPlatforms.contains(platform));
+        if (supportedPlatforms?.isNotEmpty ?? false) {
+          platforms.clear();
+          for (var platform in dartTestPlatforms) {
+            if (supportedPlatforms!.contains(platform) &&
+                !platforms.contains(platform)) {
+              platforms.add(platform);
+            }
+          }
+        } else {
+          platforms
+              .removeWhere((platform) => !dartTestPlatforms.contains(platform));
+        }
       }
       var dartCompilers = toStringList(dartTestMap['compilers']);
       var dartSupportedWebCompilers = ['dart2js', 'dart2wasm'];
