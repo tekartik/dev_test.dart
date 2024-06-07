@@ -33,10 +33,10 @@ TestConfig buildTestConfig(
 
       var dartTestPlatforms = toStringList(dartTestMap['platforms']);
       if (dartTestPlatforms.isNotEmpty) {
-        if (supportedPlatforms?.isNotEmpty ?? false) {
+        if (supportedPlatforms != null) {
           platforms.clear();
           for (var platform in dartTestPlatforms) {
-            if (supportedPlatforms!.contains(platform) &&
+            if (supportedPlatforms.contains(platform) &&
                 !platforms.contains(platform)) {
               platforms.add(platform);
             }

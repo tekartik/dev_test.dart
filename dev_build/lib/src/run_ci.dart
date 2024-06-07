@@ -521,9 +521,9 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
         if (filteredDartDirs.contains('test')) {
           var platforms = <String>[if (!options.noVmTest) 'vm'];
           var supportedPlatforms = <String>[
-            'vm',
-            'chrome',
-            if (isNodeSupportedSync) 'node'
+            if (!options.noVmTest) 'vm',
+            if (!options.noBrowserTest) 'chrome',
+            if (!options.noNodeTest && isNodeSupportedSync) 'node'
           ];
 
           var isWeb = pubspecYamlSupportsWeb(pubspecMap);
