@@ -15,7 +15,8 @@ class TestConfig {
 TestConfig buildTestConfig(
     {List<String>? platforms,
     List<String>? supportedPlatforms,
-    Map? dartTestMap}) {
+    Map? dartTestMap,
+    bool? noWasm}) {
   var testConfig = TestConfig();
 
   platforms = platforms?.toList() ?? <String>[];
@@ -47,7 +48,10 @@ TestConfig buildTestConfig(
         }
       }
       var dartCompilers = toStringList(dartTestMap['compilers']);
-      var dartSupportedWebCompilers = ['dart2js', 'dart2wasm'];
+      var dartSupportedWebCompilers = [
+        'dart2js',
+        if (!(noWasm ?? false)) 'dart2wasm'
+      ];
       var dartWebPlatforms = ['chrome', 'firefox', 'safari'];
       var dartWebCompilers = <String>[];
       for (var supportedWebCompiler in dartSupportedWebCompilers) {

@@ -525,6 +525,8 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
             if (!options.noBrowserTest) 'chrome',
             if (!options.noNodeTest && isNodeSupportedSync) 'node'
           ];
+          // Tmp don't compile as wasm on windows as it times out
+          var noWasm = Platform.isWindows;
 
           var isWeb = pubspecYamlSupportsWeb(pubspecMap);
           if (!options.noBrowserTest && isWeb) {
@@ -558,7 +560,8 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
           var testConfig = buildTestConfig(
               platforms: platforms,
               supportedPlatforms: supportedPlatforms,
-              dartTestMap: dartTestMap);
+              dartTestMap: dartTestMap,
+              noWasm: noWasm);
 
           if (testConfig.isNotEmpty) {
             await runScript('''

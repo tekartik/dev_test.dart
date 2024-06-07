@@ -46,6 +46,17 @@ void main() {
 
     expect(
         buildTestConfig(platforms: [
+          'vm',
+          'chrome'
+        ], dartTestMap: {
+          'platforms': ['chrome'],
+          'compilers': ['dart2js', 'dart2wasm']
+        }, noWasm: true)
+            .toCommandLineArgument(),
+        ' --platform chrome --compiler dart2js');
+
+    expect(
+        buildTestConfig(platforms: [
           'chrome',
           'node',
           'vm',
