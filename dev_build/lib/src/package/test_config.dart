@@ -9,6 +9,9 @@ class TestConfig {
   /// To command line argument.
   String toCommandLineArgument() =>
       '${args.isEmpty ? '' : ' '}${args.join(' ')}';
+
+  /// true if has node supports in test.
+  bool hasNode = false;
 }
 
 /// build test config on the supported platforms and dart_test.yaml config map.
@@ -68,6 +71,9 @@ TestConfig buildTestConfig(
             testConfig.args.add('--platform $platform --compiler $compiler');
           }
         } else {
+          if (platform == 'node') {
+            testConfig.hasNode = true;
+          }
           testConfig.args.add('--platform $platform');
         }
       }

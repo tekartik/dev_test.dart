@@ -4,8 +4,9 @@ import 'package:test/test.dart';
 void main() {
   test('test_config', () {
     expect(buildTestConfig(platforms: []).toCommandLineArgument(), '');
-    expect(buildTestConfig(platforms: ['vm']).toCommandLineArgument(),
-        ' --platform vm');
+    var testConfig = buildTestConfig(platforms: ['vm']);
+    expect(testConfig.toCommandLineArgument(), ' --platform vm');
+    expect(testConfig.hasNode, isFalse);
     expect(buildTestConfig(platforms: ['vm', 'chrome']).toCommandLineArgument(),
         ' --platform vm --platform chrome');
     expect(
@@ -79,14 +80,15 @@ void main() {
         ' --platform chrome --compiler dart2js --platform chrome --compiler dart2wasm'
         ' --platform vm'
         ' --platform node');
-    expect(
-        buildTestConfig(supportedPlatforms: [
-          'vm',
-          'chrome',
-          'node'
-        ], dartTestMap: {
-          'platforms': ['node'],
-        }).toCommandLineArgument(),
-        ' --platform node');
+
+    testConfig = buildTestConfig(supportedPlatforms: [
+      'vm',
+      'chrome',
+      'node'
+    ], dartTestMap: {
+      'platforms': ['node'],
+    });
+    expect(testConfig.toCommandLineArgument(), ' --platform node');
+    expect(testConfig.hasNode, isTrue);
   });
 }

@@ -563,6 +563,13 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
               dartTestMap: dartTestMap,
               noWasm: noWasm);
 
+          if (testConfig.hasNode) {
+            try {
+              await nodeSetupCheck(path);
+            } catch (e) {
+              stderr.writeln('(ignored) Error setting up node: $e');
+            }
+          }
           if (testConfig.isNotEmpty) {
             await runScript('''
     # Test
