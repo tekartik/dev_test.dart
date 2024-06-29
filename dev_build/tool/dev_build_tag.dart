@@ -6,12 +6,14 @@ import 'package:process_run/shell.dart';
 Future main() async {
   var shell = Shell();
   var version = await getPackageVersion();
-  print('Version $version');
-  print('Tap anything or CTRL-C: $version');
+  // ignore: avoid_print
+  stdout.writeln('Version $version');
+  // ignore: avoid_print
+  stdout.writeln('Tap anything or CTRL-C: $version');
 
   await stdin.first;
   await shell.run('''
-git tag v$version
+git tag dev_build-v$version
 git push origin --tags
 ''');
 }
