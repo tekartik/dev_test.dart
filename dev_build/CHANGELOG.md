@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Make it `1.0.0`
+
 ## 0.16.7+4
 
 * test using node if supported.
