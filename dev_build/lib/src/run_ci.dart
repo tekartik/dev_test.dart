@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dev_build/package.dart';
 import 'package:dev_build/src/package/package.dart';
 import 'package:dev_build/src/package/test_config.dart';
@@ -7,6 +5,7 @@ import 'package:dev_build/src/pub_io.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/src/shell_utils.dart'; // ignore: implementation_imports
+import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
@@ -191,20 +190,11 @@ final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
     {bool recursive = false, int? poolSize}) async {
   if (recursive) {
-    var current = false;
     await recursiveActions([path], verbose: options.verbose, poolSize: poolSize,
         action: (dir) async {
-      var isCurrent = !current;
-      current = current || isCurrent;
-      var streamer = StdioStreamer(current: isCurrent);
-      try {
-        await singlePackageRunCiImpl(dir, options, streamer: streamer);
-      } finally {
-        // Re-enable the current flag if it was the current one.
-        if (isCurrent) {
-          current = false;
-        }
-      }
+      await shellStdioLinesGrouper.runZoned(() async {
+        await singlePackageRunCiImpl(dir, options);
+      });
     });
   } else {
     if (!(await isPubPackageRoot(path,
@@ -224,79 +214,6 @@ enum StdioStreamType {
 
   /// Err
   err
-}
-
-/// Stdio stream line.
-class StdioStreamLine {
-  /// Stream type.
-  final StdioStreamType type;
-
-  /// Line.
-  final String line;
-
-  /// Stdio stream line.
-  StdioStreamLine(this.type, this.line);
-}
-
-/// Stdio streamer.
-class StdioStreamer {
-  /// Current.
-  bool get current => _current ?? false;
-
-  bool? _current;
-
-  /// Lines.
-  var lines = <StdioStreamLine>[];
-
-  /// Out.
-  final out = ShellLinesController();
-
-  /// Err.
-  final err = ShellLinesController();
-
-  /// Log.
-  void log(String message) {
-    if (current) {
-      stdout.writeln(message);
-    } else {
-      lines.add(StdioStreamLine(StdioStreamType.out, message));
-    }
-  }
-
-  /// Error.
-  void error(String message) {
-    if (current) {
-      stderr.writeln(message);
-    } else {
-      lines.add(StdioStreamLine(StdioStreamType.err, message));
-    }
-  }
-
-  /// Stdio streamer.could become true at any moment!
-  StdioStreamer({bool? current = false}) {
-    _current = current;
-    out.stream.listen((line) {
-      log(line);
-    });
-    err.stream.listen((line) {
-      error(line);
-    });
-  }
-
-  /// Close.
-  void close() {
-    out.close();
-    err.close();
-    if (!current) {
-      for (var line in lines) {
-        if (line.type == StdioStreamType.out) {
-          stdout.writeln(line.line);
-        } else {
-          stderr.writeln(line.line);
-        }
-      }
-    }
-  }
 }
 
 /// Run basic tests on dart/flutter package
@@ -338,24 +255,20 @@ var _unsetVersion = Version(1, 0, 0);
 
 /// Run basic tests on dart/flutter package
 ///
-Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
-    {StdioStreamer? streamer}) async {
-  streamer ??= StdioStreamer();
+Future<void> singlePackageRunCiImpl(
+    String path, PackageRunCiOptions options) async {
   options = options.clone();
   try {
     if (options.printPath) {
-      streamer.log(normalize(absolute(path)));
+      stdout.writeln(normalize(absolute(path)));
       return;
     }
     if (options.prjInfo) {
-      streamer.log('# package: ${normalize(absolute(path))}');
+      stdout.writeln('# package: ${normalize(absolute(path))}');
     } else {
-      streamer.log('# package: $path');
+      stdout.writeln('# package: $path');
     }
-    var shell = Shell(
-        workingDirectory: path,
-        stderr: streamer.err.sink,
-        stdout: streamer.out.sink);
+    var shell = Shell(workingDirectory: path);
     // Project info
     if (options.prjInfo) {
       try {
@@ -369,13 +282,13 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
             if (minSdkVersion < _minNullableVersion) 'non-nullable'
           ];
           if (tags.isNotEmpty) {
-            streamer.log('sdk: $boundaries (${tags.join(',')})');
+            stdout.writeln('sdk: $boundaries (${tags.join(',')})');
           } else {
-            streamer.log('sdk: $boundaries');
+            stdout.writeln('sdk: $boundaries');
           }
         }
       } catch (e) {
-        streamer.error(e.toString());
+        stderr.writeln(e.toString());
       }
     }
     if (options.noRunCi) {
@@ -384,7 +297,7 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
 
     if (!options.noOverride &&
         File(join(path, skipRunCiFilePath)).existsSync()) {
-      streamer.log('Skipping run_ci');
+      stdout.writeln('Skipping run_ci');
       return;
     }
 
@@ -394,13 +307,13 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
     var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
 
     if (!sdkBoundaries.matches(dartVersion)) {
-      streamer.error('Unsupported sdk boundaries for dart $dartVersion');
+      stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
       return;
     }
 
     if (isFlutterPackage) {
       if (!isFlutterSupportedSync) {
-        streamer.error('flutter not supported for package in $path');
+        stderr.writeln('flutter not supported for package in $path');
         return;
       }
     }
@@ -413,7 +326,7 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
     Future<List<ProcessResult>> runScript(String script) async {
       if (options.dryRun) {
         scriptToCommands(script).forEach((command) {
-          streamer!.log('\$ $command');
+          stdout.writeln('\$ $command');
         });
         return <ProcessResult>[];
       }
@@ -580,7 +493,7 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
           if (isWeb) {
             if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
               if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-                streamer.error(
+                stderr.writeln(
                     '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
               } else {
                 await runScript('''
@@ -615,12 +528,10 @@ Future<void> singlePackageRunCiImpl(String path, PackageRunCiOptions options,
     }
   } catch (e) {
     if (options.ignoreErrors) {
-      streamer.error('Ignoring error $e');
+      stderr.writeln('Ignoring error $e');
     } else {
       rethrow;
     }
-  } finally {
-    streamer.close();
   }
 }
 

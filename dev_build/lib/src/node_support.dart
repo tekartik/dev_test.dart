@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:path/path.dart';
 import 'package:process_run/shell.dart';
+import 'package:process_run/stdio.dart';
 
 /// to deprecate
 bool get isNodeSupported => isNodeSupportedSync;

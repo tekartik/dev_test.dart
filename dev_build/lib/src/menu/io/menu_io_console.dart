@@ -1,7 +1,6 @@
 library tekartik_test_menu_console;
 
 import 'dart:convert';
-import 'dart:io' hide stdin;
 
 import 'package:args/args.dart';
 import 'package:dev_build/src/import.dart';
@@ -9,6 +8,7 @@ import 'package:dev_build/src/import.dart';
 //import 'package:dev_build/src/menu/menu_manager.dart';
 import 'package:dev_build/src/menu/presenter_mixin.dart';
 import 'package:process_run/shell.dart';
+import 'package:process_run/stdio.dart' hide stdin;
 import 'package:synchronized/synchronized.dart';
 
 import 'menu.dart';

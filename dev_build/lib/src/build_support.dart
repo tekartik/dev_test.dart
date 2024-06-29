@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dev_build/src/io/file_utils.dart';
 import 'package:dev_build/src/mixin/package.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
+import 'package:process_run/stdio.dart';
 
 import 'build_support_common.dart';
 

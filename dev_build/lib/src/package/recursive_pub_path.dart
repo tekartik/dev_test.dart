@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dev_build/src/import.dart';
 import 'package:dev_build/src/mixin/package.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:path/path.dart';
 import 'package:pool/pool.dart';
+import 'package:process_run/stdio.dart';
 
 /// false if symlink
 bool isDirectoryNotLinkSynk(String path) =>

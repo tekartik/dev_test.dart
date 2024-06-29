@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:process_run/stdio.dart';
 
 /// Directory extension
 extension DevDirectoryExt on Directory {

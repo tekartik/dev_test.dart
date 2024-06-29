@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io' as io;
 
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart';
+import 'package:process_run/stdio.dart' as io;
 
 import 'mixin/package.dart';
 

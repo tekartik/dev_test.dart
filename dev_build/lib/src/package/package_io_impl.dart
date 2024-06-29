@@ -1,11 +1,12 @@
 // in dev tree
 import 'dart:async';
-import 'dart:io';
 
 import 'package:dev_build/src/content/lines_io.dart';
 import 'package:path/path.dart';
+import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
+
 import 'package.dart';
 
 /// Io base implementation.

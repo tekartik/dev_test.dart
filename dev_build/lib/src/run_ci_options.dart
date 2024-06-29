@@ -1,7 +1,6 @@
-import 'dart:io';
-
 import 'package:dev_build/package.dart';
 import 'package:path/path.dart';
+import 'package:process_run/stdio.dart';
 
 /// Get the top level directories.
 Future<List<String>> topLevelDir(String dir) async {
