@@ -172,11 +172,10 @@ environment:
       expect(posixNormalize('..\\a'), '../a');
       expect(posixNormalize('../a'), '../a');
     });
-
+    var repoSupportEntry = join('..', 'repo_support');
+    var devTestEntry = join('..', 'dev_test');
+    var devBuildEntry = join('..', 'dev_build');
     test('recursivePubPath', () async {
-      var repoSupportEntry = join('..', 'repo_support');
-      var devTestEntry = join('..', 'dev_test');
-      var devBuildEntry = join('..', 'dev_build');
       expect(await recursivePubPath(['.', '..']),
           ['.', devTestEntry, repoSupportEntry]);
       expect(await recursivePubPath(['..', '.']),
@@ -185,6 +184,17 @@ environment:
           [devBuildEntry, devTestEntry, repoSupportEntry]);
 
       expect(await recursivePubPath(['.']), ['.']);
+    });
+
+    test('recursivePubPath dependencies', () async {
+      expect(await recursivePubPath(['..'], dependencies: ['dev_build']),
+          [devTestEntry, repoSupportEntry]);
+      expect(await recursivePubPath(['..'], dependencies: ['dev_test']),
+          [repoSupportEntry]);
+      expect(
+          await recursivePubPath(['..'],
+              dependencies: ['dev_test', 'dev_build']),
+          [devTestEntry, repoSupportEntry]);
     });
 
     test('recursivePubPath ignore build', () async {

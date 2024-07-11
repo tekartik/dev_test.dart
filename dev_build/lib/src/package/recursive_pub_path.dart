@@ -119,10 +119,15 @@ Future<List<String>> recursivePubPath(List<String> dirs,
         if (!_isToBeIgnored(basename(subDir))) {
           if (isDirectoryNotLinkSynk(subDir)) {
             futures.add(() async {
+              var subPubDirs = await filterPubPath([subDir],
+                  dependencies: dependencies,
+                  filterDartProjectOptions: filterDartProjectOptions);
+              /*
               if (await isPubPackageRoot(subDir,
                   filterDartProjectOptions: filterDartProjectOptions)) {
                 sub.add(subDir);
-              }
+              }*/
+              sub.addAll(subPubDirs);
               sub.addAll(await getSubDirs(subDir));
             }());
           }
