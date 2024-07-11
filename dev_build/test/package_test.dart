@@ -3,11 +3,12 @@ library dev_build.test.package_test;
 
 import 'dart:io';
 
+import 'package:dev_build/build_support.dart';
 import 'package:dev_build/package.dart';
-import 'package:dev_build/src/build_support.dart';
-import 'package:dev_build/src/mixin/package.dart';
-import 'package:dev_build/src/package/package.dart';
-import 'package:dev_build/src/package/recursive_pub_path.dart';
+import 'package:dev_build/src/mixin/package.dart'
+    show analysisOptionsSupportsNnbdExperiment;
+import 'package:dev_build/src/package/recursive_pub_path.dart'
+    show posixNormalize, recursiveActions;
 import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart';
@@ -19,6 +20,8 @@ void main() {
   group('package', () {
     test('pubspec', () async {
       var pubspecMap = await pathGetPubspecYamlMap('.');
+      expect(pubspecYamlGetPackageName(pubspecMap), 'dev_build');
+      expect(pubspecYamlGetVersion(pubspecMap), greaterThan(Version(1, 0, 0)));
       expect(
           pubspecYamlHasAnyDependencies(pubspecMap, ['build_node_compilers']),
           isFalse);
