@@ -40,9 +40,6 @@ abstract class Test {
 
   /// overriding  [_test.tearDown]
   void tearDownAll(dynamic Function() callback);
-
-  /// Expect
-  // void expect(Object? actual, Object? matcher, {String? reason, Object? skip});
 }
 
 /// Test descriptions.

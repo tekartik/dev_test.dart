@@ -32,7 +32,12 @@ void main() {
   test_api.test('test_api', () {});
 }
       ''');
-      for (var file in ['dev_test_api', 'dev_test_only']) {
+      for (var file in [
+        'dev_test_api_only_test',
+        'dev_test_api_test',
+        'dev_test_core_only_test',
+        'dev_test_only_test',
+      ]) {
         await File(join('test', '$file.dart'))
             .copy(join(path, 'test', '$file.dart'));
       }

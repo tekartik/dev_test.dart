@@ -1,6 +1,6 @@
-## 1.0.0+1
+## 1.0.0+2
 
-* Remove `test` dependency
+* Remove `test` dependency, use `test_core` directly.
 
 ## 0.16.4
 
