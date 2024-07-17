@@ -177,6 +177,30 @@ class VersionBoundaries {
     return toShortString();
   }
 
+  /// Escape with '' if needed.
+  String toYamlString() {
+    String escape(String text) => "'$text'";
+    if (_isShort()) {
+      return _toShortString();
+    } else if (_isSingle()) {
+      return _toSingleString();
+    } else if (_isEmpty()) {
+      return '';
+    }
+    return escape(toMinMaxString());
+  }
+
+  // True for no version
+  bool _isEmpty() {
+    return min == null && max == null;
+  }
+
+  // True for 1.0.0
+  bool _isSingle() {
+    return min == max && (min?.include ?? false);
+  }
+
+  // True for ^1.0.0
   bool _isShort() {
     var min = this.min;
     var max = this.max;
@@ -211,18 +235,28 @@ class VersionBoundaries {
   /// Short string if possible, default to minMaxString.
   String toShortString() {
     if (_isShort()) {
-      return '^${min!.value}';
+      return _toShortString();
     } else {
       return toMinMaxString();
     }
+  }
+
+  /// If short
+  String _toShortString() {
+    return '^${min!.value}';
+  }
+
+  /// If single
+  String _toSingleString() {
+    return '${min!.value}';
   }
 
   /// >=minVersion <maxVersion
   String toMinMaxString() {
     var sb = StringBuffer();
     if (min != null) {
-      if (max == min) {
-        return min!.value.toString();
+      if (_isSingle()) {
+        return _toSingleString();
       }
       sb.write('>');
       if (min!.include) {

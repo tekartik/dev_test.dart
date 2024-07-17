@@ -132,6 +132,13 @@ environment:
       expect(VersionBoundaries.tryParse(''), VersionBoundaries(null, null));
       expect(
           VersionBoundaries.tryParse('dummy'), VersionBoundaries(null, null));
+
+      expect(VersionBoundaries(null, null).toString(), '');
+      expect(VersionBoundaries.parse('>=1.0.0').toYamlString(), "'>=1.0.0'");
+      expect(VersionBoundaries.parse('1.0.0').toYamlString(), '1.0.0');
+      expect(VersionBoundaries.parse('^1.0.0').toYamlString(), '^1.0.0');
+      expect(VersionBoundaries.parse('>=1.0.0 <2.1.0').toYamlString(),
+          "'>=1.0.0 <2.1.0'");
     });
 
     test('pubspecYamlHasAnyDependencies', () {
