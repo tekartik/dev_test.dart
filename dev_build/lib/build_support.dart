@@ -9,6 +9,7 @@ export 'package:dev_build/src/mixin/package.dart'
         pubspecYamlSupportsTest,
         pubspecYamlSupportsWeb,
         VersionBoundaries,
+        VersionBoundaryVersionExt,
         VersionBoundary,
         pathGetAnalysisOptionsYamlMap,
         pathGetPubspecYamlMap,

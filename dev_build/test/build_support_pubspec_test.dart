@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:dev_build/build_support.dart';
 import 'package:dev_build/src/mixin/package.dart'
     show analysisOptionsSupportsNnbdExperiment;
+//import 'package:dev_build/src/package/package.dart';
 import 'package:path/path.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:test/test.dart';
@@ -129,16 +130,34 @@ environment:
       expect(boundaries.matches(Version(3, 0, 0)), isTrue);
       expect(boundaries.matches(Version(3, 0, 1)), isFalse);
 
-      expect(VersionBoundaries.tryParse(''), VersionBoundaries(null, null));
       expect(
-          VersionBoundaries.tryParse('dummy'), VersionBoundaries(null, null));
+          VersionBoundaries.tryParse(''), const VersionBoundaries(null, null));
+      expect(VersionBoundaries.tryParse('dummy'),
+          const VersionBoundaries(null, null));
 
-      expect(VersionBoundaries(null, null).toString(), '');
+      expect(const VersionBoundaries(null, null).toString(), '');
       expect(VersionBoundaries.parse('>=1.0.0').toYamlString(), "'>=1.0.0'");
       expect(VersionBoundaries.parse('1.0.0').toYamlString(), '1.0.0');
       expect(VersionBoundaries.parse('^1.0.0').toYamlString(), '^1.0.0');
       expect(VersionBoundaries.parse('>=1.0.0 <2.1.0').toYamlString(),
           "'>=1.0.0 <2.1.0'");
+
+      expect(
+          VersionBoundaries.versions(Version(1, 1, 2), Version(1, 3, 2))
+              .toString(),
+          '>=1.1.2 <1.3.2');
+      expect(
+          VersionBoundaries.versions(Version(1, 1, 2), Version(2, 0, 0))
+              .toString(),
+          '^1.1.2');
+      expect(VersionBoundaries.versions(Version(1, 1, 2), null).toString(),
+          '>=1.1.2');
+      expect(VersionBoundaries.versions(null, Version(1, 1, 2)).toString(),
+          '<1.1.2');
+      expect(Version(1, 0, 0).lowerBoundary,
+          VersionBoundary(Version(1, 0, 0), true));
+      expect(Version(1, 0, 0).upperBoundary,
+          VersionBoundary(Version(1, 0, 0), false));
     });
 
     test('pubspecYamlHasAnyDependencies', () {

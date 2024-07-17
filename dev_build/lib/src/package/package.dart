@@ -149,6 +149,15 @@ bool pubspecYamlSupportsBuildRunner(Map map) {
   return pubspecYamlHasAnyDependencies(map, ['build_runner']);
 }
 
+/// Public helper
+extension VersionBoundaryVersionExt on Version {
+  /// Lower boundary included by default
+  VersionBoundary get lowerBoundary => VersionBoundary.lower(this);
+
+  /// Upper boundary excluded by default
+  VersionBoundary get upperBoundary => VersionBoundary.upper(this);
+}
+
 /// Version boundary.
 class VersionBoundary {
   /// Version.
@@ -160,8 +169,31 @@ class VersionBoundary {
   /// Version boundary.
   const VersionBoundary(this.value, this.include);
 
+  /// Lower boundary included by default
+  const VersionBoundary.lower(this.value) : include = true;
+
+  /// Upper boundary excluded by default
+  const VersionBoundary.upper(this.value) : include = false;
+
   @override
   String toString() => '$value $include';
+
+  @override
+  int get hashCode => value.hashCode + include.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is VersionBoundary) {
+      if (other.value != value) {
+        return false;
+      }
+      if (other.include != include) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
 }
 
 /// Version boundaries.
@@ -278,7 +310,12 @@ class VersionBoundaries {
   }
 
   /// Version boundaries.
-  VersionBoundaries(this.min, this.max);
+  const VersionBoundaries(this.min, this.max);
+
+  /// Default is lower bound included, upper excluted.
+  VersionBoundaries.versions(Version? versionMin, Version? versionMax)
+      : min = versionMin?.lowerBoundary,
+        max = versionMax?.upperBoundary;
 
   /// Version boundaries pinned.
   VersionBoundaries.version(Version version)
