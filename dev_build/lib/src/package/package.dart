@@ -174,6 +174,51 @@ class VersionBoundaries {
 
   @override
   String toString() {
+    return toShortString();
+  }
+
+  bool _isShort() {
+    var min = this.min;
+    var max = this.max;
+    if (min == null || max == null) {
+      return false;
+    }
+    if (!min.include || max.include) {
+      return false;
+    }
+    if (Version(min.value.major + 1, 0, 0) == max.value) {
+      return true;
+    }
+    if (min.value.major == 0) {
+      if (min.value.minor == 0) {
+        if (Version(min.value.major, min.value.minor, min.value.patch + 1) ==
+            max.value) {
+          return true;
+        }
+      } else {
+        if (Version(min.value.major, min.value.minor + 1, 0) == max.value) {
+          return true;
+        }
+      }
+    } else {
+      if (Version(min.value.major + 1, 0, 0) == max.value) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Short string if possible, default to minMaxString.
+  String toShortString() {
+    if (_isShort()) {
+      return '^${min!.value}';
+    } else {
+      return toMinMaxString();
+    }
+  }
+
+  /// >=minVersion <maxVersion
+  String toMinMaxString() {
     var sb = StringBuffer();
     if (min != null) {
       if (max == min) {

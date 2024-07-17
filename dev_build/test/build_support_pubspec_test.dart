@@ -105,9 +105,21 @@ environment:
       expect(boundaries.matchesMin(Version(3, 0, 0)), isTrue);
 
       expect(VersionBoundaries.parse('0.0.1').toString(), '0.0.1');
-      expect(VersionBoundaries.parse('^0.0.1').toString(), '>=0.0.1 <0.0.2');
-      expect(VersionBoundaries.parse('^0.1.2').toString(), '>=0.1.2 <0.2.0');
-      expect(VersionBoundaries.parse('^1.2.3').toString(), '>=1.2.3 <2.0.0');
+      expect(VersionBoundaries.parse('0.0.1').toMinMaxString(), '0.0.1');
+      expect(VersionBoundaries.parse('0.0.1').toShortString(), '0.0.1');
+      expect(VersionBoundaries.parse('^0.0.1').toString(), '^0.0.1');
+      expect(VersionBoundaries.parse('^0.0.1').toShortString(), '^0.0.1');
+      expect(
+          VersionBoundaries.parse('^0.0.1').toMinMaxString(), '>=0.0.1 <0.0.2');
+      expect(VersionBoundaries.parse('^0.1.2').toString(), '^0.1.2');
+      expect(
+          VersionBoundaries.parse('^0.1.2').toMinMaxString(), '>=0.1.2 <0.2.0');
+      expect(VersionBoundaries.parse('^1.2.3').toString(), '^1.2.3');
+      expect(
+          VersionBoundaries.parse('^1.2.3').toMinMaxString(), '>=1.2.3 <2.0.0');
+      expect(VersionBoundaries.parse('^1.2.3-4').toString(), '^1.2.3-4');
+      expect(VersionBoundaries.parse('^1.2.3-4').toMinMaxString(),
+          '>=1.2.3-4 <2.0.0');
 
       boundaries = VersionBoundaries.parse('>1.0.0');
       expect(boundaries.matches(Version(1, 1, 0)), isTrue);
