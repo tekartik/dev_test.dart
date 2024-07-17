@@ -1,3 +1,7 @@
+## 1.0.0+1
+
+* Remove `test` dependency
+
 ## 0.16.4
 
 * Split build feature into a separate package `dev_build`

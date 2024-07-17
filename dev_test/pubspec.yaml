@@ -1,5 +1,5 @@
 name: dev_test
-version: 1.0.1
+version: 1.0.0+1
 description: Development utilities for dart and flutter packages. CI, build and test helpers.
 repository: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 
@@ -25,6 +25,3 @@ dev_dependencies:
   build_web_compilers: '>=4.0.5'
   lints: '>=2.1.1'
 
-executables:
-  # Run common dart/flutter project testing
-  run_ci:
