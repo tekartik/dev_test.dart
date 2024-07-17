@@ -94,11 +94,6 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
     });
   }
 
-  @override
-  void expect(actual, matcher, {String? reason, skip}) {
-    _impl.expect(actual, matcher, reason: reason, skip: skip);
-  }
-
   dynamic _wrap(List<String> descriptions, dynamic Function() body) {
     _currentDescriptions = descriptions;
     Object? result;

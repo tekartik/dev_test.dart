@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:dev_test/build_support.dart';
-import 'package:dev_test/package.dart';
-import 'package:dev_test/src/io/file_utils.dart';
+import 'package:dev_build/build_support.dart';
+import 'package:dev_build/package.dart';
+import 'package:dev_build/src/io/file_utils.dart';
 
 export 'package:path/path.dart';
 

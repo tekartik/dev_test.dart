@@ -1,6 +1,6 @@
 import 'package:dev_test/src/dart_test.dart';
 import 'package:dev_test/src/description_test.dart';
-import 'package:test/test.dart' show Timeout;
+import 'package:dev_test/src/import_test.dart' show Timeout;
 
 /// default implementation is a regular dart test
 Test testImplementation = WithDescriptionsTest(DartTest());
@@ -42,7 +42,7 @@ abstract class Test {
   void tearDownAll(dynamic Function() callback);
 
   /// Expect
-  void expect(Object? actual, Object? matcher, {String? reason, Object? skip});
+  // void expect(Object? actual, Object? matcher, {String? reason, Object? skip});
 }
 
 /// Test descriptions.
@@ -103,9 +103,9 @@ void tearDownAll(dynamic Function() callback) {
 }
 
 /// expect (see test.dart)
-void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {
-  testImplementation.expect(actual, matcher, reason: reason, skip: skip);
-}
+//void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {
+//  testImplementation.expect(actual, matcher, reason: reason, skip: skip);
+//}
 
 // Add-ons
 

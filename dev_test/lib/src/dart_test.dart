@@ -1,7 +1,7 @@
 // not flutter
 import 'package:dev_test/src/dev_test.dart' show Test;
-import 'package:test/test.dart' as test_impl;
-import 'package:test/test.dart' show Timeout;
+import 'package:dev_test/src/import_test.dart' as test_impl;
+import 'package:dev_test/src/import_test.dart' show Timeout;
 
 /// Dart test implementation.
 class DartTest implements Test {
@@ -60,10 +60,5 @@ class DartTest implements Test {
   @override
   void tearDownAll(dynamic Function() callback) {
     test_impl.tearDownAll(callback);
-  }
-
-  @override
-  void expect(actual, matcher, {String? reason, skip}) {
-    test_impl.expect(actual, matcher, reason: reason, skip: skip);
   }
 }
