@@ -45,6 +45,8 @@ void main() {
     expect(
         await recursivePubPath(['..'], dependencies: ['dev_test', 'dev_build']),
         [devTestEntry, repoSupportEntry]);
+    expect(await recursivePubPath(['..'], dependencies: ['direct:dev_build']),
+        [devTestEntry]);
   });
 
   test('recursivePubPath ignore build', () async {

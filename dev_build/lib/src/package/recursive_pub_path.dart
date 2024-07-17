@@ -100,6 +100,8 @@ Future<List<String>> filterPubPath(List<String> dirs,
 ///
 /// if [ignoreSdkConstraints] is true, it lists the project even if not compatible.
 ///
+/// if [dependencies] is specified, it will only list the project that contains
+/// such dependency, use either dependency like `path`, or 'direct:path', 'dev:path' or 'override:path'.
 /// Returns the list of valid pub folder, including me
 Future<List<String>> recursivePubPath(List<String> dirs,
     {List<String>? dependencies,
@@ -172,9 +174,15 @@ List<String> removeDuplicates(List<String> dirs) {
 Future<void> recursivePackagesRun(List<String> paths,
         {required FutureOr<dynamic> Function(String package) action,
         bool? verbose,
-        int? poolSize}) =>
+        int? poolSize,
+        List<String>? dependencies,
+        FilterDartProjectOptions? filterDartProjectOptions}) =>
     recursiveActions(paths,
-        action: action, verbose: verbose, poolSize: poolSize);
+        action: action,
+        verbose: verbose,
+        poolSize: poolSize,
+        dependencies: dependencies,
+        filterDartProjectOptions: filterDartProjectOptions);
 
 /// Each path is tested
 ///
@@ -183,6 +191,7 @@ Future<void> recursiveActions(List<String> paths,
     {required FutureOr<dynamic> Function(String package) action,
     bool? verbose,
     int? poolSize,
+    List<String>? dependencies,
     FilterDartProjectOptions? filterDartProjectOptions}) async {
   poolSize ??= 4;
   verbose ??= false;
@@ -195,6 +204,7 @@ Future<void> recursiveActions(List<String> paths,
   final packagePool = Pool(poolSize);
 
   var packages = await recursivePubPath(paths,
+      dependencies: dependencies,
       filterDartProjectOptions: filterDartProjectOptions);
 
   var futures = <Future>[];

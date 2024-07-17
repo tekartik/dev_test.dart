@@ -158,6 +158,35 @@ environment:
             'test'
           ]),
           isTrue);
+      expect(
+          pubspecYamlHasAnyDependencies({
+            'dependencies': {'test': null}
+          }, [
+            'direct:test'
+          ]),
+          isTrue);
+      expect(
+          pubspecYamlHasAnyDependencies({
+            'dev_dependencies': {'test': null}
+          }, [
+            'direct:test',
+            'override:test'
+          ]),
+          isFalse);
+      expect(
+          pubspecYamlHasAnyDependencies({
+            'dev_dependencies': {'test': null}
+          }, [
+            'dev:test'
+          ]),
+          isTrue);
+      expect(
+          pubspecYamlHasAnyDependencies({
+            'dependency_overrides': {'test': null}
+          }, [
+            'override:test'
+          ]),
+          isTrue);
     });
 
     group('package_config.json', () {

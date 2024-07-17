@@ -78,12 +78,23 @@ bool _hasKindDependency(Map yaml, String kind, String dependency) {
   return false;
 }
 
+/// Handle dependencies like `path`, or 'direct:path', 'dev:path' or 'override:path'.
 bool _hasDependency(Map? yaml, String dependency) {
-  for (var kind in [
-    'dependencies',
-    'dev_dependencies',
-    'dependency_overrides'
+  var parts = dependency.split(':');
+  String? dependencyPrefix;
+  if (parts.length == 2) {
+    dependencyPrefix = parts[0];
+    dependency = parts[1];
+  }
+
+  for (var (kind, prefix) in [
+    ('dependencies', 'direct'),
+    ('dev_dependencies', 'dev'),
+    ('dependency_overrides', 'override')
   ]) {
+    if (dependencyPrefix != null && prefix != dependencyPrefix) {
+      continue;
+    }
     if (_hasKindDependency(yaml!, kind, dependency)) {
       return true;
     }
@@ -92,6 +103,8 @@ bool _hasDependency(Map? yaml, String dependency) {
 }
 
 /// True if the pubspec.yaml has any of the dependencies
+///
+/// Handle dependencies like `path`, or 'direct:path', 'dev:path' or 'override:path'.
 bool pubspecYamlHasAnyDependencies(Map yaml, List<String> dependencies) {
   for (var dependency in dependencies) {
     if (_hasDependency(yaml, dependency)) {
