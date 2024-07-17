@@ -11,10 +11,14 @@ There is a convenient way to run a validation test on your package:
 
 It handles VM, web and flutter projects.
 
+## Activation:
+
 ```
 # Once only
-pub global activate dev_build
+dart pub global activate dev_build
+```
 
+```
 # Run common validation test (analyzer, format, test) on your package (and nested packages)
 pub global run dev_build:run_ci
 

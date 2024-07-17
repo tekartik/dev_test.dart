@@ -1,4 +1,4 @@
-## 1.0.0+2
+## 1.0.0+3
 
 * Remove `test` dependency, use `test_core` directly.
 
