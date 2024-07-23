@@ -9,7 +9,7 @@ abstract class MenuPresenter {
   void presentMenu(DevMenu menu);
 
   /// prompt
-  Future<String?>? prompt(Object? message);
+  Future<String?> prompt(Object? message);
 
   /// write the console
   void write(Object message);
@@ -38,7 +38,7 @@ class _NullMenuPresenter extends Object
   void presentMenu(DevMenu menu) {}
 
   @override
-  Future<String>? prompt(Object? message) {
+  Future<String?> prompt(Object? message) async {
     return null;
   }
 
