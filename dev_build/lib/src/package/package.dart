@@ -3,6 +3,24 @@ import 'package:dev_build/src/content/lines.dart';
 import 'package:dev_build/src/map_utils.dart';
 import 'package:pub_semver/pub_semver.dart';
 
+/// Pub dependency kind.
+enum PubDependencyKind {
+  /// Direct dependency.
+  direct,
+
+  /// Dev dependency.
+  dev,
+
+  /// Override dependency.
+  override,
+}
+
+var _kindKeyMap = {
+  PubDependencyKind.direct: 'dependencies',
+  PubDependencyKind.dev: 'dev_dependencies',
+  PubDependencyKind.override: 'dependency_overrides',
+};
+
 /// Dart package.
 abstract class DartPackage {
   /// Dart package from a yaml content.
@@ -60,8 +78,16 @@ Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {
 }
 
 /// Get the dependencies packages name.
-Iterable<String>? pubspecYamlGetDependenciesPackageName(Map yaml) {
-  return ((yaml['dependencies'] as Map?)?.keys)?.cast<String>();
+///
+Iterable<String>? pubspecYamlGetDependenciesPackageName(Map yaml,
+    {PubDependencyKind? kind}) {
+  kind ??= PubDependencyKind.direct;
+  var key = _kindKeyMap[kind]!;
+  var dependencies = yaml[key];
+  if (dependencies is Map) {
+    return dependencies.keys.cast<String>();
+  }
+  return <String>[];
 }
 
 /// Get the dev_dependencies packages name from pubspec.lock

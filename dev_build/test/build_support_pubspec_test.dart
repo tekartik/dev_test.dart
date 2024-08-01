@@ -227,6 +227,36 @@ environment:
           isTrue);
     });
 
+    test('pubspecYamlGetDependenciesPackageName', () {
+      var yaml = <String, Object?>{
+        'dependencies': {'test1': null},
+        'dev_dependencies': {'test2': null},
+        'dependency_overrides': {'test3': null}
+      };
+      expect(pubspecYamlGetDependenciesPackageName(yaml), ['test1']);
+      expect(
+          pubspecYamlGetDependenciesPackageName(yaml,
+              kind: PubDependencyKind.dev),
+          ['test2']);
+      expect(
+          pubspecYamlGetDependenciesPackageName(yaml,
+              kind: PubDependencyKind.override),
+          ['test3']);
+      yaml = {
+        'dependencies': 'dummy',
+        'dev_dependencies': ['dummy']
+      };
+      expect(pubspecYamlGetDependenciesPackageName(yaml), isEmpty);
+      expect(
+          pubspecYamlGetDependenciesPackageName(yaml,
+              kind: PubDependencyKind.dev),
+          isEmpty);
+      expect(
+          pubspecYamlGetDependenciesPackageName(yaml,
+              kind: PubDependencyKind.dev),
+          isEmpty);
+    });
+
     group('package_config.json', () {
       test('pathGetPackageConfigMap', () async {
         var map = await pathGetPackageConfigMap('.');
