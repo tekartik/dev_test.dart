@@ -233,7 +233,11 @@ environment:
         'dev_dependencies': {'test2': null},
         'dependency_overrides': {'test3': null}
       };
-      expect(pubspecYamlGetDependenciesPackageName(yaml), ['test1']);
+      var deps = pubspecYamlGetDependenciesPackageName(yaml);
+
+      /// Check non nullable
+      expect(deps.length, 1);
+      expect(deps, ['test1']);
       expect(
           pubspecYamlGetDependenciesPackageName(yaml,
               kind: PubDependencyKind.dev),

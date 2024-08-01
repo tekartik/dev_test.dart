@@ -1,4 +1,4 @@
-## 1.0.0+9
+## 1.0.0+10
 
 * Make it `1.0.0`
 * Add `PubDependencyKind` and `pubspecYamlGetDependenciesPackageName` helper

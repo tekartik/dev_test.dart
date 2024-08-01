@@ -79,7 +79,7 @@ Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {
 
 /// Get the dependencies packages name.
 ///
-Iterable<String>? pubspecYamlGetDependenciesPackageName(Map yaml,
+Iterable<String> pubspecYamlGetDependenciesPackageName(Map yaml,
     {PubDependencyKind? kind}) {
   kind ??= PubDependencyKind.direct;
   var key = _kindKeyMap[kind]!;
