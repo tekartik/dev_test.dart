@@ -119,16 +119,20 @@ Future<List<String>> recursivePubPath(List<String> dirs,
         var subDir = fse.path;
         // Make sure it is not added even if it is a package root
         if (!_isToBeIgnored(basename(subDir))) {
-          if (isDirectoryNotLinkSynk(subDir)) {
+          if (FileSystemEntity.isDirectorySync(subDir)) {
+            // Also handle the case where the directory linked is a dart project
             futures.add(() async {
+              var isLink = FileSystemEntity.isLinkSync(subDir);
+              if (isLink) {
+                if (await isPubPackageRoot(subDir,
+                    filterDartProjectOptions: filterDartProjectOptions)) {
+                  sub.add(subDir);
+                }
+                return;
+              }
               var subPubDirs = await filterPubPath([subDir],
                   dependencies: dependencies,
                   filterDartProjectOptions: filterDartProjectOptions);
-              /*
-              if (await isPubPackageRoot(subDir,
-                  filterDartProjectOptions: filterDartProjectOptions)) {
-                sub.add(subDir);
-              }*/
               sub.addAll(subPubDirs);
               sub.addAll(await getSubDirs(subDir));
             }());
