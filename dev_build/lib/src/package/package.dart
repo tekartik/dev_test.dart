@@ -38,6 +38,7 @@ mixin DartPackageMixin implements DartPackage {
   late YamlLinesContent pubspecYamlContent;
 
   @override
+  // ignore: deprecated_member_use_from_same_package
   Map<String, Object?> get pubspecYaml => pubspecYamlContent.yaml;
 }
 

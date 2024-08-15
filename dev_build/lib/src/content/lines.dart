@@ -57,40 +57,152 @@ abstract class YamlLinesContent {
   }
 
   /// Separator default to \n but on io it is \r\n on windows
+  @Deprecated('Do no use directly')
   String get separator;
 
   /// Lines
   List<String> get lines;
 
+  @Deprecated('Do no use directly')
+
   /// Yaml decoded as a map
   Map<String, Object?> get yaml;
+
+  /// Get a value at a path (string keys for map, int value for list)
+  /// ['key1', 'key2', index3, 'key4]
+  T? getValueAt<T extends Object?>(List<Object> paths);
+
+  /// Set a value at a path (string keys for map, int value for list)
+  void setValueAt(List<Object> paths, Object? value) {}
+}
+
+extension on List {
+  /// ['key1', 'key2', index3, 'key4]
+  T? getValueAt<T extends Object?>(List<Object> paths) {
+    Object? rawValue;
+    var path = paths.first;
+    if (path is int && length > path) {
+      rawValue = this[path];
+      return _rawGetValueAt(rawValue, paths.sublist(1));
+    }
+
+    return null;
+  }
+}
+
+/// Convenient extension on Model
+extension on Map {
+  /// ['key1', 'key2', index3, 'key4]
+  T? getValueAt<T extends Object?>(List<Object> paths) {
+    Object? rawValue;
+    var path = paths.first;
+    for (var entry in entries) {
+      if (entry.key == path) {
+        rawValue = entry.value;
+        return _rawGetValueAt(rawValue, paths.sublist(1));
+      }
+    }
+    return null;
+  }
+}
+
+/// Get raw value helper for map and list.
+T? _rawGetValueAt<T extends Object?>(Object? rawValue, List<Object> paths) {
+  if (paths.isEmpty) {
+    if (rawValue is T) {
+      return rawValue;
+    }
+    return null;
+  } else if (rawValue is Map) {
+    return rawValue.getValueAt<T>(paths);
+  } else if (rawValue is List) {
+    return rawValue.getValueAt<T>(paths);
+  }
+  return null;
 }
 
 /// YamlLinesContentMixin.
 mixin YamlLinesContentMixin implements YamlLinesContent {
   @override
   late List<String> lines;
+
+  @Deprecated('Do no use directly')
   @override
-  late Map<String, Object?> yaml;
+  Map<String, Object?> get yaml {
+    if (_yamlAny is Map) {
+      return _yamlAny as Map<String, Object?>;
+    }
+    return <String, Object?>{};
+  }
 
   /// Reload yaml from lines.
   void reloadYaml() {
-    yaml = (loadYaml(lines.join(separator)) as Map).cast<String, Object?>();
+    _yamlAny = loadYaml(lines.join(_separator));
+  }
+
+  // ignore: deprecated_member_use_from_same_package
+  String get _separator => separator;
+
+  Object? _yamlAny;
+
+  /// ['key1', 'key2', index3, 'key4]
+  @override
+  T? getValueAt<T extends Object?>(List<Object> paths) {
+    return _rawGetValueAt(_yamlAny, paths);
+  }
+
+  @override
+  void setValueAt(List<Object> paths, Object? value) {
+    throw UnimplementedError();
+  }
+
+  /// -1 if not found
+  int indexOfPathPart(int spaceCount, Object part) {
+    var spaces = ' ' * spaceCount;
+
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i];
+      if (line.startsWith(spaces)) {
+        // Try here
+        line = line.trim();
+        if (part is String) {
+          // Assume a proper format
+          if (line.startsWith(part) &&
+              line.substring(part.length).trim().startsWith(':')) {
+            return i;
+          }
+        } else if (part is int) {
+          var listIndex = -1;
+          if (line.startsWith('-')) {
+            if (++listIndex == part) {
+              return i;
+            }
+          }
+        } else {
+          throw ArgumentError('path part "$part" should be a string or an int');
+        }
+      } else {
+        if (line.trim().startsWith('#')) {
+          // ignore
+          continue;
+        } else {
+          return -1;
+        }
+      }
+    }
+
+    return -1;
   }
 }
 
 class _YamlLinesContent with YamlLinesContentMixin {
   _YamlLinesContent.withText(String content) {
     lines = YamlLinesContent.splitLines(content.trim());
-    var yaml = loadYaml(content);
-    if (yaml is Map) {
-      this.yaml = yaml.cast<String, Object?>();
-    } else {
-      this.yaml = <String, Object?>{};
-    }
+    reloadYaml();
   }
   _YamlLinesContent.withLines(List<String> lines) {
     this.lines = lines;
+    reloadYaml();
   }
 
   @override
@@ -236,7 +348,7 @@ extension YamlLinesContentExtension on YamlLinesContent {
 
   /// returns properly formatted lines.
   String toContent() {
-    var content = '${lines.join(separator)}$separator';
+    var content = '${lines.join(_mixin._separator)}${_mixin._separator}';
     return content;
   }
 
@@ -250,4 +362,17 @@ extension YamlLinesContentExtension on YamlLinesContent {
     }
     return true;
   }
+}
+
+// ignore: unused_element
+int _getSpaceCount(String line) {
+  var count = 0;
+  for (var char in line.codeUnits) {
+    if (isWhitespace(char)) {
+      count++;
+    } else {
+      break;
+    }
+  }
+  return count;
 }

@@ -6,12 +6,25 @@ import 'lines.dart';
 final yamlSeparatorIo = Platform.isWindows ? '\r\n' : '\n';
 
 /// Io implementation of [YamlLinesContent] with proper line feeds on windows.
-class YamlLinesContentIo with YamlLinesContentMixin {
+abstract class YamlLinesContentIo implements YamlLinesContent {
+  /// Contructor.
+  factory YamlLinesContentIo(String path) => _YamlLinesContentIo(path);
+
+  /// Read the file.
+  Future<bool> read();
+
+  /// Write the file content.
+  Future<void> write();
+}
+
+class _YamlLinesContentIo
+    with YamlLinesContentMixin
+    implements YamlLinesContentIo {
   /// File.
   late File file;
 
   /// Create a YamlLinesContentIo from a path.
-  YamlLinesContentIo(String path) {
+  _YamlLinesContentIo(String path) {
     file = File(path);
   }
 
@@ -19,6 +32,7 @@ class YamlLinesContentIo with YamlLinesContentMixin {
   String get separator => yamlSeparatorIo;
 
   /// Read the file.
+  @override
   Future<bool> read() async {
     try {
       lines = YamlLinesContent.splitLines(await file.readAsString());
@@ -35,6 +49,7 @@ class YamlLinesContentIo with YamlLinesContentMixin {
   }
 
   /// Write the file content.
+  @override
   Future<void> write() async {
     var content = toContent();
     try {
