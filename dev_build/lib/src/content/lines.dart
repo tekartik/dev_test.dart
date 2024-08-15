@@ -130,7 +130,7 @@ mixin YamlLinesContentMixin implements YamlLinesContent {
   @override
   Map<String, Object?> get yaml {
     if (_yamlAny is Map) {
-      return _yamlAny as Map<String, Object?>;
+      return (_yamlAny as Map).cast<String, Object?>();
     }
     return <String, Object?>{};
   }

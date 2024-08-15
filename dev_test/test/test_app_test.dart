@@ -4,6 +4,7 @@ library dev_test.test.test_app_test;
 import 'package:dev_build/build_support.dart';
 import 'package:dev_test/dev_test.dart';
 import 'package:process_run/dartbin.dart';
+import 'package:process_run/stdio.dart';
 
 import 'test_app.dart';
 
@@ -14,7 +15,7 @@ var topDir = '.dart_tool/dev_test/test_app/tool';
 void main() {
   group('test_app', () {
     test('flutter version', () async {
-      print(await getFlutterBinVersion());
+      stdout.writeln(await getFlutterBinVersion());
     }, skip: !isFlutterSupportedSync);
     test('flutter app', () async {
       var path = join(topDir, 'test_flutter_app');
