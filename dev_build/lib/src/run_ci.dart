@@ -99,50 +99,6 @@ Future<List<String>> filterTopLevelDartDirs(String path) async {
   return sanitized..sort();
 }
 
-/*
-/// find the path at the top level that contains dart file
-/// and does not contain sub project
-Future<List<String>> findTargetDartDirectories(String dir) async {
-  var targets = <String>[];
-  for (var entity in await Directory(dir).list(followLinks: false).toList()) {
-    var entityBasename = basename(entity.path);
-    var subDir = join(dir, entityBasename);
-    if (isDirectoryNotLinkSynk(subDir)) {
-      bool _isToBeIgnored(String baseName) {
-        if (_blackListedTargets.contains(baseName)) {
-          return true;
-        }
-
-        if (baseName.startsWith('.')) {
-          return true;
-        }
-
-        return false;
-      }
-
-      if (!_isToBeIgnored(entityBasename) &&
-          !(await isPubPackageRoot(subDir))) {
-        var paths = (await recursiveDartEntities(subDir))
-            .map((path) => join(subDir, path))
-            .toList(growable: false);
-
-        if (containsPubPackage(paths)) {
-          continue;
-        }
-        if (!containsDartFiles(paths)) {
-          continue;
-        }
-        targets.add(entityBasename);
-      }
-
-      //devPrint(entities);
-    }
-  }
-  // devPrint('targets: $targets');
-  return targets;
-}
-*/
-
 /// Kept for compatibility
 ///
 /// use [packageRunCi] instead
