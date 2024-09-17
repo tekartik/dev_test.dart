@@ -10,7 +10,7 @@ dependencies:
   test_core: '>=0.3.0 <2.0.0'
   test_api: '>=0.2.1 <2.0.0'
   matcher: '>=0.12.16 <2.0.0'
-  dev_build: '>=1.0.0 <3.0.0'
+  dev_build: '>=1.0.0+13 <3.0.0'
   process_run: '>=1.0.0-0 <3.0.0'
   pub_semver: '>=2.1.4 <4.0.0'
   yaml: '>=3.1.2 <5.0.0'
