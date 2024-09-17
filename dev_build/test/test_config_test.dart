@@ -24,7 +24,7 @@ void main() {
         ], dartTestMap: {
           'compilers': ['dart2js', 'dart2wasm']
         }).toCommandLineArgument(),
-        ' --platform vm --platform chrome --compiler dart2js --platform chrome --compiler dart2wasm');
+        ' --platform vm --compiler dart2js --compiler dart2wasm --platform chrome');
     expect(
         buildTestConfig(platforms: [
           'vm',
@@ -33,7 +33,7 @@ void main() {
           'platforms': ['vm', 'chrome'],
           'compilers': ['dart2js', 'dart2wasm']
         }).toCommandLineArgument(),
-        ' --platform vm --platform chrome --compiler dart2js --platform chrome --compiler dart2wasm');
+        ' --platform vm --compiler dart2js --compiler dart2wasm --platform chrome');
 
     expect(
         buildTestConfig(platforms: [
@@ -43,7 +43,7 @@ void main() {
           'platforms': ['chrome'],
           'compilers': ['dart2js', 'dart2wasm']
         }).toCommandLineArgument(),
-        ' --platform chrome --compiler dart2js --platform chrome --compiler dart2wasm');
+        ' --compiler dart2js --compiler dart2wasm --platform chrome');
 
     expect(
         buildTestConfig(platforms: [
@@ -54,7 +54,7 @@ void main() {
           'compilers': ['dart2js', 'dart2wasm']
         }, noWasm: true)
             .toCommandLineArgument(),
-        ' --platform chrome --compiler dart2js');
+        ' --compiler dart2js --platform chrome');
 
     expect(
         buildTestConfig(platforms: [
@@ -65,7 +65,7 @@ void main() {
           'platforms': ['chrome', 'vm', 'node'],
           'compilers': ['dart2js', 'dart2wasm']
         }).toCommandLineArgument(),
-        ' --platform chrome --compiler dart2js --platform chrome --compiler dart2wasm'
+        ' --compiler dart2js --compiler dart2wasm --platform chrome'
         ' --platform node'
         ' --platform vm');
     expect(
@@ -77,7 +77,7 @@ void main() {
           'platforms': ['chrome', 'vm', 'node'],
           'compilers': ['dart2js', 'dart2wasm']
         }).toCommandLineArgument(),
-        ' --platform chrome --compiler dart2js --platform chrome --compiler dart2wasm'
+        ' --compiler dart2js --compiler dart2wasm --platform chrome'
         ' --platform vm'
         ' --platform node');
 

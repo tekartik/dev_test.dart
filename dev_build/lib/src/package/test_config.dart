@@ -68,8 +68,9 @@ TestConfig buildTestConfig(
         if (dartWebCompilers.isNotEmpty &&
             dartWebPlatforms.contains(platform)) {
           for (var compiler in dartWebCompilers) {
-            testConfig.args.add('--platform $platform --compiler $compiler');
+            testConfig.args.add('--compiler $compiler');
           }
+          testConfig.args.add('--platform $platform');
         } else {
           if (platform == 'node') {
             testConfig.hasNode = true;
