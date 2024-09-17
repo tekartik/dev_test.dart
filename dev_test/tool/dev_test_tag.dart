@@ -12,6 +12,6 @@ Future main() async {
   await stdin.first;
   await shell.run('''
 git tag dev_test-v$version
-git push origin --tags
+git push origin --follow-tags
 ''');
 }
