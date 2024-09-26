@@ -1,4 +1,4 @@
-library tekartik_test_menu_console;
+library;
 
 import 'dart:convert';
 

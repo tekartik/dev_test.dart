@@ -1,4 +1,4 @@
-library tekartik_dev_test.descriptions_test;
+library;
 
 import 'dart:async';
 

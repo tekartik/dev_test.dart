@@ -1,4 +1,4 @@
-library tekartik_test_menu;
+library;
 
 import 'dart:async';
 

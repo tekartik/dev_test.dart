@@ -1,4 +1,4 @@
-library test_menu_console_interactive_test;
+library;
 
 import 'package:dev_build/menu/menu_io.dart';
 

@@ -1,4 +1,4 @@
-library test_menu_test;
+library;
 
 import 'package:dev_build/src/menu/dev_menu.dart';
 import 'package:dev_build/src/menu/menu.dart';

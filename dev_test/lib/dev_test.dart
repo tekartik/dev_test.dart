@@ -1,3 +1,3 @@
-library dev_test;
+library;
 
 export 'test.dart';

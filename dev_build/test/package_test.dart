@@ -1,5 +1,5 @@
 @TestOn('vm')
-library dev_build.test.package_test;
+library;
 
 import 'dart:io';
 

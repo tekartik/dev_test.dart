@@ -1,5 +1,5 @@
 @TestOn('vm')
-library dev_build.test.test_app_test;
+library;
 
 import 'package:dev_build/build_support.dart';
 import 'package:process_run/dartbin.dart';

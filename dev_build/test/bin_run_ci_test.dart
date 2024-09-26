@@ -1,5 +1,5 @@
 @TestOn('vm')
-library dev_build.test.bin_run_ci_test;
+library;
 
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';

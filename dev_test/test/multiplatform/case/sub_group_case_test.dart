@@ -1,4 +1,4 @@
-library tekartik_dev_test.test.one_group_case_test;
+library;
 
 import 'package:dev_test/test.dart';
 

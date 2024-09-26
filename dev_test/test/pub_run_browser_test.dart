@@ -1,5 +1,5 @@
 @TestOn('vm')
-library tekartik_dev_test.pub_run_test_browser_test;
+library;
 
 import 'dart:async';
 
