@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Export `process_run/shell.dart` in `shell.dart`
+
 ## 1.0.0+14
 
 * Make it `1.0.0`
