@@ -24,8 +24,8 @@ class MenuPresenter1 extends Object
   }
 
   @override
-  Future<String?> prompt(Object? message) async {
-    return null;
+  Future<String> prompt(Object? message) async {
+    return '';
   }
 
   @override

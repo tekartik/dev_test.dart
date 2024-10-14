@@ -113,7 +113,7 @@ void devWrite(Object? message) {
 }
 
 /// Prompt for a string.
-Future<String?> prompt([Object? message]) {
+Future<String> prompt([Object? message]) {
   //return menuManager.prompt(message);
   return menuPresenter.prompt(message);
 }
