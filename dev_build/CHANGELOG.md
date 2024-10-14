@@ -1,3 +1,7 @@
+## 1.1.0+1
+
+* menu: Make prompt not nullable (kind of breaking change, sorry...)
+
 ## 1.0.1
 
 * Export `process_run/shell.dart` in `shell.dart`
