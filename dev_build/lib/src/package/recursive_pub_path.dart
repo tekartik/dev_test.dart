@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dev_build/shell.dart';
 import 'package:dev_build/src/import.dart';
 import 'package:dev_build/src/mixin/package.dart';
 import 'package:dev_build/src/pub_io.dart';
@@ -50,9 +51,38 @@ final List<String> _blackListedTargets = [
   'node_modules'
 ];
 
+/// Read config
+Future<bool> _checkProjectHasTransitiveDependencies(String dir,
+    {required Map pubspecYaml, required List<String> dependencies}) async {
+  Map? packageConfigMap;
+  try {
+    packageConfigMap = await pathGetPackageConfigMap(dir);
+  } catch (_) {
+    // Try pub get
+    var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecYaml);
+    var dartOrFlutter = isFlutterPackage ? 'flutter' : 'dart';
+    try {
+      await Shell(workingDirectory: dir).run('$dartOrFlutter pub get');
+
+      packageConfigMap = await pathGetPubspecYamlMap(dir);
+    } catch (e) {
+      stderr.writeln('Error: $e failed to get package-config.yaml');
+    }
+    return false;
+  }
+  if (packageConfigGetPackages(packageConfigMap)
+      .toSet()
+      .intersection(dependencies.toSet())
+      .isNotEmpty) {
+    return true;
+  }
+  return false;
+}
+
 /// True if the dir should be handled
-Future<bool> _handleDir(String dir,
+Future<bool> _checkProjectMatch(String dir,
     {List<String>? dependencies,
+    bool? readConfig,
     FilterDartProjectOptions? filterDartProjectOptions}) async {
   // Ignore folder starting with .
   // don't event go below
@@ -60,9 +90,15 @@ Future<bool> _handleDir(String dir,
     if (await isPubPackageRoot(dir,
         filterDartProjectOptions: filterDartProjectOptions)) {
       if (dependencies is List && dependencies!.isNotEmpty) {
-        final yaml = await pathGetPubspecYamlMap(dir);
-        if (pubspecYamlHasAnyDependencies(yaml, dependencies)) {
+        final pubspecYaml = await pathGetPubspecYamlMap(dir);
+        if (pubspecYamlHasAnyDependencies(pubspecYaml, dependencies)) {
           return true;
+        }
+
+        if (readConfig ?? false) {
+          // Check the config file
+          return await _checkProjectHasTransitiveDependencies(dir,
+              dependencies: dependencies, pubspecYaml: pubspecYaml);
         }
       } else {
         // add package path
@@ -75,15 +111,19 @@ Future<bool> _handleDir(String dir,
 
 /// if [forceRecursive] is true, we folder going deeper even if the current
 /// path is a dart project
+///
+/// If [readConfig] is true, it will read the config file to get the dependencies
 Future<List<String>> filterPubPath(List<String> dirs,
     {List<String>? dependencies,
+    bool? readConfig,
     FilterDartProjectOptions? filterDartProjectOptions}) async {
   var list = <String>[];
 
   for (final dir in dirs) {
     if (isDirectoryNotLinkSynk(dir)) {
-      final handled = await _handleDir(dir,
+      final handled = await _checkProjectMatch(dir,
           dependencies: dependencies,
+          readConfig: readConfig,
           filterDartProjectOptions: filterDartProjectOptions);
       if (handled) {
         list.add(dir);
@@ -105,9 +145,11 @@ Future<List<String>> filterPubPath(List<String> dirs,
 /// Returns the list of valid pub folder, including me
 Future<List<String>> recursivePubPath(List<String> dirs,
     {List<String>? dependencies,
+    bool? readConfig,
     FilterDartProjectOptions? filterDartProjectOptions}) async {
   var pubDirs = await filterPubPath(dirs,
       dependencies: dependencies,
+      readConfig: readConfig,
       filterDartProjectOptions: filterDartProjectOptions);
 
   Future<List<String>> getSubDirs(String dir) async {
@@ -132,6 +174,7 @@ Future<List<String>> recursivePubPath(List<String> dirs,
               }
               var subPubDirs = await filterPubPath([subDir],
                   dependencies: dependencies,
+                  readConfig: readConfig,
                   filterDartProjectOptions: filterDartProjectOptions);
               sub.addAll(subPubDirs);
               sub.addAll(await getSubDirs(subDir));
