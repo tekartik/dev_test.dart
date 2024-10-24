@@ -1,6 +1,7 @@
-## 1.1.0+1
+## 1.1.0+2
 
 * menu: Make prompt not nullable (kind of breaking change, sorry...)
+* allow reading config (package_config.json) when finding sub-projects
 
 ## 1.0.1
 
