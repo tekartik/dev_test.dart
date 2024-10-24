@@ -49,6 +49,14 @@ void main() {
         [devTestEntry]);
   });
 
+  test('recursivePubPath readConfig dependencies', () async {
+    expect(await recursivePubPath(['.'], dependencies: ['async']), isEmpty);
+    expect(
+        await recursivePubPath(['.'],
+            dependencies: ['async'], readConfig: true),
+        ['.']);
+  });
+
   test('recursivePubPath ignore build', () async {
     // Somehow on node, build contains pubspec.yaml at its root and should be ignored
     // try to reproduce here
