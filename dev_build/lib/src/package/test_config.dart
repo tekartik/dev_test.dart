@@ -1,5 +1,27 @@
-/// Test running configuration.
-class TestConfig {
+import 'package:meta/meta.dart';
+
+/// Config line
+class TestConfigLine {
+  /// Compiler (vm, dart2js, dart2wasm)
+  final String? compiler;
+
+  /// Platform (vm, chrome, node)
+  final String? platform;
+
+  /// Config line
+  TestConfigLine({this.platform, this.compiler, List<String>? compilers}) {
+    if (platform != null) {
+      args.addAll(['--platform', platform!]);
+    }
+    if (compilers != null) {
+      for (var compiler in compilers) {
+        args.addAll(['--compiler', compiler]);
+      }
+    } else if (compiler != null) {
+      args.addAll(['--compiler', compiler!]);
+    }
+  }
+
   /// List of arguments
   final args = <String>[];
 
@@ -9,6 +31,32 @@ class TestConfig {
   /// To command line argument.
   String toCommandLineArgument() =>
       '${args.isEmpty ? '' : ' '}${args.join(' ')}';
+}
+
+/// Test running configuration.
+class TestConfig {
+  final _lines = <TestConfigLine>[];
+
+  /// List of arguments
+  final args = <String>[];
+
+  /// true is non empty.
+  bool get isNotEmpty => args.isNotEmpty || _lines.isNotEmpty;
+
+  /// DEPRECATED: use toDartTestCommandLineArgument
+  ///
+  /// To command line argument.
+  /// @Deprecated('use toDartTestCommandLineArgument')
+  String toCommandLineArgument() =>
+      '${args.isEmpty ? '' : ' '}${args.join(' ')}';
+
+  /// Config lines
+  List<TestConfigLine> get configLines => _lines;
+
+  /// Config lines (trimmed) for testing
+  @visibleForTesting
+  List<String> get configLineTexts =>
+      configLines.map((e) => e.toCommandLineArgument().trim()).toList();
 
   /// true if has node supports in test.
   bool hasNode = false;
@@ -70,10 +118,17 @@ TestConfig buildTestConfig(
           for (var compiler in dartWebCompilers) {
             testConfig.args.add('--compiler $compiler');
           }
+          testConfig.configLines.add(
+              TestConfigLine(compilers: dartWebCompilers, platform: platform));
           testConfig.args.add('--platform $platform');
         } else {
           if (platform == 'node') {
             testConfig.hasNode = true;
+            // Force dart2js
+            testConfig.configLines
+                .add(TestConfigLine(platform: platform, compiler: 'dart2js'));
+          } else {
+            testConfig.configLines.add(TestConfigLine(platform: platform));
           }
           testConfig.args.add('--platform $platform');
         }
@@ -86,7 +141,11 @@ TestConfig buildTestConfig(
     if (platforms.isNotEmpty) {
       for (var platform in platforms) {
         testConfig.args.add('--platform $platform');
+        testConfig.configLines.add(TestConfigLine(platform: platform));
       }
+    } else {
+      // Generic (no args)
+      testConfig.configLines.add(TestConfigLine());
     }
   }
   return testConfig;

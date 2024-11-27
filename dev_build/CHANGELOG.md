@@ -1,3 +1,7 @@
+## 1.1.0+3
+
+* Split dart test runner per platform
+
 ## 1.1.0+2
 
 * menu: Make prompt not nullable (kind of breaking change, sorry...)

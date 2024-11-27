@@ -439,7 +439,11 @@ Future<void> singlePackageRunCiImpl(
               stderr.writeln('(ignored) Error setting up node: $e');
             }
           }
-          if (testConfig.isNotEmpty) {
+          if (testConfig.configLines.isNotEmpty) {
+            for (var line in testConfig.configLines) {
+              await runScript('dart test${line.toCommandLineArgument()}'); //
+            }
+          } else if (testConfig.args.isNotEmpty) {
             await runScript('''
     # Test
     dart test${testConfig.toCommandLineArgument()}
