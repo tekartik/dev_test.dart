@@ -32,7 +32,7 @@ Future<void> main() async {
                     verbose: true)),
             throwsException);
         // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was alloed
-        await Shell(workingDirectory: path).run('dart format --fix lib');
+        await Shell(workingDirectory: path).run('dart format lib');
         await packageRunCi(path,
             options: PackageRunCiOptions(
                 noAnalyze: true, noTest: true, noPubGet: true));
