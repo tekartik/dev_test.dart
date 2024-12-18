@@ -269,10 +269,16 @@ environment:
         expect(packages, isNot(contains('sqflite')));
         var devTestPath =
             pathPackageConfigMapGetPackagePath('.', map, 'dev_build')!;
-        expect(devTestPath, '.');
+        var devTestPath2 = await pathGetResolvedPackagePath('.', 'dev_build');
+
+        expect(devTestPath, normalize(absolute('.')));
+        expect(devTestPath2, normalize(absolute('.')));
         var processRunPath =
             pathPackageConfigMapGetPackagePath('.', map, 'process_run')!;
+        var processRunPath2 =
+            await pathGetResolvedPackagePath('.', 'process_run');
         expect(processRunPath, contains('process_run'));
+        expect(processRunPath2, contains('process_run'));
         var processRunPubspecYaml = await pathGetPubspecYamlMap(processRunPath);
         expect(processRunPubspecYaml['name'], 'process_run');
         expect(pathPackageConfigMapGetPackagePath('.', map, '_dummy'), isNull);

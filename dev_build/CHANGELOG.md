@@ -1,3 +1,8 @@
+## 1.1.1-1
+
+* Add `pathGetResolvedPackagePath` helper to `build_support`
+* Adding basic interactive menu in run_ci
+
 ## 1.1.0+3
 
 * Split dart test runner per platform

@@ -40,7 +40,8 @@ export 'src/build_support.dart'
         dartTemplateConsole,
         dartTemplatePackage,
         dartTemplateWeb,
-        dartCreateProject,
-        pathPackageConfigMapGetPackagePath;
+        dartCreateProject;
+export 'src/package/package_io_impl.dart'
+    show pathPackageConfigMapGetPackagePath, pathGetResolvedPackagePath;
 export 'src/pub_global.dart'
     show checkAndActivateWebdev, checkAndActivatePackage;

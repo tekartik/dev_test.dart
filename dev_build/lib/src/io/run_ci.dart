@@ -1,5 +1,7 @@
 import 'package:args/args.dart';
+import 'package:dev_build/menu/menu_io.dart';
 import 'package:dev_build/package.dart';
+import 'package:dev_build/src/io/run_ci_menu.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
 import 'package:dev_build/src/version.dart';
@@ -46,6 +48,8 @@ extension _ArgResults on ArgResults {
 const flagSkipRunCi = 'skip-run-ci';
 
 Future<void> main(List<String> arguments) async {
+  var menuParser = ArgParser()
+    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
   var configParser = ArgParser()
     ..addFlag(flagSkipRunCi,
         negatable: false,
@@ -102,7 +106,8 @@ Future<void> main(List<String> arguments) async {
     ..addFlag(printPathFlagName,
         help: 'Just print the package path (no action)', negatable: false)
     ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
-    ..addCommand('config', configParser);
+    ..addCommand('config', configParser)
+    ..addCommand('menu', menuParser);
   var result = parser.parse(arguments);
   var paths = result.rest.isEmpty ? ['.'] : result.rest;
 
@@ -134,6 +139,20 @@ Future<void> main(List<String> arguments) async {
         stdout.writeln('file $skipRunCiFilePath exists');
       }
     }
+    return;
+  } else if (command == 'menu') {
+    var menuResult = result.command!;
+
+    if (menuResult.flag('help')) {
+      printVersion();
+      stdout.writeln();
+      stdout.writeln('Usage: pub run dev_build:run_ci menu [<arguments>]');
+      stdout.writeln();
+      stdout.writeln(menuParser.usage);
+      exit(0);
+    }
+    initMenuConsole([]);
+    await runCiMenu('.');
     return;
   }
   if (result['help'] as bool) {

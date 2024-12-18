@@ -35,4 +35,3 @@ linter:
     - unawaited_futures
     - unnecessary_null_aware_assignments
     - unnecessary_statements
-    - unsafe_html
