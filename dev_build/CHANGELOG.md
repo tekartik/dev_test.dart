@@ -1,7 +1,8 @@
-## 1.1.1-1
+## 1.1.1
 
 * Add `pathGetResolvedPackagePath` helper to `build_support`
 * Adding basic interactive menu in run_ci
+* Start handling workspace
 
 ## 1.1.0+3
 
