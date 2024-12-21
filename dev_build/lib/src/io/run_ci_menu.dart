@@ -127,6 +127,7 @@ class PubIoPackage {
 /// Common CI menu
 Future<void> runCiMenu(String path) async {
   var package = PubIoPackage(path);
+  var verbose = true;
   await package.ready;
   write('Running CI for package ${package.path}');
   item('pub get', () async {
@@ -143,6 +144,16 @@ Future<void> runCiMenu(String path) async {
   });
   item('run_ci', () async {
     await packageRunCi(package.path);
+  });
+  item('analyze', () async {
+    await packageRunCi(package.path,
+        options: PackageRunCiOptions(
+            analyzeOnly: true, noPubGet: true, verbose: verbose));
+  });
+  item('format', () async {
+    await packageRunCi(package.path,
+        options: PackageRunCiOptions(
+            formatOnly: true, noPubGet: true, verbose: verbose));
   });
   item('cd (prompt)', () async {
     var dir = await prompt('Enter a directory');

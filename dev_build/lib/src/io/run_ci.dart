@@ -119,7 +119,7 @@ Future<void> main(List<String> arguments) async {
   if (command == 'config') {
     var configResult = result.command!;
 
-    if (configResult['help'] as bool) {
+    if (configResult.flag('help')) {
       printVersion();
       stdout.writeln();
       stdout.writeln(
@@ -146,7 +146,7 @@ Future<void> main(List<String> arguments) async {
     if (menuResult.flag('help')) {
       printVersion();
       stdout.writeln();
-      stdout.writeln('Usage: pub run dev_build:run_ci menu [<arguments>]');
+      stdout.writeln('Usage: run_ci menu [<arguments>]');
       stdout.writeln();
       stdout.writeln(menuParser.usage);
       exit(0);
@@ -155,7 +155,7 @@ Future<void> main(List<String> arguments) async {
     await runCiMenu('.');
     return;
   }
-  if (result['help'] as bool) {
+  if (result.flag('help')) {
     printVersion();
     stdout.writeln();
     stdout.writeln('Usage: pub run dev_build:run_ci [<path>] [<arguments>]');

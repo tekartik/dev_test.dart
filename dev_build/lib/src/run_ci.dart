@@ -215,6 +215,8 @@ Future<void> singlePackageRunCiImpl(
     String path, PackageRunCiOptions options) async {
   options = options.clone();
   try {
+    var ciRunner = SinglePackageCiRunner(path, options);
+    await ciRunner.init();
     if (options.printPath) {
       stdout.writeln(normalize(absolute(path)));
       return;
@@ -225,16 +227,16 @@ Future<void> singlePackageRunCiImpl(
       stdout.writeln('# package: $path');
     }
     var shell = Shell(workingDirectory: path);
+
     // Project info
     if (options.prjInfo) {
       try {
-        var pubspecMap = await pathGetPubspecYamlMap(path);
-        var boundaries = pubspecYamlGetSdkBoundaries(pubspecMap);
+        var boundaries = ciRunner.pubspecSdkBoundaries;
         if (boundaries != null) {
           var minSdkVersion = boundaries.min?.value ?? _unsetVersion;
           // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
           var tags = <String>[
-            if (pubspecYamlSupportsFlutter(pubspecMap)) 'flutter',
+            if (ciRunner.isFlutterPackage) 'flutter',
             if (minSdkVersion < _minNullableVersion) 'non-nullable'
           ];
           if (tags.isNotEmpty) {
@@ -320,44 +322,13 @@ Future<void> singlePackageRunCiImpl(
       await runScript('dart run $_runCiOverridePath');
       return;
     }
-
-    var filteredDartDirs = await filterTopLevelDartDirs(path);
-    var filteredDartDirsArg = filteredDartDirs.join(' ');
-
-    if (!options.noFormat) {
-      // Previous version were using dart_style, we now use dart format
-      // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was alloed
-
-      // Needed otherwise formatter is stuck
-      if (filteredDartDirsArg.isEmpty) {
-        filteredDartDirsArg = '.';
-      }
-      try {
-        await runScript('''
-      # Formatting
-      dart format --set-exit-if-changed $filteredDartDirsArg
-    ''');
-      } catch (e) {
-        // Sometimes we allow formatting errors...
-
-        // if (supportsNnbdExperiment) {
-        //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
-        //} else {
-        //
-
-        // but in general no!
-        rethrow;
-      }
+    // Enough for workspace root
+    if (ciRunner.isWorkspaceRoot) {
+      return;
     }
-
+    await ciRunner.format();
+    await ciRunner.analyze();
     if (isFlutterPackage) {
-      if (!options.noAnalyze) {
-        await runScript('''
-      # Analyze code
-      flutter analyze --no-pub .
-    ''');
-      }
-
       if (!options.noTest) {
         // 'test', '--no-pub'
         // Flutter way
@@ -378,15 +349,9 @@ Future<void> singlePackageRunCiImpl(
         }
       }
     } else {
-      if (!options.noAnalyze) {
-        await runScript('''
-      # Analyze code
-      dart analyze --fatal-warnings --fatal-infos .
-  ''');
-      }
-
       // Test?
       if (!options.noTest) {
+        var filteredDartDirs = await filterTopLevelDartDirs(path);
         if (filteredDartDirs.contains('test')) {
           var platforms = <String>[if (!options.noVmTest) 'vm'];
           var supportedPlatforms = <String>[
@@ -517,4 +482,112 @@ Future<bool> flutterEnableWeb() async {
     }*/
   }
   return _flutterWebEnabled!;
+}
+
+/// CiRunner helper
+class SinglePackageCiRunner {
+  /// Shell
+  late final shell = Shell(workingDirectory: path);
+
+  /// Filtered dart dirs
+  List<String>? filteredDartDirs;
+
+  late Map _pubspecMap;
+  late bool _isFlutterPackage;
+
+  /// True for flutter package
+  bool get isFlutterPackage => _isFlutterPackage;
+  bool get _verbose => options.verbose;
+
+  /// True for workspace root
+  bool get isWorkspaceRoot => pubspecYamlIsWorkspaceRoot(_pubspecMap);
+
+  /// Pubspec sdk boundaries
+  VersionBoundaries? get pubspecSdkBoundaries =>
+      pubspecYamlGetSdkBoundaries(_pubspecMap);
+
+  /// Init pubspec map
+  Future<void> init() async {
+    _pubspecMap = await pathGetPubspecYamlMap(path);
+    _isFlutterPackage = pubspecYamlSupportsFlutter(_pubspecMap);
+    if (_verbose) {
+      stdout.writeln(
+          'package: $path, sdk: $pubspecSdkBoundaries${isFlutterPackage ? ', flutter' : ''}${isWorkspaceRoot ? ', workspace' : ''}');
+    }
+  }
+
+  /// Path
+  final String path;
+
+  /// Options
+  final PackageRunCiOptions options;
+
+  /// CiRunner
+  SinglePackageCiRunner(this.path, this.options);
+
+  /// Run a script
+  Future<List<ProcessResult>> runScript(String script) async {
+    if (options.dryRun) {
+      scriptToCommands(script).forEach((command) {
+        stdout.writeln('\$ $command');
+      });
+      return <ProcessResult>[];
+    }
+    return await shell.run(script);
+  }
+
+  /// Analyze
+  Future<void> analyze() async {
+    if (isWorkspaceRoot) {
+      return;
+    }
+    if (!options.noAnalyze) {
+      if (isFlutterPackage) {
+        await runScript('''
+      # Analyze code
+      flutter analyze --no-pub .
+    ''');
+      } else {
+        await runScript('''
+      # Analyze code
+      dart analyze --fatal-warnings --fatal-infos .
+  ''');
+      }
+    }
+  }
+
+  /// Analyze
+  Future<void> format() async {
+    if (isWorkspaceRoot) {
+      return;
+    }
+    filteredDartDirs ??= await filterTopLevelDartDirs(path);
+    var filteredDartDirsArg = filteredDartDirs!.join(' ');
+
+    if (!options.noFormat) {
+      // Previous version were using dart_style, we now use dart format
+      // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was alloed
+
+      // Needed otherwise formatter is stuck
+      if (filteredDartDirsArg.isEmpty) {
+        filteredDartDirsArg = '.';
+      }
+      try {
+        await runScript('''
+      # Formatting
+      dart format --set-exit-if-changed $filteredDartDirsArg
+    ''');
+      } catch (e) {
+        // Sometimes we allow formatting errors...
+
+        // if (supportsNnbdExperiment) {
+        //  stderr.writeln('Error in dartfmt during nnbd experiment, ok...');
+        //} else {
+        //
+
+        // but in general no!
+        rethrow;
+      }
+    }
+  }
 }

@@ -5,6 +5,7 @@ export 'package:dev_build/src/mixin/package.dart'
         pubspecYamlGetVersion,
         pubspecYamlGetPackageName,
         pubspecYamlSupportsFlutter,
+        pubspecYamlIsWorkspaceRoot,
         pubspecYamlSupportsNode,
         pubspecYamlSupportsTest,
         pubspecYamlSupportsWeb,

@@ -9,6 +9,7 @@ export 'package:dev_build/src/package/package.dart'
     show
         pubspecYamlHasAnyDependencies,
         pubspecYamlSupportsFlutter,
+        pubspecYamlIsWorkspaceRoot,
         pubspecYamlSupportsNode,
         pubspecYamlSupportsWeb,
         pubspecYamlGetVersion,
