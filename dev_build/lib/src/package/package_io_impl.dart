@@ -172,11 +172,6 @@ class _DartPackage {
 // normalize absolute path
 final _cache = _DartPackagesCache();
 
-Future<Map<String, Object?>> _pathGetLocalPackageConfigMap(String packageDir) {
-  return pathGetJson(
-      join(pathGetDartToolDir(packageDir), 'package_config.json'));
-}
-
 /// Shortcut to get a dependency, not officient as it reads multiple times the
 /// package_config.json file.
 ///
@@ -189,18 +184,31 @@ Future<String?> pathGetResolvedPackagePath(String path, String package,
       windows: windows);
 }
 
+/// Pubspec overrides path
+Future<String> pathGetPackageConfigJsonPath(String packageDir) async {
+  var workPath = await pathGetResolvedWorkPath(packageDir);
+  return join(workPath, pathGetDartToolDir(packageDir), 'package_config.json');
+}
+
 /// Read package_config.json file (io only).
 Future<Map<String, Object?>> pathGetPackageConfigMap(String packageDir) async {
+  var path = await pathGetPackageConfigJsonPath(packageDir);
+  return await pathGetJson(path);
+}
+
+/// Get resolved parent path for some files (config, overrides
+Future<String> pathGetResolvedWorkPath(String packageDir) async {
   var pkg = await _cache.getOrCreate(packageDir);
   if (pkg != null) {
-    if (pkg.workspace != null) {
-      return _pathGetLocalPackageConfigMap(pkg.workspace!);
-    } else {
-      return _pathGetLocalPackageConfigMap(packageDir);
-    }
+    return pkg.workspace ?? packageDir;
   }
-
   throw UnsupportedError('dart pub get is needed');
+}
+
+/// Pubspec overrides path
+Future<String> pathGetPubspecOverridesYamlPath(String packageDir) async {
+  var workPath = await pathGetResolvedWorkPath(packageDir);
+  return join(workPath, 'pubspec_overrides.yaml');
 }
 
 /// Build a file path.

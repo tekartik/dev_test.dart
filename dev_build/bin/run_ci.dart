@@ -1,4 +1,4 @@
-import 'package:dev_build/src/io/run_ci.dart' as run_ci;
+import 'package:dev_build/src/io/run_ci.dart';
 
 /// run_ci
-Future<void> main(List<String> arguments) => run_ci.main(arguments);
+Future<void> main(List<String> arguments) => runCiMain(arguments);

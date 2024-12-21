@@ -77,10 +77,16 @@ class PubIoPackage {
 
   /// Ready (pubspec.yaml loaded)
   late final ready = () async {
-    var pubspecYaml = await pathGetPubspecYamlMap(path);
+    pubspecYaml = await pathGetPubspecYamlMap(path);
     stdout.writeln('${normalize(absolute(path))}:');
     isFlutter = pubspecYamlSupportsFlutter(pubspecYaml);
   }();
+
+  /// Ok when ready
+  late Map<String, Object?> pubspecYaml;
+
+  /// Handle work path
+  late String resolvedWorkPath;
 
   /// True for flutter project
   late final bool isFlutter;
@@ -125,11 +131,13 @@ class PubIoPackage {
 }
 
 /// Common CI menu
-Future<void> runCiMenu(String path) async {
+void runCiMenu(String path) {
   var package = PubIoPackage(path);
   var verbose = true;
-  await package.ready;
-  write('Running CI for package ${package.path}');
+  enter(() async {
+    await package.ready;
+    write('Running CI for package ${package.path}');
+  });
   item('pub get', () async {
     await package.pubGet();
   });

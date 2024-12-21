@@ -4,6 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:dev_build/package.dart';
+import 'package:dev_build/src/mixin/package.dart';
 import 'package:dev_build/src/package/recursive_pub_path.dart'
     show posixNormalize, recursiveActions;
 import 'package:dev_build/src/run_ci.dart';
@@ -194,5 +195,14 @@ environment:
     package = DartPackageIo(outDir);
     await package.ready;
     expect(package.getVersion(), Version(1, 0, 1));
+  });
+  test('path helpers', () async {
+    var path = normalize(absolute('.'));
+    var workPath = await pathGetResolvedWorkPath('.');
+    expect(workPath, '.'); // Could change if switching to workspace
+    expect(
+        await pathGetPackageConfigJsonPath('.'),
+        join(path, '.dart_tool',
+            'package_config.json')); // Could change if switching to workspace
   });
 }

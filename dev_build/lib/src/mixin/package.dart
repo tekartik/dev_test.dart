@@ -31,4 +31,8 @@ export 'package:dev_build/src/package/universal/package_universal.dart'
     show
         pathGetPubspecYamlMap,
         pathGetPackageConfigMap,
-        pathGetAnalysisOptionsYamlMap;
+        pathGetAnalysisOptionsYamlMap,
+        pathGetPubspecOverridesYamlPath,
+        pathGetPackageConfigJsonPath,
+        pathGetResolvedPackagePath,
+        pathGetResolvedWorkPath;

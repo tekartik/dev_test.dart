@@ -48,6 +48,11 @@ extension _ArgResults on ArgResults {
 const flagSkipRunCi = 'skip-run-ci';
 
 Future<void> main(List<String> arguments) async {
+  await runCiMain(arguments);
+}
+
+/// Run ci binary main
+Future<void> runCiMain(List<String> arguments) async {
   var menuParser = ArgParser()
     ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
   var configParser = ArgParser()
@@ -152,7 +157,7 @@ Future<void> main(List<String> arguments) async {
       exit(0);
     }
     initMenuConsole([]);
-    await runCiMenu('.');
+    runCiMenu('.');
     return;
   }
   if (result.flag('help')) {

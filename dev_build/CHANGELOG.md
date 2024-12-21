@@ -1,4 +1,4 @@
-## 1.1.1+1
+## 1.1.1+2
 
 * Add `pathGetResolvedPackagePath` helper to `build_support`
 * Adding basic interactive menu in run_ci
