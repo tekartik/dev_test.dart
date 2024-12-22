@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dev_build/build_support.dart';
@@ -5,6 +6,8 @@ import 'package:dev_build/menu/menu_io.dart';
 import 'package:dev_build/package.dart';
 import 'package:dev_build/shell.dart' hide prompt;
 import 'package:path/path.dart';
+
+import '../mixin/package.dart';
 
 Future<void> main(List<String> args) async {
   mainMenuConsole(args, () {
@@ -130,13 +133,35 @@ class PubIoPackage {
   }
 }
 
+String _jsonPretty(Object? object) {
+  return const JsonEncoder.withIndent(' ').convert(object);
+}
+
 /// Common CI menu
 void runCiMenu(String path) {
   var package = PubIoPackage(path);
   var verbose = true;
   enter(() async {
-    await package.ready;
-    write('Running CI for package ${package.path}');
+    try {
+      await package.ready;
+      write('Running CI for package ${package.path}');
+    } catch (e) {
+      write('Not a dart project, error: $e');
+    }
+  });
+  item('info', () async {
+    try {
+      await package.ready;
+      write(_jsonPretty({
+        'isFlutter': package.isFlutter,
+        'isWorkspace': package.isWorkspace,
+        'workPath': await pathGetResolvedWorkPath(package.path),
+        'packageConfigPath': await pathGetPackageConfigJsonPath(package.path)
+      }));
+      write('Running CI for package ${package.path}');
+    } catch (e) {
+      write('Not a dart project, error: $e');
+    }
   });
   item('pub get', () async {
     await package.pubGet();
