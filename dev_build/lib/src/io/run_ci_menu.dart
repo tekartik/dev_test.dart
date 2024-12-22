@@ -85,8 +85,8 @@ class PubIoPackage {
   /// Ok when ready
   late Map<String, Object?> pubspecYaml;
 
-  /// Handle work path
-  late String resolvedWorkPath;
+  /// True for workspace
+  bool get isWorkspace => pubspecYamlIsWorkspaceRoot(pubspecYaml);
 
   /// True for flutter project
   late final bool isFlutter;

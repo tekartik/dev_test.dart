@@ -187,7 +187,7 @@ Future<String?> pathGetResolvedPackagePath(String path, String package,
 /// Pubspec overrides path
 Future<String> pathGetPackageConfigJsonPath(String packageDir) async {
   var workPath = await pathGetResolvedWorkPath(packageDir);
-  return join(workPath, pathGetDartToolDir(packageDir), 'package_config.json');
+  return join(pathGetDartToolDir(workPath), 'package_config.json');
 }
 
 /// Read package_config.json file (io only).
