@@ -1,5 +1,6 @@
 import 'package:dev_build/package.dart';
 import 'package:dev_build/src/package/package.dart';
+import 'package:dev_build/src/package/pub_io_package.dart';
 import 'package:dev_build/src/package/test_config.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:path/path.dart';
@@ -221,6 +222,9 @@ Future<void> singlePackageRunCiImpl(
       stdout.writeln(normalize(absolute(path)));
       return;
     }
+    var pubIoPackage = PubIoPackage(path,
+        options: PubIoPackageOptions(verbose: options.verbose));
+    await pubIoPackage.ready;
     if (options.prjInfo) {
       stdout.writeln('# package: ${normalize(absolute(path))}');
     } else {
@@ -293,22 +297,13 @@ Future<void> singlePackageRunCiImpl(
 
     if (!options.noPubGetOrUpgrade) {
       var offlineSuffix = options.offline ? ' --offline' : '';
-      if (isFlutterPackage) {
-        if (options.pubUpgradeOnly) {
-          await runScript('flutter pub upgrade$offlineSuffix');
-        } else if (options.pubDowngradeOnly) {
-          await runScript('flutter pub downgrade$offlineSuffix');
-        } else {
-          await runScript('flutter pub get$offlineSuffix');
-        }
+      var dofPub = pubIoPackage.dofPub;
+      if (options.pubUpgradeOnly) {
+        await runScript('$dofPub upgrade$offlineSuffix');
+      } else if (options.pubDowngradeOnly) {
+        await runScript('$dofPub downgrade$offlineSuffix');
       } else {
-        if (options.pubUpgradeOnly) {
-          await runScript('dart pub upgrade$offlineSuffix');
-        } else if (options.pubDowngradeOnly) {
-          await runScript('dart pub downgrade$offlineSuffix');
-        } else {
-          await runScript('dart pub get$offlineSuffix');
-        }
+        await runScript('$dofPub get$offlineSuffix');
       }
     }
 

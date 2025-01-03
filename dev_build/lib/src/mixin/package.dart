@@ -10,6 +10,7 @@ export 'package:dev_build/src/package/package.dart'
         pubspecYamlHasAnyDependencies,
         pubspecYamlSupportsFlutter,
         pubspecYamlIsWorkspaceRoot,
+        pubspecYamlHasWorkspaceResolution,
         pubspecYamlSupportsNode,
         pubspecYamlSupportsWeb,
         pubspecYamlGetVersion,
