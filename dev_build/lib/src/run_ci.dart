@@ -306,7 +306,10 @@ Future<void> singlePackageRunCiImpl(
         await runScript('$dofPub get$offlineSuffix');
       }
     }
-
+    // Enough for workspace root
+    if (ciRunner.isWorkspaceRoot) {
+      return;
+    }
     if (options.fixOnly) {
       await runScript('dart fix --apply');
     }
@@ -317,10 +320,7 @@ Future<void> singlePackageRunCiImpl(
       await runScript('dart run $_runCiOverridePath');
       return;
     }
-    // Enough for workspace root
-    if (ciRunner.isWorkspaceRoot) {
-      return;
-    }
+
     await ciRunner.format();
     await ciRunner.analyze();
     if (isFlutterPackage) {

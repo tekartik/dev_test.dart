@@ -73,7 +73,7 @@ class PubIoPackage {
   /// Ready (pubspec.yaml loaded)
   late final ready = () async {
     pubspecYaml = await pathGetPubspecYamlMap(path);
-    stdout.writeln('${normalize(absolute(path))}:');
+    // stdout.writeln('${normalize(absolute(path))}:');
     isFlutter = pubspecYamlSupportsFlutter(pubspecYaml);
     _useFlutterPub = isFlutter;
     if (!isFlutter && (isWorkspace || hasWorkspaceResolution)) {

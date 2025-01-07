@@ -1,4 +1,4 @@
-## 1.1.1+5
+## 1.1.1+6
 
 * Add `pathGetResolvedPackagePath`, `pathGetPubspecOverridesYamlPath`, `pathGetResolvedWorkPath`,
   `pathGetPackageConfigJsonPath`, `pathGetResolvedPackagePath`, `pathGetResolvedWorkPath`  helpers
