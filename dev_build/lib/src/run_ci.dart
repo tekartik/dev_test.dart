@@ -210,6 +210,30 @@ Future<void> singlePackageRunCi(String path,
 var _minNullableVersion = Version(2, 12, 0);
 var _unsetVersion = Version(1, 0, 0);
 
+enum _PubWorkspaceCacheAction { get, upgrade, downgrade }
+
+/// Last action done on a workspace, invalide others.
+class _PubWorkspaceCache {
+  final String workspaceRoot;
+  final bool offline;
+  final _PubWorkspaceCacheAction action;
+
+  _PubWorkspaceCache(this.workspaceRoot, this.action, this.offline);
+}
+
+class _PubWorkspacesCache {
+  final _map = <String, _PubWorkspaceCache>{};
+
+  _PubWorkspacesCache();
+}
+
+_PubWorkspacesCache? _pubWorkspacesCache;
+
+/// Internal only use for run_ci binary for now
+void runCiInitPubWorkspacesCache() {
+  _pubWorkspacesCache = _PubWorkspacesCache();
+}
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> singlePackageRunCiImpl(
@@ -296,14 +320,41 @@ Future<void> singlePackageRunCiImpl(
     }
 
     if (!options.noPubGetOrUpgrade) {
-      var offlineSuffix = options.offline ? ' --offline' : '';
-      var dofPub = pubIoPackage.dofPub;
-      if (options.pubUpgradeOnly) {
-        await runScript('$dofPub upgrade$offlineSuffix');
-      } else if (options.pubDowngradeOnly) {
-        await runScript('$dofPub downgrade$offlineSuffix');
-      } else {
-        await runScript('$dofPub get$offlineSuffix');
+      var offline = options.offline;
+      var action = options.pubUpgradeOnly
+          ? _PubWorkspaceCacheAction.upgrade
+          : (options.pubDowngradeOnly
+              ? _PubWorkspaceCacheAction.downgrade
+              : _PubWorkspaceCacheAction.get);
+      var skip = false;
+      var workspaceBehavior =
+          (pubIoPackage.isWorkspace || pubIoPackage.hasWorkspaceResolution) &&
+              _pubWorkspacesCache != null;
+      if (workspaceBehavior) {
+        var workspaceRoot =
+            normalize(absolute(await pubIoPackage.getWorkspaceRootPath()));
+        var lastCache = _pubWorkspacesCache!._map[workspaceRoot];
+        if (lastCache?.offline == offline && lastCache?.action == action) {
+          skip = true;
+        } else {
+          _pubWorkspacesCache!._map[workspaceRoot] =
+              _PubWorkspaceCache(workspaceRoot, action, offline);
+        }
+      }
+      if (!skip) {
+        var offlineSuffix = options.offline ? ' --offline' : '';
+        var dofPub = pubIoPackage.dofPub;
+        switch (action) {
+          case _PubWorkspaceCacheAction.upgrade:
+            await runScript('$dofPub upgrade$offlineSuffix');
+            break;
+          case _PubWorkspaceCacheAction.downgrade:
+            await runScript('$dofPub downgrade$offlineSuffix');
+            break;
+          case _PubWorkspaceCacheAction.get:
+            await runScript('$dofPub get$offlineSuffix');
+            break;
+        }
       }
     }
     // Enough for workspace root
@@ -492,6 +543,7 @@ class SinglePackageCiRunner {
 
   /// True for flutter package
   bool get isFlutterPackage => _isFlutterPackage;
+
   bool get _verbose => options.verbose;
 
   /// True for workspace root

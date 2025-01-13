@@ -250,6 +250,8 @@ Future<void> runCiMain(List<String> arguments) async {
     );
   }
 
+  /// Init a cache to prevent running multiple times the same get/downgrade/upgrade command
+  runCiInitPubWorkspacesCache();
   if (recursive) {
     for (var path in paths) {
       await packageRunCiImpl(path, options,
