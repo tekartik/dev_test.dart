@@ -1,8 +1,9 @@
-## 1.1.1+7
+## 1.1.1+8
 
 * Add `pathGetResolvedPackagePath`, `pathGetPubspecOverridesYamlPath`, `pathGetResolvedWorkPath`,
   `pathGetPackageConfigJsonPath`, `pathGetResolvedPackagePath`, `pathGetResolvedWorkPath`  helpers
   to `build_support`
+* Add `runCiInitPubWorkspacesCache` to `package`
 * Adding basic interactive menu in run_ci
 * Start handling workspace
 
