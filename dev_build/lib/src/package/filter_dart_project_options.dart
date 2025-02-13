@@ -14,8 +14,11 @@ class FilterDartProjectOptions {
   final VersionBoundaries? maxSdk;
 
   /// Create filter options.
-  FilterDartProjectOptions(
-      {this.ignoreSdkConstraints, this.minSdk, this.maxSdk});
+  FilterDartProjectOptions({
+    this.ignoreSdkConstraints,
+    this.minSdk,
+    this.maxSdk,
+  });
 
   @override
   String toString() {

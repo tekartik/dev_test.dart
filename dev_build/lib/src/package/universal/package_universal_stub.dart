@@ -23,6 +23,8 @@ Future<String> pathGetResolvedWorkPath(String packageDir) =>
     throw UnsupportedError('pathGetResolvedWorkPath io only');
 
 /// Get resolved package path, handle workspace resolution
-Future<String?> pathGetResolvedPackagePath(String path, String package,
-        {bool? windows}) =>
-    throw UnsupportedError('pathGetResolvedPackagePath io only');
+Future<String?> pathGetResolvedPackagePath(
+  String path,
+  String package, {
+  bool? windows,
+}) => throw UnsupportedError('pathGetResolvedPackagePath io only');

@@ -1,3 +1,7 @@
+## 1.1.2
+
+* Requires dart 3.7
+
 ## 1.1.1+8
 
 * Add `pathGetResolvedPackagePath`, `pathGetPubspecOverridesYamlPath`, `pathGetResolvedWorkPath`,

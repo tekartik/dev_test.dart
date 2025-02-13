@@ -19,14 +19,17 @@ void main() {
     setUpAll(() async {
       await buildInitFlutter();
     });
-    var dir =
-        join('.dart_tool', 'dev_build', 'raw_flutter_test1', 'test', 'project');
+    var dir = join(
+      '.dart_tool',
+      'dev_build',
+      'raw_flutter_test1',
+      'test',
+      'project',
+    );
     var ensureCreated = false;
     var shell = Shell(workingDirectory: dir);
     Future<void> createProject() async {
-      await flutterCreateProject(
-        path: dir,
-      );
+      await flutterCreateProject(path: dir);
       await shell.run('flutter config');
     }
 
@@ -87,88 +90,102 @@ void main() {
     }, timeout: const Timeout(Duration(minutes: 10)));
   }, skip: !isFlutterSupportedSync);
 
-  group(
-    'dart test',
-    () {
-      setUpAll(() async {
-        await buildInitDart();
-      });
-      var dir =
-          join('.dart_tool', 'dev_build', 'raw_dart_test1', 'test', 'project');
-      var ensureCreated = false;
-      var shell = Shell(workingDirectory: dir);
-      Future<void> create() async {
-        await dartCreateProject(
-          path: dir,
+  group('dart test', () {
+    setUpAll(() async {
+      await buildInitDart();
+    });
+    var dir = join(
+      '.dart_tool',
+      'dev_build',
+      'raw_dart_test1',
+      'test',
+      'project',
+    );
+    var ensureCreated = false;
+    var shell = Shell(workingDirectory: dir);
+    Future<void> create() async {
+      await dartCreateProject(path: dir);
+    }
+
+    Future<void> ensureCreate() async {
+      if (!ensureCreated) {
+        if (!Directory(dir).existsSync()) {
+          await create();
+        }
+        ensureCreated = true;
+      }
+    }
+
+    Future<void> runCi() async {
+      // Don't allow failure
+      try {
+        await packageRunCi(dir);
+      } catch (e) {
+        stderr.writeln('run_ci error $e');
+        rethrow;
+      }
+    }
+
+    test('create', () async {
+      await create();
+    }, timeout: const Timeout(Duration(minutes: 5)));
+
+    test('createOthers', () async {
+      for (var template in [
+        dartTemplateWeb,
+        dartTemplateConsole,
+        dartTemplatePackage,
+      ]) {
+        await dartCreateProject(path: dir, template: template);
+      }
+    }, timeout: const Timeout(Duration(minutes: 5)));
+    test('run_ci', () async {
+      await ensureCreate();
+      await runCi();
+    }, timeout: const Timeout(Duration(minutes: 5)));
+
+    test(
+      'add dev_build',
+      () async {
+        await ensureCreate();
+        var readDependencyLines = await pathPubspecGetDependencyLines(
+          dir,
+          'dev_build',
         );
-      }
-
-      Future<void> ensureCreate() async {
-        if (!ensureCreated) {
-          if (!Directory(dir).existsSync()) {
-            await create();
-          }
-          ensureCreated = true;
-        }
-      }
-
-      Future<void> runCi() async {
-        // Don't allow failure
-        try {
-          await packageRunCi(dir);
-        } catch (e) {
-          stderr.writeln('run_ci error $e');
-          rethrow;
-        }
-      }
-
-      test('create', () async {
-        await create();
-      }, timeout: const Timeout(Duration(minutes: 5)));
-
-      test('createOthers', () async {
-        for (var template in [
-          dartTemplateWeb,
-          dartTemplateConsole,
-          dartTemplatePackage,
-        ]) {
-          await dartCreateProject(path: dir, template: template);
-        }
-      }, timeout: const Timeout(Duration(minutes: 5)));
-      test('run_ci', () async {
-        await ensureCreate();
-        await runCi();
-      }, timeout: const Timeout(Duration(minutes: 5)));
-
-      test('add dev_build', () async {
-        await ensureCreate();
-        var readDependencyLines =
-            await pathPubspecGetDependencyLines(dir, 'dev_build');
         if (readDependencyLines == ['dev_build:']) {
           return;
         }
         if (await pathPubspecAddDependency(dir, 'dev_build')) {
           expect(
-              pubspecYamlHasAnyDependencies(
-                  await pathGetPubspecYamlMap(dir), ['dev_build']),
-              isTrue);
+            pubspecYamlHasAnyDependencies(await pathGetPubspecYamlMap(dir), [
+              'dev_build',
+            ]),
+            isTrue,
+          );
           await runCi();
         } else {
           expect(
-              pubspecYamlHasAnyDependencies(
-                  await pathGetPubspecYamlMap(dir), ['dev_build']),
-              isTrue);
+            pubspecYamlHasAnyDependencies(await pathGetPubspecYamlMap(dir), [
+              'dev_build',
+            ]),
+            isTrue,
+          );
         }
       },
-          skip: 'TODO Not a package yet',
-          timeout: const Timeout(Duration(minutes: 10)));
+      skip: 'TODO Not a package yet',
+      timeout: const Timeout(Duration(minutes: 10)),
+    );
 
-      test('add dev_build_relative', () async {
+    test(
+      'add dev_build_relative',
+      () async {
         await ensureCreate();
         var dependencyLines = ['path: ${join('..', '..', '..', '..', '..')}'];
 
-        var readDependencyLines =
-            await pathPubspecGetDependencyLines(dir, 'dev_build');
+        var readDependencyLines = await pathPubspecGetDependencyLines(
+          dir,
+          'dev_build',
+        );
         if (readDependencyLines == dependencyLines) {
           return;
         }
@@ -177,29 +194,42 @@ void main() {
         }
         expect(await pathPubspecGetDependencyLines(dir, 'dev_build'), isNull);
         expect(
-            pubspecYamlHasAnyDependencies(
-                await pathGetPubspecYamlMap(dir), ['dev_build']),
-            isFalse);
-        if (await pathPubspecAddDependency(dir, 'dev_build',
-            dependencyLines: dependencyLines)) {
-          expect(await pathPubspecGetDependencyLines(dir, 'dev_build'),
-              dependencyLines);
+          pubspecYamlHasAnyDependencies(await pathGetPubspecYamlMap(dir), [
+            'dev_build',
+          ]),
+          isFalse,
+        );
+        if (await pathPubspecAddDependency(
+          dir,
+          'dev_build',
+          dependencyLines: dependencyLines,
+        )) {
           expect(
-              pubspecYamlHasAnyDependencies(
-                  await pathGetPubspecYamlMap(dir), ['dev_build']),
-              isTrue);
+            await pathPubspecGetDependencyLines(dir, 'dev_build'),
+            dependencyLines,
+          );
+          expect(
+            pubspecYamlHasAnyDependencies(await pathGetPubspecYamlMap(dir), [
+              'dev_build',
+            ]),
+            isTrue,
+          );
           await runCi();
         } else {
-          expect(await pathPubspecGetDependencyLines(dir, 'dev_build'),
-              dependencyLines);
           expect(
-              pubspecYamlHasAnyDependencies(
-                  await pathGetPubspecYamlMap(dir), ['dev_build']),
-              isTrue);
+            await pathPubspecGetDependencyLines(dir, 'dev_build'),
+            dependencyLines,
+          );
+          expect(
+            pubspecYamlHasAnyDependencies(await pathGetPubspecYamlMap(dir), [
+              'dev_build',
+            ]),
+            isTrue,
+          );
         }
       },
-          timeout: const Timeout(Duration(minutes: 10)),
-          skip: 'Temp skip during nnbd migration');
-    },
-  );
+      timeout: const Timeout(Duration(minutes: 10)),
+      skip: 'Temp skip during nnbd migration',
+    );
+  });
 }

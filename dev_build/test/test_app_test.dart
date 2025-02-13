@@ -17,26 +17,30 @@ void main() {
       // ignore: avoid_print
       print(await getFlutterBinVersion());
     }, skip: !isFlutterSupportedSync);
-    test('flutter app', () async {
-      var path = join(topDir, 'test_flutter_app');
-      await flutterGenerateAndRunCi(
+    test(
+      'flutter app',
+      () async {
+        var path = join(topDir, 'test_flutter_app');
+        await flutterGenerateAndRunCi(
           path: path,
           template: 'app',
           // Temp issue in template!
-          noAnalyze: true);
-    },
-        skip: !isFlutterSupportedSync,
-        timeout: const Timeout(Duration(minutes: 5)));
+          noAnalyze: true,
+        );
+      },
+      skip: !isFlutterSupportedSync,
+      timeout: const Timeout(Duration(minutes: 5)),
+    );
 
-    test('flutter package', () async {
-      var path = join(topDir, 'test_flutter_package');
-      await flutterGenerateAndRunCi(
-        path: path,
-        template: 'package',
-      );
-    },
-        skip: !isFlutterSupportedSync,
-        timeout: const Timeout(Duration(minutes: 5)));
+    test(
+      'flutter package',
+      () async {
+        var path = join(topDir, 'test_flutter_package');
+        await flutterGenerateAndRunCi(path: path, template: 'package');
+      },
+      skip: !isFlutterSupportedSync,
+      timeout: const Timeout(Duration(minutes: 5)),
+    );
     test('io app', () async {
       var path = join(topDir, 'test_io_app');
       await dartGenerateAndRunCi(path: path, template: dartTemplateConsole);

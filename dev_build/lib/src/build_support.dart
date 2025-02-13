@@ -9,13 +9,19 @@ import 'package:process_run/stdio.dart';
 import 'build_support_common.dart';
 
 /// Returns true if added
-Future<bool> pathPubspecAddDependency(String dir, String dependency,
-    {List<String>? dependencyLines}) async {
+Future<bool> pathPubspecAddDependency(
+  String dir,
+  String dependency, {
+  List<String>? dependencyLines,
+}) async {
   var map = await pathGetPubspecYamlMap(dir);
   if (!pubspecYamlHasAnyDependencies(map, [dependency])) {
     var content = _loadPubspecContent(dir);
-    content = pubspecStringAddDependency(content, dependency,
-        dependencyLines: dependencyLines);
+    content = pubspecStringAddDependency(
+      content,
+      dependency,
+      dependencyLines: dependencyLines,
+    );
     await _writePubspecContent(dir, content);
     return true;
   }
@@ -39,7 +45,9 @@ Future<void> _writePubspecContent(String dir, String content) async {
 /// Null if not a dependency, formatted on a single line with depencency prefix or
 /// multiple lines
 Future<List<String>?> pathPubspecGetDependencyLines(
-    String dir, String dependency) async {
+  String dir,
+  String dependency,
+) async {
   var map = await pathGetPubspecYamlMap(dir);
 
   var lines = <String>[];
@@ -155,13 +163,16 @@ const flutterTemplateApp = 'app';
 const flutterTemplatePackage = 'package';
 
 /// Create a dart project.
-Future<void> dartCreateProject(
-    {String template = dartTemplateConsoleSimple, required String path}) async {
+Future<void> dartCreateProject({
+  String template = dartTemplateConsoleSimple,
+  required String path,
+}) async {
   await Directory(path).prepare();
 
   var shell = Shell().cd(dirname(path));
-  await shell
-      .run('dart create --template $template ${shellArgument(basename(path))}');
+  await shell.run(
+    'dart create --template $template ${shellArgument(basename(path))}',
+  );
 }
 
 /// Create a flutter project.
@@ -176,5 +187,6 @@ Future<void> flutterCreateProject({
   var shell = Shell().cd(dirname(path));
 
   await shell.run(
-      'flutter create --template $template ${shellArgument(basename(path))}${platforms != null ? ' --platforms ${platforms.join(',')}' : ''}');
+    'flutter create --template $template ${shellArgument(basename(path))}${platforms != null ? ' --platforms ${platforms.join(',')}' : ''}',
+  );
 }

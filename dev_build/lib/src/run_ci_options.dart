@@ -16,7 +16,8 @@ Future<List<String>> topLevelDir(String dir) async {
 List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build'];
 
 /// Filter dart directories.
-List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
+List<String> filterDartDirs(List<String> dirs) => dirs
+    .where((element) {
       if (element.startsWith('.')) {
         return false;
       }
@@ -24,7 +25,8 @@ List<String> filterDartDirs(List<String> dirs) => dirs.where((element) {
         return false;
       }
       return true;
-    }).toList(growable: false);
+    })
+    .toList(growable: false);
 
 /// Package run options
 class PackageRunCiOptions {
@@ -143,13 +145,14 @@ class PackageRunCiOptions {
     this.filterDartProjectOptions,
     this.printPath = false,
   }) {
-    var isOnlyAction = (formatOnly ||
-        buildOnly ||
-        testOnly ||
-        analyzeOnly ||
-        pubGetOnly ||
-        pubUpgradeOnly ||
-        fixOnly);
+    var isOnlyAction =
+        (formatOnly ||
+            buildOnly ||
+            testOnly ||
+            analyzeOnly ||
+            pubGetOnly ||
+            pubUpgradeOnly ||
+            fixOnly);
     if (isOnlyAction) {
       noTest = !testOnly;
 
@@ -161,34 +164,35 @@ class PackageRunCiOptions {
 
   /// Clone the options
   PackageRunCiOptions clone() => PackageRunCiOptions(
-      formatOnly: formatOnly,
-      testOnly: testOnly,
-      buildOnly: buildOnly,
-      analyzeOnly: analyzeOnly,
-      pubGetOnly: pubGetOnly,
-      verbose: verbose,
-      recursive: recursive,
-      pubUpgradeOnly: pubUpgradeOnly,
-      pubDowngradeOnly: pubDowngradeOnly,
-      fixOnly: fixOnly,
-      noNodeTest: noNodeTest,
-      noVmTest: noVmTest,
-      noBrowserTest: noBrowserTest,
-      noTest: noTest,
-      noAnalyze: noAnalyze,
-      noFormat: noFormat,
-      noPubGet: noPubGet,
-      noBuild: noBuild,
-      offline: offline,
-      noNpmInstall: noNpmInstall,
-      poolSize: poolSize,
-      noOverride: noOverride,
-      dryRun: dryRun,
-      prjInfo: prjInfo,
-      noRunCi: noRunCi,
-      ignoreErrors: ignoreErrors,
-      filterDartProjectOptions: filterDartProjectOptions,
-      printPath: printPath);
+    formatOnly: formatOnly,
+    testOnly: testOnly,
+    buildOnly: buildOnly,
+    analyzeOnly: analyzeOnly,
+    pubGetOnly: pubGetOnly,
+    verbose: verbose,
+    recursive: recursive,
+    pubUpgradeOnly: pubUpgradeOnly,
+    pubDowngradeOnly: pubDowngradeOnly,
+    fixOnly: fixOnly,
+    noNodeTest: noNodeTest,
+    noVmTest: noVmTest,
+    noBrowserTest: noBrowserTest,
+    noTest: noTest,
+    noAnalyze: noAnalyze,
+    noFormat: noFormat,
+    noPubGet: noPubGet,
+    noBuild: noBuild,
+    offline: offline,
+    noNpmInstall: noNpmInstall,
+    poolSize: poolSize,
+    noOverride: noOverride,
+    dryRun: dryRun,
+    prjInfo: prjInfo,
+    noRunCi: noRunCi,
+    ignoreErrors: ignoreErrors,
+    filterDartProjectOptions: filterDartProjectOptions,
+    printPath: printPath,
+  );
 
   /// True if no pub get or upgrade
   bool get noPubGetOrUpgrade =>

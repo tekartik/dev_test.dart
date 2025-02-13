@@ -9,34 +9,43 @@ import 'package:test/test.dart';
 void main() {
   group('build_support_common', () {
     test('add deps flutter', () async {
-      expect(pubspecStringAddDependency('''
+      expect(
+        pubspecStringAddDependency('''
 dependencies:
   flutter:
     sdk: flutter
-''', 'sqflite'), '''
+''', 'sqflite'),
+        '''
 dependencies:
   sqflite:
   flutter:
     sdk: flutter
-''');
-      expect(pubspecStringAddDependency('''
+''',
+      );
+      expect(
+        pubspecStringAddDependency('''
 dependencies:
-''', 'sqflite'), '''
+''', 'sqflite'),
+        '''
 dependencies:
   sqflite:
-''');
+''',
+      );
     });
     test('remove deps flutter', () async {
-      expect(pubspecStringRemoveDependency('''
+      expect(
+        pubspecStringRemoveDependency('''
 dependencies:
   sqflite:
   flutter:
     sdk: flutter
-''', 'sqflite'), '''
+''', 'sqflite'),
+        '''
 dependencies:
   flutter:
     sdk: flutter
-''');
+''',
+      );
     });
   });
 }

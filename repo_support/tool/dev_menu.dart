@@ -21,7 +21,8 @@ Future<void> main(List<String> args) async {
         // There should be pubspec.yaml in the package
         print(packagePath);
         print(
-            'pubspec.yaml: ${File(join(packagePath, 'pubspec.yaml')).existsSync()}');
+          'pubspec.yaml: ${File(join(packagePath, 'pubspec.yaml')).existsSync()}',
+        );
         //print(pathPackageConfigMapGetPackagePath('.', configMap, package));
       }
       /*

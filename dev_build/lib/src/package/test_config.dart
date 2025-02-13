@@ -63,11 +63,12 @@ class TestConfig {
 }
 
 /// build test config on the supported platforms and dart_test.yaml config map.
-TestConfig buildTestConfig(
-    {List<String>? platforms,
-    List<String>? supportedPlatforms,
-    Map? dartTestMap,
-    bool? noWasm}) {
+TestConfig buildTestConfig({
+  List<String>? platforms,
+  List<String>? supportedPlatforms,
+  Map? dartTestMap,
+  bool? noWasm,
+}) {
   var testConfig = TestConfig();
 
   platforms = platforms?.toList() ?? <String>[];
@@ -94,14 +95,15 @@ TestConfig buildTestConfig(
             }
           }
         } else {
-          platforms
-              .removeWhere((platform) => !dartTestPlatforms.contains(platform));
+          platforms.removeWhere(
+            (platform) => !dartTestPlatforms.contains(platform),
+          );
         }
       }
       var dartCompilers = toStringList(dartTestMap['compilers']);
       var dartSupportedWebCompilers = [
         'dart2js',
-        if (!(noWasm ?? false)) 'dart2wasm'
+        if (!(noWasm ?? false)) 'dart2wasm',
       ];
       var dartWebPlatforms = ['chrome', 'firefox', 'safari'];
       var dartWebCompilers = <String>[];
@@ -119,14 +121,16 @@ TestConfig buildTestConfig(
             testConfig.args.add('--compiler $compiler');
           }
           testConfig.configLines.add(
-              TestConfigLine(compilers: dartWebCompilers, platform: platform));
+            TestConfigLine(compilers: dartWebCompilers, platform: platform),
+          );
           testConfig.args.add('--platform $platform');
         } else {
           if (platform == 'node') {
             testConfig.hasNode = true;
             // Force dart2js
-            testConfig.configLines
-                .add(TestConfigLine(platform: platform, compiler: 'dart2js'));
+            testConfig.configLines.add(
+              TestConfigLine(platform: platform, compiler: 'dart2js'),
+            );
           } else {
             testConfig.configLines.add(TestConfigLine(platform: platform));
           }

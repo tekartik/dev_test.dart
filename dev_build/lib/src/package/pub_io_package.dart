@@ -55,8 +55,11 @@ class PubIoPackage {
     var packageConfigMap =
         _packageConfigMap ??= await cachedOrGetPackageConfigMap();
 
-    var packages =
-        pathPackageConfigMapGetPackagePath(path, packageConfigMap, package);
+    var packages = pathPackageConfigMapGetPackagePath(
+      path,
+      packageConfigMap,
+      package,
+    );
 
     return packages;
   }
@@ -137,7 +140,7 @@ class PubIoPackage {
 
   /// Pub io package
   PubIoPackage(this.path, {PubIoPackageOptions? options})
-      : options = options ?? PubIoPackageOptions();
+    : options = options ?? PubIoPackageOptions();
 
   /// Dart or flutter
   String get dof => isFlutter ? 'flutter' : 'dart';

@@ -15,13 +15,17 @@ import 'package:test/test.dart';
 
 Future<void> main() async {
   group('pub global', () {
-    test('deactivate then checkAndActivateWebdev', () async {
-      if (await isPackageActivated('webdev', verbose: true)) {
-        await deactivatePackage('webdev', verbose: true);
-      }
-      await checkAndActivateWebdev(verbose: true);
-      await run('dart pub global run webdev --version');
-    }, timeout: const Timeout(Duration(minutes: 5)));
+    test(
+      'deactivate then checkAndActivateWebdev',
+      () async {
+        if (await isPackageActivated('webdev', verbose: true)) {
+          await deactivatePackage('webdev', verbose: true);
+        }
+        await checkAndActivateWebdev(verbose: true);
+        await run('dart pub global run webdev --version');
+      },
+      timeout: const Timeout(Duration(minutes: 5)),
+    );
     test('checkAndActivateWebdev verbose', () async {
       await checkAndActivateWebdev(verbose: true);
       await run('dart pub global run webdev --version');
@@ -40,11 +44,15 @@ Built webdev:webdev.
 3.2.0
 ''');
       expect(
-          extractWebdevVersionFromOutLines(lines.toList()), Version(3, 2, 0));
+        extractWebdevVersionFromOutLines(lines.toList()),
+        Version(3, 2, 0),
+      );
       lines = ['3.2.0'];
 
       expect(
-          extractWebdevVersionFromOutLines(lines.toList()), Version(3, 2, 0));
+        extractWebdevVersionFromOutLines(lines.toList()),
+        Version(3, 2, 0),
+      );
     });
   });
 }

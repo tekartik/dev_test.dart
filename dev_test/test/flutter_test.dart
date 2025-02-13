@@ -18,8 +18,9 @@ Future<void> main() async {
       await flutterCreateProject(path: path, template: flutterTemplatePackage);
       // shell.run('flutter create --template $template ${shellArgument(basename(path))}');
       // Create a bad file
-      await File(join(path, 'lib', 'dummy.dart'))
-          .writeAsString('void dummy() {}');
+      await File(
+        join(path, 'lib', 'dummy.dart'),
+      ).writeAsString('void dummy() {}');
       await File(join(path, 'test', 'dev_flutter_test.dart')).writeAsString('''
 import 'package:dev_test/test.dart' as dev_test;
 import 'package:flutter_test/flutter_test.dart';
@@ -38,28 +39,36 @@ void main() {
         'dev_test_core_only_test',
         'dev_test_only_test',
       ]) {
-        await File(join('test', '$file.dart'))
-            .copy(join(path, 'test', '$file.dart'));
+        await File(
+          join('test', '$file.dart'),
+        ).copy(join(path, 'test', '$file.dart'));
       }
       var shell = Shell(workingDirectory: path);
       await shell.run(
-          'flutter pub add ${shellArgument('dev:dev_test:{"path":"${currentDirectory.path}"}')} --directory .');
+        'flutter pub add ${shellArgument('dev:dev_test:{"path":"${currentDirectory.path}"}')} --directory .',
+      );
       var pubspecYaml = (await pathGetPubspecYamlMap(path));
       var boundaries = pubspecYamlGetSdkBoundaries(pubspecYaml)!;
       // Handle the case current dart version is not compatible with flutter
       if (boundaries.matches(dartVersion)) {
         await expectLater(
-            packageRunCi(path,
-                options: PackageRunCiOptions(
-                    noAnalyze: true,
-                    noTest: true,
-                    offline: true,
-                    verbose: true)),
-            throwsException);
+          packageRunCi(
+            path,
+            options: PackageRunCiOptions(
+              noAnalyze: true,
+              noTest: true,
+              offline: true,
+              verbose: true,
+            ),
+          ),
+          throwsException,
+        );
         // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was alloed
         await Shell(workingDirectory: path).run('dart format --fix lib');
-        await packageRunCi(path,
-            options: PackageRunCiOptions(noAnalyze: true, noPubGet: true));
+        await packageRunCi(
+          path,
+          options: PackageRunCiOptions(noAnalyze: true, noPubGet: true),
+        );
       }
     });
   }, skip: !isFlutterSupported ? 'skipped - flutter not supported' : false);

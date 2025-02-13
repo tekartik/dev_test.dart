@@ -64,7 +64,6 @@ abstract class YamlLinesContent {
   List<String> get lines;
 
   @Deprecated('Do no use directly')
-
   /// Yaml decoded as a map
   Map<String, Object?> get yaml;
 

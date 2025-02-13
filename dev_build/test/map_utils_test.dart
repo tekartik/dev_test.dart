@@ -11,24 +11,25 @@ void main() {
       expect(mapPartsExists({'test': null}, ['test']), isTrue);
       expect(mapPartsExists({'_test': null}, ['test']), isFalse);
       expect(
-          mapPartsExists({
-            'sub': {'test': null}
-          }, [
-            'sub',
-            'test'
-          ]),
-          isTrue);
+        mapPartsExists(
+          {
+            'sub': {'test': null},
+          },
+          ['sub', 'test'],
+        ),
+        isTrue,
+      );
       expect(
-          mapPartsExists({
+        mapPartsExists(
+          {
             'sub': {
-              'sub_test': {'test': null}
-            }
-          }, [
-            'sub',
-            'sub_test',
-            'test'
-          ]),
-          isTrue);
+              'sub_test': {'test': null},
+            },
+          },
+          ['sub', 'sub_test', 'test'],
+        ),
+        isTrue,
+      );
     });
   });
 }

@@ -37,8 +37,12 @@ abstract class DevMenuItem
   String get name;
 
   /// A menu item.
-  factory DevMenuItem.fn(String name, MenuItemFn fn,
-      {String? cmd, bool? solo}) {
+  factory DevMenuItem.fn(
+    String name,
+    MenuItemFn fn, {
+    String? cmd,
+    bool? solo,
+  }) {
     return RunnableMenuItem(name, fn, cmd: cmd, solo: solo);
   }
 
@@ -132,7 +136,7 @@ class RunnableMenuItem extends _BaseMenuItem
 
   /// A runnable test item.
   RunnableMenuItem(String name, MenuItemFn fn, {this.cmd, bool? solo})
-      : super(name, solo) {
+    : super(name, solo) {
     this.fn = fn;
   }
 

@@ -34,9 +34,9 @@ Future main(List<String> arguments) async {
 /// List the top level dirs basenames
 Future<List<String>> topLevelDirs(String dir) async {
   var list = <String>[];
-  await Directory(dir)
-      .list(recursive: false, followLinks: false)
-      .listen((event) {
+  await Directory(dir).list(recursive: false, followLinks: false).listen((
+    event,
+  ) {
     if (isDirectoryNotLinkSynk(event.path)) {
       // devPrint('adding top ${basename(event.path)}');
       list.add(basename(event.path));
@@ -51,9 +51,9 @@ List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build', 'deploy'];
 Future<bool> hasDartFiles(String dir) async {
   var dirs = <String>[];
   var hasOneDartFile = false;
-  await Directory(dir)
-      .list(recursive: false, followLinks: false)
-      .listen((event) {
+  await Directory(dir).list(recursive: false, followLinks: false).listen((
+    event,
+  ) {
     if (event is Directory) {
       dirs.add(basename(event.path));
     } else if (extension(event.path) == '.dart') {
@@ -87,9 +87,12 @@ Future<List<String>> filterTopLevelDartDirs(String path) async {
       continue;
     }
     // Ignore nested-projects
-    if (await isPubPackageRoot(dirPath,
-        filterDartProjectOptions:
-            FilterDartProjectOptions(ignoreSdkConstraints: true))) {
+    if (await isPubPackageRoot(
+      dirPath,
+      filterDartProjectOptions: FilterDartProjectOptions(
+        ignoreSdkConstraints: true,
+      ),
+    )) {
       continue;
     }
     if (!await hasDartFiles(dirPath)) {
@@ -115,49 +118,67 @@ Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 /// // run CI (format, analyze, test) on the current folder
 /// await packageRunCi('.');
 /// ```
-Future<void> packageRunCi(String path,
-    {PackageRunCiOptions? options,
-    bool? recursive,
-    bool? noFormat,
-    bool? noAnalyze,
-    bool? noTest,
-    bool? noBuild,
-    bool? noPubGet,
-    bool? verbose,
-    bool? pubUpgrade,
-    int? poolSize}) async {
+Future<void> packageRunCi(
+  String path, {
+  PackageRunCiOptions? options,
+  bool? recursive,
+  bool? noFormat,
+  bool? noAnalyze,
+  bool? noTest,
+  bool? noBuild,
+  bool? noPubGet,
+  bool? verbose,
+  bool? pubUpgrade,
+  int? poolSize,
+}) async {
   options ??= PackageRunCiOptions(
-      noPubGet: noPubGet ?? false,
-      noTest: noTest ?? false,
-      noFormat: noFormat ?? false,
-      noAnalyze: noAnalyze ?? false,
-      noBuild: noBuild ?? false,
-      verbose: verbose ?? false,
-      poolSize: poolSize,
-      recursive: recursive ?? false,
-      pubUpgradeOnly: pubUpgrade ?? false);
+    noPubGet: noPubGet ?? false,
+    noTest: noTest ?? false,
+    noFormat: noFormat ?? false,
+    noAnalyze: noAnalyze ?? false,
+    noBuild: noBuild ?? false,
+    verbose: verbose ?? false,
+    poolSize: poolSize,
+    recursive: recursive ?? false,
+    pubUpgradeOnly: pubUpgrade ?? false,
+  );
 
-  await packageRunCiImpl(path, options,
-      recursive: recursive ?? options.recursive, poolSize: poolSize);
+  await packageRunCiImpl(
+    path,
+    options,
+    recursive: recursive ?? options.recursive,
+    poolSize: poolSize,
+  );
 }
 
 final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 
 /// Package run ci.
-Future<void> packageRunCiImpl(String path, PackageRunCiOptions options,
-    {bool recursive = false, int? poolSize}) async {
+Future<void> packageRunCiImpl(
+  String path,
+  PackageRunCiOptions options, {
+  bool recursive = false,
+  int? poolSize,
+}) async {
   if (recursive) {
-    await recursiveActions([path], verbose: options.verbose, poolSize: poolSize,
-        action: (dir) async {
-      await shellStdioLinesGrouper.runZoned(() async {
-        await singlePackageRunCiImpl(dir, options);
-      });
-    });
+    await recursiveActions(
+      [path],
+      verbose: options.verbose,
+      poolSize: poolSize,
+      action: (dir) async {
+        await shellStdioLinesGrouper.runZoned(() async {
+          await singlePackageRunCiImpl(dir, options);
+        });
+      },
+    );
   } else {
-    if (!(await isPubPackageRoot(path,
-        filterDartProjectOptions: options.filterDartProjectOptions))) {
+    if (!(await isPubPackageRoot(
+      path,
+      filterDartProjectOptions: options.filterDartProjectOptions,
+    ))) {
       stderr.writeln(
-          '${absolute(path)} not a dart package, use --recursive option');
+        '${absolute(path)} not a dart package, use --recursive option',
+      );
     } else {
       await singlePackageRunCiImpl(path, options);
     }
@@ -170,27 +191,29 @@ enum StdioStreamType {
   out,
 
   /// Err
-  err
+  err,
 }
 
 /// Run basic tests on dart/flutter package
 ///
-Future<void> singlePackageRunCi(String path,
-    {PackageRunCiOptions? options,
-    // Later might deprecated in the future - Deprecated since 2021/03/11
+Future<void> singlePackageRunCi(
+  String path, {
+  PackageRunCiOptions? options,
 
-    bool? noFormat,
-    bool? noAnalyze,
-    bool? noTest,
-    bool? noBuild,
-    bool? noPubGet,
-    bool? pubUpgrade,
-    bool? formatOnly,
-    bool? analyzeOnly,
-    bool? testOnly,
-    bool? buildOnly,
-    bool? pubGetOnly,
-    bool? pubUpgradeOnly}) async {
+  // Later might deprecated in the future - Deprecated since 2021/03/11
+  bool? noFormat,
+  bool? noAnalyze,
+  bool? noTest,
+  bool? noBuild,
+  bool? noPubGet,
+  bool? pubUpgrade,
+  bool? formatOnly,
+  bool? analyzeOnly,
+  bool? testOnly,
+  bool? buildOnly,
+  bool? pubGetOnly,
+  bool? pubUpgradeOnly,
+}) async {
   options ??= PackageRunCiOptions(
     formatOnly: formatOnly ?? false,
     buildOnly: buildOnly ?? false,
@@ -237,7 +260,9 @@ void runCiInitPubWorkspacesCache() {
 /// Run basic tests on dart/flutter package
 ///
 Future<void> singlePackageRunCiImpl(
-    String path, PackageRunCiOptions options) async {
+  String path,
+  PackageRunCiOptions options,
+) async {
   options = options.clone();
   try {
     var ciRunner = SinglePackageCiRunner(path, options);
@@ -246,8 +271,10 @@ Future<void> singlePackageRunCiImpl(
       stdout.writeln(normalize(absolute(path)));
       return;
     }
-    var pubIoPackage = PubIoPackage(path,
-        options: PubIoPackageOptions(verbose: options.verbose));
+    var pubIoPackage = PubIoPackage(
+      path,
+      options: PubIoPackageOptions(verbose: options.verbose),
+    );
     await pubIoPackage.ready;
     if (options.prjInfo) {
       stdout.writeln('# package: ${normalize(absolute(path))}');
@@ -265,7 +292,7 @@ Future<void> singlePackageRunCiImpl(
           // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
           var tags = <String>[
             if (ciRunner.isFlutterPackage) 'flutter',
-            if (minSdkVersion < _minNullableVersion) 'non-nullable'
+            if (minSdkVersion < _minNullableVersion) 'non-nullable',
           ];
           if (tags.isNotEmpty) {
             stdout.writeln('sdk: $boundaries (${tags.join(',')})');
@@ -321,24 +348,29 @@ Future<void> singlePackageRunCiImpl(
 
     if (!options.noPubGetOrUpgrade) {
       var offline = options.offline;
-      var action = options.pubUpgradeOnly
-          ? _PubWorkspaceCacheAction.upgrade
-          : (options.pubDowngradeOnly
-              ? _PubWorkspaceCacheAction.downgrade
-              : _PubWorkspaceCacheAction.get);
+      var action =
+          options.pubUpgradeOnly
+              ? _PubWorkspaceCacheAction.upgrade
+              : (options.pubDowngradeOnly
+                  ? _PubWorkspaceCacheAction.downgrade
+                  : _PubWorkspaceCacheAction.get);
       var skip = false;
       var workspaceBehavior =
           (pubIoPackage.isWorkspace || pubIoPackage.hasWorkspaceResolution) &&
-              _pubWorkspacesCache != null;
+          _pubWorkspacesCache != null;
       if (workspaceBehavior) {
-        var workspaceRoot =
-            normalize(absolute(await pubIoPackage.getWorkspaceRootPath()));
+        var workspaceRoot = normalize(
+          absolute(await pubIoPackage.getWorkspaceRootPath()),
+        );
         var lastCache = _pubWorkspacesCache!._map[workspaceRoot];
         if (lastCache?.offline == offline && lastCache?.action == action) {
           skip = true;
         } else {
-          _pubWorkspacesCache!._map[workspaceRoot] =
-              _PubWorkspaceCache(workspaceRoot, action, offline);
+          _pubWorkspacesCache!._map[workspaceRoot] = _PubWorkspaceCache(
+            workspaceRoot,
+            action,
+            offline,
+          );
         }
       }
       if (!skip) {
@@ -403,7 +435,7 @@ Future<void> singlePackageRunCiImpl(
           var supportedPlatforms = <String>[
             if (!options.noVmTest) 'vm',
             if (!options.noBrowserTest) 'chrome',
-            if (!options.noNodeTest && isNodeSupportedSync) 'node'
+            if (!options.noNodeTest && isNodeSupportedSync) 'node',
           ];
           // Tmp don't compile as wasm on windows as it times out
           var noWasm = Platform.isWindows;
@@ -438,10 +470,11 @@ Future<void> singlePackageRunCiImpl(
             } catch (_) {}
           }
           var testConfig = buildTestConfig(
-              platforms: platforms,
-              supportedPlatforms: supportedPlatforms,
-              dartTestMap: dartTestMap,
-              noWasm: noWasm);
+            platforms: platforms,
+            supportedPlatforms: supportedPlatforms,
+            dartTestMap: dartTestMap,
+            noWasm: noWasm,
+          );
 
           if (testConfig.hasNode) {
             try {
@@ -465,7 +498,8 @@ Future<void> singlePackageRunCiImpl(
             if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
               if (dartVersion >= Version(2, 10, 0, pre: '110')) {
                 stderr.writeln(
-                    '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589');
+                  '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589',
+                );
               } else {
                 await runScript('''
       # Build runner test
@@ -479,8 +513,10 @@ Future<void> singlePackageRunCiImpl(
 
       if (!options.noBuild) {
         /// Try web dev if possible
-        if (pubspecYamlHasAllDependencies(
-            pubspecMap, ['build_web_compilers', 'build_runner'])) {
+        if (pubspecYamlHasAllDependencies(pubspecMap, [
+          'build_web_compilers',
+          'build_runner',
+        ])) {
           if (File(join(path, 'web', 'index.html')).existsSync()) {
             await checkAndActivateWebdev();
 
@@ -559,7 +595,8 @@ class SinglePackageCiRunner {
     _isFlutterPackage = pubspecYamlSupportsFlutter(_pubspecMap);
     if (_verbose) {
       stdout.writeln(
-          'package: $path, sdk: $pubspecSdkBoundaries${isFlutterPackage ? ', flutter' : ''}${isWorkspaceRoot ? ', workspace' : ''}');
+        'package: $path, sdk: $pubspecSdkBoundaries${isFlutterPackage ? ', flutter' : ''}${isWorkspaceRoot ? ', workspace' : ''}',
+      );
     }
   }
 

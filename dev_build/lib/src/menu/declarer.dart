@@ -51,8 +51,13 @@ class Declarer {
   DevMenu devMenu = RootMenu();
 
   /// Menu, running body.
-  void menu(String name, void Function() body,
-      {String? cmd, bool? group, bool? solo}) {
+  void menu(
+    String name,
+    void Function() body, {
+    String? cmd,
+    bool? group,
+    bool? solo,
+  }) {
     final parentMenu = devMenu;
 
     final newMenu = DevMenu(name, cmd: cmd, group: group, solo: solo);

@@ -14,20 +14,26 @@ List<String> get testDescriptions =>
 /// Dart test implementation.
 abstract class Test {
   /// Test a function.
-  void test(String description, dynamic Function() body,
-      {String? testOn,
-      Timeout? timeout,
-      Object? skip,
-      bool solo = false,
-      Map<String, Object?>? onPlatform});
+  void test(
+    String description,
+    dynamic Function() body, {
+    String? testOn,
+    Timeout? timeout,
+    Object? skip,
+    bool solo = false,
+    Map<String, Object?>? onPlatform,
+  });
 
   /// Test a group
-  void group(String description, void Function() body,
-      {String? testOn,
-      Timeout? timeout,
-      Object? skip,
-      bool solo = false,
-      Map<String, Object?>? onPlatform});
+  void group(
+    String description,
+    void Function() body, {
+    String? testOn,
+    Timeout? timeout,
+    Object? skip,
+    bool solo = false,
+    Map<String, Object?>? onPlatform,
+  });
 
   /// overriding  [_test.setUp]
   void setUp(dynamic Function() callback);
@@ -49,34 +55,46 @@ abstract class WithTestDescriptions {
 }
 
 /// test (see test.dart)
-void test(String description, dynamic Function() body,
-    {String? testOn,
-    Timeout? timeout,
-    Object? skip,
-    @Deprecated('Dev only') bool solo = false,
-    Map<String, Object?>? onPlatform}) {
-  testImplementation.test(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform,
-      // ignore: deprecated_member_use
-      solo: solo);
+void test(
+  String description,
+  dynamic Function() body, {
+  String? testOn,
+  Timeout? timeout,
+  Object? skip,
+  @Deprecated('Dev only') bool solo = false,
+  Map<String, Object?>? onPlatform,
+}) {
+  testImplementation.test(
+    description,
+    body,
+    testOn: testOn,
+    timeout: timeout,
+    skip: skip,
+    onPlatform: onPlatform,
+    // ignore: deprecated_member_use
+    solo: solo,
+  );
 }
 
 /// group (see test.dart)
-void group(String description, void Function() body,
-    {String? testOn,
-    Timeout? timeout,
-    Object? skip,
-    @Deprecated('Dev only') bool solo = false,
-    Map<String, Object?>? onPlatform}) {
-  testImplementation.group(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform,
-      solo: solo);
+void group(
+  String description,
+  void Function() body, {
+  String? testOn,
+  Timeout? timeout,
+  Object? skip,
+  @Deprecated('Dev only') bool solo = false,
+  Map<String, Object?>? onPlatform,
+}) {
+  testImplementation.group(
+    description,
+    body,
+    testOn: testOn,
+    timeout: timeout,
+    skip: skip,
+    onPlatform: onPlatform,
+    solo: solo,
+  );
 }
 
 /// overriding  [_test.setUp]
@@ -113,19 +131,25 @@ void tearDownAll(dynamic Function() callback) {
 @Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
-    solo_test(String description, dynamic Function() body,
-        {String? testOn,
-        Timeout? timeout,
-        Object? skip,
-        @Deprecated('Dev only') bool solo = false,
-        Map<String, Object?>? onPlatform}) {
-  testImplementation.test(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform,
-      // ignore: deprecated_member_use
-      solo: true);
+solo_test(
+  String description,
+  dynamic Function() body, {
+  String? testOn,
+  Timeout? timeout,
+  Object? skip,
+  @Deprecated('Dev only') bool solo = false,
+  Map<String, Object?>? onPlatform,
+}) {
+  testImplementation.test(
+    description,
+    body,
+    testOn: testOn,
+    timeout: timeout,
+    skip: skip,
+    onPlatform: onPlatform,
+    // ignore: deprecated_member_use
+    solo: true,
+  );
 }
 
 ///
@@ -135,18 +159,24 @@ void
 @Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
-    solo_group(String description, void Function() body,
-        {String? testOn,
-        Timeout? timeout,
-        Object? skip,
-        @Deprecated('Dev only') bool solo = false,
-        Map<String, Object?>? onPlatform}) {
-  testImplementation.group(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: skip,
-      onPlatform: onPlatform,
-      solo: true);
+solo_group(
+  String description,
+  void Function() body, {
+  String? testOn,
+  Timeout? timeout,
+  Object? skip,
+  @Deprecated('Dev only') bool solo = false,
+  Map<String, Object?>? onPlatform,
+}) {
+  testImplementation.group(
+    description,
+    body,
+    testOn: testOn,
+    timeout: timeout,
+    skip: skip,
+    onPlatform: onPlatform,
+    solo: true,
+  );
 }
 
 ///
@@ -157,19 +187,25 @@ void
 @Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
-    skip_test(String description, dynamic Function() body,
-        {String? testOn,
-        Timeout? timeout,
-        skip,
-        @Deprecated('Dev only') bool solo = false,
-        Map<String, Object?>? onPlatform}) {
-  testImplementation.test(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: true,
-      onPlatform: onPlatform,
-      // ignore: deprecated_member_use
-      solo: solo);
+skip_test(
+  String description,
+  dynamic Function() body, {
+  String? testOn,
+  Timeout? timeout,
+  skip,
+  @Deprecated('Dev only') bool solo = false,
+  Map<String, Object?>? onPlatform,
+}) {
+  testImplementation.test(
+    description,
+    body,
+    testOn: testOn,
+    timeout: timeout,
+    skip: true,
+    onPlatform: onPlatform,
+    // ignore: deprecated_member_use
+    solo: solo,
+  );
 }
 
 ///
@@ -180,16 +216,22 @@ void
 @Deprecated('Dev only')
 void
 // ignore: non_constant_identifier_names
-    skip_group(String description, void Function() body,
-        {String? testOn,
-        Timeout? timeout,
-        skip,
-        @Deprecated('Dev only') bool solo = false,
-        Map<String, Object?>? onPlatform}) {
-  testImplementation.group(description, body,
-      testOn: testOn,
-      timeout: timeout,
-      skip: true,
-      onPlatform: onPlatform,
-      solo: solo);
+skip_group(
+  String description,
+  void Function() body, {
+  String? testOn,
+  Timeout? timeout,
+  skip,
+  @Deprecated('Dev only') bool solo = false,
+  Map<String, Object?>? onPlatform,
+}) {
+  testImplementation.group(
+    description,
+    body,
+    testOn: testOn,
+    timeout: timeout,
+    skip: true,
+    onPlatform: onPlatform,
+    solo: solo,
+  );
 }

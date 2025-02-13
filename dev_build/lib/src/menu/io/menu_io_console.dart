@@ -73,8 +73,9 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
   void readLine() {
     if (_inCommand == null) {
       // devPrint('readLine setup');
-      _inCommand =
-          sharedStdIn.transform(utf8.decoder).transform(const LineSplitter());
+      _inCommand = sharedStdIn
+          .transform(utf8.decoder)
+          .transform(const LineSplitter());
 
       // Waiting forever on stdin
       _inCommandSubscription = _inCommand!.listen(handleLine);
@@ -168,9 +169,9 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
     return Future.value();
   }
 
-//void main() {
-//readLine().listen(processLine);
-//}
+  //void main() {
+  //readLine().listen(processLine);
+  //}
 
   List<String>? initialCommands;
   int initialCommandIndex = 0;
@@ -192,11 +193,11 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
     final name = '${menu.name} ';
     stdout.write('$name> ');
 
-//      Completer<String> completer = new Completer();
-//      //stdin.readByteSync();
-//      completer.future.then((String command) {
-//        print('FUTURE: $command');
-//      });
+    //      Completer<String> completer = new Completer();
+    //      //stdin.readByteSync();
+    //      completer.future.then((String command) {
+    //        print('FUTURE: $command');
+    //      });
     if (!_argumentsHandled) {
       _argumentsHandled = true;
 

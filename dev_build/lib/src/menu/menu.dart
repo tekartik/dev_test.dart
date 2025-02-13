@@ -36,8 +36,13 @@ Declarer menuNewDeclarer() {
 ///
 /// declaration must be sync
 ///
-void menu(String name, void Function() body,
-    {String? cmd, bool? group, @Deprecated('Dev only') bool? solo}) {
+void menu(
+  String name,
+  void Function() body, {
+  String? cmd,
+  bool? group,
+  @Deprecated('Dev only') bool? solo,
+}) {
   _declarer!.menu(name, body, cmd: cmd, group: group, solo: solo);
 }
 
@@ -47,8 +52,12 @@ void menu(String name, void Function() body,
 /// can return a future
 ///
 /// @param cmd command shortcut (instead of incremental number)
-void item(String name, dynamic Function() body,
-    {String? cmd, @Deprecated('Dev only') bool? solo}) {
+void item(
+  String name,
+  dynamic Function() body, {
+  String? cmd,
+  @Deprecated('Dev only') bool? solo,
+}) {
   _declarer!.item(name, body, cmd: cmd, solo: solo);
 }
 
@@ -78,8 +87,12 @@ void leave(dynamic Function() body) {
 /// Deprecated for temp usage only.
 @Deprecated('Dev only')
 // ignore: non_constant_identifier_names
-void solo_item(String name, dynamic Function() body,
-    {String? cmd, @Deprecated('Dev only') bool? solo}) {
+void solo_item(
+  String name,
+  dynamic Function() body, {
+  String? cmd,
+  @Deprecated('Dev only') bool? solo,
+}) {
   item(name, body, cmd: cmd, solo: solo ?? true);
 }
 
@@ -88,8 +101,12 @@ void solo_item(String name, dynamic Function() body,
 /// Deprecated for temp usage only.
 @Deprecated('Dev only')
 // ignore: non_constant_identifier_names
-void solo_menu(String name, void Function() body,
-    {String? cmd, @Deprecated('Dev only') bool? solo}) {
+void solo_menu(
+  String name,
+  void Function() body, {
+  String? cmd,
+  @Deprecated('Dev only') bool? solo,
+}) {
   menu(name, body, cmd: cmd, solo: solo ?? true);
 }
 

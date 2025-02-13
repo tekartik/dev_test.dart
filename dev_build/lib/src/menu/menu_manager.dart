@@ -317,7 +317,7 @@ class MenuManager {
     }
   }
 
-/*
+  /*
   @deprecated
   void onProcessMenu(Menu menu) {
     if (!_initCommandHandled) {
@@ -338,5 +338,5 @@ class MenuManager {
   }
   */
 
-//void onProcessItem(MenuItem item) {}
+  //void onProcessItem(MenuItem item) {}
 }

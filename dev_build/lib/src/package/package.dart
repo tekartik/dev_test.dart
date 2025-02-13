@@ -57,8 +57,10 @@ extension DartPackageExt on DartPackage {
 
   /// True if changed
   bool setVersion(Version version) {
-    return _mixin.pubspecYamlContent
-        .setOrAppendKey('version', version.toString());
+    return _mixin.pubspecYamlContent.setOrAppendKey(
+      'version',
+      version.toString(),
+    );
   }
 }
 
@@ -80,8 +82,10 @@ Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {
 
 /// Get the dependencies packages name.
 ///
-Iterable<String> pubspecYamlGetDependenciesPackageName(Map yaml,
-    {PubDependencyKind? kind}) {
+Iterable<String> pubspecYamlGetDependenciesPackageName(
+  Map yaml, {
+  PubDependencyKind? kind,
+}) {
   kind ??= PubDependencyKind.direct;
   var key = _kindKeyMap[kind]!;
   var dependencies = yaml[key];
@@ -93,7 +97,8 @@ Iterable<String> pubspecYamlGetDependenciesPackageName(Map yaml,
 
 /// Get the dev_dependencies packages name from pubspec.lock
 Version pubspecLockGetVersion(Map yaml, String packageName) => Version.parse(
-    ((yaml['packages'] as Map)[packageName] as Map)['version'] as String);
+  ((yaml['packages'] as Map)[packageName] as Map)['version'] as String,
+);
 
 bool _hasKindDependency(Map yaml, String kind, String dependency) {
   var dependencies = yaml[kind] as Map?;
@@ -117,7 +122,7 @@ bool _hasDependency(Map? yaml, String dependency) {
   for (var (kind, prefix) in [
     ('dependencies', 'direct'),
     ('dev_dependencies', 'dev'),
-    ('dependency_overrides', 'override')
+    ('dependency_overrides', 'override'),
   ]) {
     if (dependencyPrefix != null && prefix != dependencyPrefix) {
       continue;
@@ -348,13 +353,13 @@ class VersionBoundaries {
 
   /// Default is lower bound included, upper excluted.
   VersionBoundaries.versions(Version? versionMin, Version? versionMax)
-      : min = versionMin?.lowerBoundary,
-        max = versionMax?.upperBoundary;
+    : min = versionMin?.lowerBoundary,
+      max = versionMax?.upperBoundary;
 
   /// Version boundaries pinned.
   VersionBoundaries.version(Version version)
-      : min = VersionBoundary(version, true),
-        max = VersionBoundary(version, true);
+    : min = VersionBoundary(version, true),
+      max = VersionBoundary(version, true);
 
   /// Compat
   static VersionBoundaries? tryParse(String text) {
@@ -481,8 +486,10 @@ bool analysisOptionsSupportsNnbdExperiment(Map? map) {
   // analyzer:
   //   enable-experiment:
   //     - non-nullable
-  var experiments =
-      mapValueFromParts<Object?>(map, ['analyzer', 'enable-experiment']);
+  var experiments = mapValueFromParts<Object?>(map, [
+    'analyzer',
+    'enable-experiment',
+  ]);
   return experiments is List && experiments.contains('non-nullable');
 }
 

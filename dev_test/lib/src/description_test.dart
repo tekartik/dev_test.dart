@@ -19,46 +19,58 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
   WithDescriptionsTest(this._impl);
 
   @override
-  void test(String description, dynamic Function() body,
-      {String? testOn,
-      Timeout? timeout,
-      skip,
-      @Deprecated('Dev only') bool solo = false,
-      Map<String, Object?>? onPlatform}) {
+  void test(
+    String description,
+    dynamic Function() body, {
+    String? testOn,
+    Timeout? timeout,
+    skip,
+    @Deprecated('Dev only') bool solo = false,
+    Map<String, Object?>? onPlatform,
+  }) {
     var descriptions = List<String>.from(_descriptions)..add(description);
-    _impl.test(description, () {
-      return _wrap(descriptions, body);
-    },
-        testOn: testOn,
-        timeout: timeout,
-        skip: skip,
-        onPlatform: onPlatform,
-        // ignore: deprecated_member_use
-        solo: solo);
+    _impl.test(
+      description,
+      () {
+        return _wrap(descriptions, body);
+      },
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      // ignore: deprecated_member_use
+      solo: solo,
+    );
   }
 
-// overriding  [_test.group]
+  // overriding  [_test.group]
   @override
-  void group(String description, void Function() body,
-      {String? testOn,
-      Timeout? timeout,
-      skip,
-      @Deprecated('Dev only') bool solo = false,
-      Map<String, Object?>? onPlatform}) {
-    _impl.group(description, () {
-      _descriptions.add(description);
-      body();
-      _descriptions.removeLast();
-    },
-        testOn: testOn,
-        timeout: timeout,
-        skip: skip,
-        onPlatform: onPlatform,
-        // ignore: deprecated_member_use
-        solo: solo);
+  void group(
+    String description,
+    void Function() body, {
+    String? testOn,
+    Timeout? timeout,
+    skip,
+    @Deprecated('Dev only') bool solo = false,
+    Map<String, Object?>? onPlatform,
+  }) {
+    _impl.group(
+      description,
+      () {
+        _descriptions.add(description);
+        body();
+        _descriptions.removeLast();
+      },
+      testOn: testOn,
+      timeout: timeout,
+      skip: skip,
+      onPlatform: onPlatform,
+      // ignore: deprecated_member_use
+      solo: solo,
+    );
   }
 
-// overriding  [_test.setUp]
+  // overriding  [_test.setUp]
   @override
   void setUp(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
@@ -67,7 +79,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
     });
   }
 
-// overriding  [_test.tearDown]
+  // overriding  [_test.tearDown]
   @override
   void tearDown(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
@@ -76,7 +88,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
     });
   }
 
-// overriding  [_test.setUp]
+  // overriding  [_test.setUp]
   @override
   void setUpAll(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);
@@ -85,7 +97,7 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
     });
   }
 
-// overriding  [_test.tearDown]
+  // overriding  [_test.tearDown]
   @override
   void tearDownAll(dynamic Function() body) {
     final descriptions = List<String>.from(_descriptions);

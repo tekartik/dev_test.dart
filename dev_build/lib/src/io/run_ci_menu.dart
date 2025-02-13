@@ -28,12 +28,14 @@ void runCiMenu(String path) {
   item('info', () async {
     try {
       await package.ready;
-      write(_jsonPretty({
-        'isFlutter': package.isFlutter,
-        'isWorkspace': package.isWorkspace,
-        'workPath': await pathGetResolvedWorkPath(package.path),
-        'packageConfigPath': await pathGetPackageConfigJsonPath(package.path)
-      }));
+      write(
+        _jsonPretty({
+          'isFlutter': package.isFlutter,
+          'isWorkspace': package.isWorkspace,
+          'workPath': await pathGetResolvedWorkPath(package.path),
+          'packageConfigPath': await pathGetPackageConfigJsonPath(package.path),
+        }),
+      );
       write('Running CI for package ${package.path}');
     } catch (e) {
       write('Not a dart project, error: $e');
@@ -55,14 +57,24 @@ void runCiMenu(String path) {
     await packageRunCi(package.path);
   });
   item('analyze', () async {
-    await packageRunCi(package.path,
-        options: PackageRunCiOptions(
-            analyzeOnly: true, noPubGet: true, verbose: verbose));
+    await packageRunCi(
+      package.path,
+      options: PackageRunCiOptions(
+        analyzeOnly: true,
+        noPubGet: true,
+        verbose: verbose,
+      ),
+    );
   });
   item('format', () async {
-    await packageRunCi(package.path,
-        options: PackageRunCiOptions(
-            formatOnly: true, noPubGet: true, verbose: verbose));
+    await packageRunCi(
+      package.path,
+      options: PackageRunCiOptions(
+        formatOnly: true,
+        noPubGet: true,
+        verbose: verbose,
+      ),
+    );
   });
   item('cd (prompt)', () async {
     var dir = await prompt('Enter a directory');

@@ -2,8 +2,11 @@ import 'dart:convert';
 
 /// Add a dependency in a brut force way
 ///
-String pubspecStringAddDependency(String content, String dependency,
-    {List<String>? dependencyLines}) {
+String pubspecStringAddDependency(
+  String content,
+  String dependency, {
+  List<String>? dependencyLines,
+}) {
   var lines = LineSplitter.split(content).toList();
   var index = lines.indexOf('dependencies:');
   if (index < 0) {

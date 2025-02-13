@@ -12,8 +12,10 @@ Future<void> main() async {
   await dartGenerateAndRunCi(path: path, template: 'console-simple');
 }
 
-Future<void> dartGenerateAndRunCi(
-    {required String template, required String path}) async {
+Future<void> dartGenerateAndRunCi({
+  required String template,
+  required String path,
+}) async {
   await Directory(path).prepare();
 
   // var shell = Shell().cd(dirname(path));

@@ -53,66 +53,91 @@ Future<void> main(List<String> arguments) async {
 
 /// Run ci binary main
 Future<void> runCiMain(List<String> arguments) async {
-  var menuParser = ArgParser()
-    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
-  var configParser = ArgParser()
-    ..addFlag(flagSkipRunCi,
-        negatable: false,
-        help:
-            'Mark project folder as skipped locally (.local/ must be source control ignored)')
-    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
-  var parser = ArgParser()
-    ..addFlag('version', help: 'Application version', negatable: false)
-    ..addFlag('verbose', abbr: 'v', help: 'Verbose mode', negatable: false)
-    ..addFlag('no-format', help: 'No format test', negatable: false)
-    ..addFlag('no-test', help: 'No test ran', negatable: false)
-    ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
-    ..addFlag('no-build', help: 'No build performed', negatable: false)
-    ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
-    ..addFlag('no-vm-test', help: 'No VM test', negatable: false)
-    ..addFlag('no-browser-test', help: 'No Browser test', negatable: false)
-    ..addFlag('no-node-test', help: 'No Node test', negatable: false)
-    ..addFlag('no-npm-install', help: 'No NPM install', negatable: false)
-    ..addFlag('no-override',
-        help: 'Do not run \'tool/run_ci_override.dart\' if found',
-        negatable: false)
-    ..addFlag('ignore-errors',
-        abbr: 'i',
-        help:
-            'Ignore errors (stop the current package but run the other packages)',
-        negatable: false)
-    ..addFlag('format', help: 'Format only', negatable: false)
-    ..addFlag('test', help: 'Test only', negatable: false)
-    ..addFlag('analyze', help: 'Analyze only', negatable: false)
-    ..addFlag(fixFlagName, help: 'Fix only', negatable: false)
-    ..addFlag('build', help: 'Build only', negatable: false)
-    ..addFlag('pub-get', help: 'Get only', negatable: false)
-    ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
-    ..addFlag('pub-downgrade', help: 'Run pub downgrade only', negatable: false)
-    ..addFlag('offline', help: 'Offline', negatable: false)
-    ..addFlag(prjInfoFlagName, help: 'Project info', negatable: false)
-    ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
-    ..addFlag('dry-run', help: 'Dry run', negatable: false)
-    ..addOption('concurrency',
-        abbr: 'j',
-        help: 'Package concurrency (poolSize)',
-        defaultsTo: '$defaultConcurrency')
-    ..addFlag('recursive',
-        help: 'Recursive (try to find dart/flutter project recursively',
-        defaultsTo: true,
-        negatable: true)
-    ..addFlag(ignoreSdkConstraintsFlagName,
-        help: 'Ignore SDK constraints when selecting projects',
-        negatable: false)
-    ..addOption(minSdkOptionName,
-        help: 'Minimum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')')
-    ..addOption(maxSdkOptionName,
-        help: 'Maximum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')')
-    ..addFlag(printPathFlagName,
-        help: 'Just print the package path (no action)', negatable: false)
-    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
-    ..addCommand('config', configParser)
-    ..addCommand('menu', menuParser);
+  var menuParser =
+      ArgParser()..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
+  var configParser =
+      ArgParser()
+        ..addFlag(
+          flagSkipRunCi,
+          negatable: false,
+          help:
+              'Mark project folder as skipped locally (.local/ must be source control ignored)',
+        )
+        ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
+  var parser =
+      ArgParser()
+        ..addFlag('version', help: 'Application version', negatable: false)
+        ..addFlag('verbose', abbr: 'v', help: 'Verbose mode', negatable: false)
+        ..addFlag('no-format', help: 'No format test', negatable: false)
+        ..addFlag('no-test', help: 'No test ran', negatable: false)
+        ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
+        ..addFlag('no-build', help: 'No build performed', negatable: false)
+        ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
+        ..addFlag('no-vm-test', help: 'No VM test', negatable: false)
+        ..addFlag('no-browser-test', help: 'No Browser test', negatable: false)
+        ..addFlag('no-node-test', help: 'No Node test', negatable: false)
+        ..addFlag('no-npm-install', help: 'No NPM install', negatable: false)
+        ..addFlag(
+          'no-override',
+          help: 'Do not run \'tool/run_ci_override.dart\' if found',
+          negatable: false,
+        )
+        ..addFlag(
+          'ignore-errors',
+          abbr: 'i',
+          help:
+              'Ignore errors (stop the current package but run the other packages)',
+          negatable: false,
+        )
+        ..addFlag('format', help: 'Format only', negatable: false)
+        ..addFlag('test', help: 'Test only', negatable: false)
+        ..addFlag('analyze', help: 'Analyze only', negatable: false)
+        ..addFlag(fixFlagName, help: 'Fix only', negatable: false)
+        ..addFlag('build', help: 'Build only', negatable: false)
+        ..addFlag('pub-get', help: 'Get only', negatable: false)
+        ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
+        ..addFlag(
+          'pub-downgrade',
+          help: 'Run pub downgrade only',
+          negatable: false,
+        )
+        ..addFlag('offline', help: 'Offline', negatable: false)
+        ..addFlag(prjInfoFlagName, help: 'Project info', negatable: false)
+        ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
+        ..addFlag('dry-run', help: 'Dry run', negatable: false)
+        ..addOption(
+          'concurrency',
+          abbr: 'j',
+          help: 'Package concurrency (poolSize)',
+          defaultsTo: '$defaultConcurrency',
+        )
+        ..addFlag(
+          'recursive',
+          help: 'Recursive (try to find dart/flutter project recursively',
+          defaultsTo: true,
+          negatable: true,
+        )
+        ..addFlag(
+          ignoreSdkConstraintsFlagName,
+          help: 'Ignore SDK constraints when selecting projects',
+          negatable: false,
+        )
+        ..addOption(
+          minSdkOptionName,
+          help: 'Minimum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')',
+        )
+        ..addOption(
+          maxSdkOptionName,
+          help: 'Maximum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')',
+        )
+        ..addFlag(
+          printPathFlagName,
+          help: 'Just print the package path (no action)',
+          negatable: false,
+        )
+        ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
+        ..addCommand('config', configParser)
+        ..addCommand('menu', menuParser);
   var result = parser.parse(arguments);
   var paths = result.rest.isEmpty ? ['.'] : result.rest;
 
@@ -128,7 +153,8 @@ Future<void> runCiMain(List<String> arguments) async {
       printVersion();
       stdout.writeln();
       stdout.writeln(
-          'Usage: pub run dev_build:run_ci config [<arguments>] [<path>]');
+        'Usage: pub run dev_build:run_ci config [<arguments>] [<path>]',
+      );
       stdout.writeln();
       stdout.writeln(configParser.usage);
       exit(0);
@@ -193,20 +219,23 @@ Future<void> runCiMain(List<String> arguments) async {
   var recursive = result['recursive'] as bool;
   var prjInfo = result[prjInfoFlagName] as bool;
   var noRunCi = result.getValue<bool>(noRunCiFlagName);
-  var ignoreSdkConstraints =
-      result.getValue<bool>(ignoreSdkConstraintsFlagName);
+  var ignoreSdkConstraints = result.getValue<bool>(
+    ignoreSdkConstraintsFlagName,
+  );
   var minSdkVersion = result.getValue<String?>(minSdkOptionName);
   var maxSdkVersion = result.getValue<String?>(maxSdkOptionName);
   var printPath = result.getValue<bool>(printPathFlagName);
   var fixOnly = result.getValue<bool>(fixFlagName);
 
-  var poolSize = int.tryParse(result.getValue<String>('concurrency')) ??
+  var poolSize =
+      int.tryParse(result.getValue<String>('concurrency')) ??
       defaultConcurrency;
 
   FilterDartProjectOptions? filterDartProjectOptions;
   if (ignoreSdkConstraints) {
-    filterDartProjectOptions =
-        FilterDartProjectOptions(ignoreSdkConstraints: ignoreSdkConstraints);
+    filterDartProjectOptions = FilterDartProjectOptions(
+      ignoreSdkConstraints: ignoreSdkConstraints,
+    );
   } else if (minSdkVersion != null || maxSdkVersion != null) {
     filterDartProjectOptions = FilterDartProjectOptions(
       minSdk:
@@ -216,53 +245,58 @@ Future<void> runCiMain(List<String> arguments) async {
     );
   }
   var options = PackageRunCiOptions(
-      verbose: verbose,
-      offline: offline,
-      noFormat: noFormat,
-      noTest: noTest,
-      noAnalyze: noAnalyze,
-      noBuild: noBuild,
-      noPubGet: noPubGet,
-      noVmTest: noVmTest,
-      noNodeTest: noNodeTest,
-      noNpmInstall: noNpmInstall,
-      noBrowserTest: noBrowserTest,
-      formatOnly: formatOnly,
-      testOnly: testOnly,
-      buildOnly: buildOnly,
-      analyzeOnly: analyzeOnly,
-      pubGetOnly: pubGetOnly,
-      pubUpgradeOnly: pubUpgradeOnly,
-      pubDowngradeOnly: pubDowngradeOnly,
-      fixOnly: fixOnly,
-      noOverride: noOverride,
-      dryRun: dryRun,
-      prjInfo: prjInfo,
-      noRunCi: noRunCi,
-      ignoreErrors: ignoreErrors,
-      filterDartProjectOptions: filterDartProjectOptions,
-      printPath: printPath);
+    verbose: verbose,
+    offline: offline,
+    noFormat: noFormat,
+    noTest: noTest,
+    noAnalyze: noAnalyze,
+    noBuild: noBuild,
+    noPubGet: noPubGet,
+    noVmTest: noVmTest,
+    noNodeTest: noNodeTest,
+    noNpmInstall: noNpmInstall,
+    noBrowserTest: noBrowserTest,
+    formatOnly: formatOnly,
+    testOnly: testOnly,
+    buildOnly: buildOnly,
+    analyzeOnly: analyzeOnly,
+    pubGetOnly: pubGetOnly,
+    pubUpgradeOnly: pubUpgradeOnly,
+    pubDowngradeOnly: pubDowngradeOnly,
+    fixOnly: fixOnly,
+    noOverride: noOverride,
+    dryRun: dryRun,
+    prjInfo: prjInfo,
+    noRunCi: noRunCi,
+    ignoreErrors: ignoreErrors,
+    filterDartProjectOptions: filterDartProjectOptions,
+    printPath: printPath,
+  );
 
   Future runDir(String dir) async {
-    await singlePackageRunCi(
-      dir,
-      options: options,
-    );
+    await singlePackageRunCi(dir, options: options);
   }
 
   /// Init a cache to prevent running multiple times the same get/downgrade/upgrade command
   runCiInitPubWorkspacesCache();
   if (recursive) {
     for (var path in paths) {
-      await packageRunCiImpl(path, options,
-          recursive: recursive, poolSize: poolSize);
+      await packageRunCiImpl(
+        path,
+        options,
+        recursive: recursive,
+        poolSize: poolSize,
+      );
     }
   } else {
     for (var path in paths) {
-      if (!(await isPubPackageRoot(path,
-          filterDartProjectOptions: filterDartProjectOptions))) {
+      if (!(await isPubPackageRoot(
+        path,
+        filterDartProjectOptions: filterDartProjectOptions,
+      ))) {
         stderr.writeln(
-            '${absolute(path)} not a dart package, use --recursive option');
+          '${absolute(path)} not a dart package, use --recursive option',
+        );
         exit(1);
       } else {
         await runDir(path);

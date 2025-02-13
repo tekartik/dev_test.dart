@@ -28,34 +28,48 @@ void main() {
   var devTestEntry = join('..', 'dev_test');
   var devBuildEntry = join('..', 'dev_build');
   test('recursivePubPath', () async {
-    expect(await recursivePubPath(['.', '..']),
-        ['.', devTestEntry, repoSupportEntry]);
-    expect(await recursivePubPath(['..', '.']),
-        ['.', devTestEntry, repoSupportEntry]);
-    expect(await recursivePubPath(['..']),
-        [devBuildEntry, devTestEntry, repoSupportEntry]);
+    expect(await recursivePubPath(['.', '..']), [
+      '.',
+      devTestEntry,
+      repoSupportEntry,
+    ]);
+    expect(await recursivePubPath(['..', '.']), [
+      '.',
+      devTestEntry,
+      repoSupportEntry,
+    ]);
+    expect(await recursivePubPath(['..']), [
+      devBuildEntry,
+      devTestEntry,
+      repoSupportEntry,
+    ]);
 
     expect(await recursivePubPath(['.']), ['.']);
   });
 
   test('recursivePubPath dependencies', () async {
-    expect(await recursivePubPath(['..'], dependencies: ['dev_build']),
-        [devTestEntry, repoSupportEntry]);
-    expect(await recursivePubPath(['..'], dependencies: ['dev_test']),
-        [repoSupportEntry]);
+    expect(await recursivePubPath(['..'], dependencies: ['dev_build']), [
+      devTestEntry,
+      repoSupportEntry,
+    ]);
+    expect(await recursivePubPath(['..'], dependencies: ['dev_test']), [
+      repoSupportEntry,
+    ]);
     expect(
-        await recursivePubPath(['..'], dependencies: ['dev_test', 'dev_build']),
-        [devTestEntry, repoSupportEntry]);
-    expect(await recursivePubPath(['..'], dependencies: ['direct:dev_build']),
-        [devTestEntry]);
+      await recursivePubPath(['..'], dependencies: ['dev_test', 'dev_build']),
+      [devTestEntry, repoSupportEntry],
+    );
+    expect(await recursivePubPath(['..'], dependencies: ['direct:dev_build']), [
+      devTestEntry,
+    ]);
   });
 
   test('recursivePubPath readConfig dependencies', () async {
     expect(await recursivePubPath(['.'], dependencies: ['async']), isEmpty);
     expect(
-        await recursivePubPath(['.'],
-            dependencies: ['async'], readConfig: true),
-        ['.']);
+      await recursivePubPath(['.'], dependencies: ['async'], readConfig: true),
+      ['.'],
+    );
   });
 
   test('recursivePubPath ignore build', () async {
@@ -101,30 +115,44 @@ void main() {
 
   test('filterTopLevelDartDirs', () async {
     expect(await filterTopLevelDartDirs(join('..', 'repo_support')), ['tool']);
-    expect(await filterTopLevelDartDirs('.'),
-        ['bin', 'example', 'lib', 'test', 'tool']);
+    expect(await filterTopLevelDartDirs('.'), [
+      'bin',
+      'example',
+      'lib',
+      'test',
+      'tool',
+    ]);
   });
 
   test('recursiveActions', () async {
     var list = <String>[];
-    await recursiveActions(['.'], action: (src) {
-      list.add(src);
-    });
+    await recursiveActions(
+      ['.'],
+      action: (src) {
+        list.add(src);
+      },
+    );
     expect(list, ['.']);
 
     list = <String>[];
-    await recursiveActions(['..'], action: (src) {
-      list.add(src);
-    });
+    await recursiveActions(
+      ['..'],
+      action: (src) {
+        list.add(src);
+      },
+    );
     expect(list, [
       join('..', 'dev_build'),
       join('..', 'dev_test'),
-      join('..', 'repo_support')
+      join('..', 'repo_support'),
     ]);
     list = <String>[];
-    await recursiveActions(['.', '..'], action: (src) {
-      list.add(src);
-    });
+    await recursiveActions(
+      ['.', '..'],
+      action: (src) {
+        list.add(src);
+      },
+    );
     expect(list, ['.', join('..', 'dev_test'), join('..', 'repo_support')]);
   });
 
@@ -135,8 +163,12 @@ void main() {
   test('analyze no dart code', () async {
     // Somehow on node, build contains pubspec.yaml at its root and should be ignored
     // try to reproduce here
-    var outDir =
-        join('.dart_tool', 'dev_build', 'test', 'analyze_no_dart_code_test');
+    var outDir = join(
+      '.dart_tool',
+      'dev_build',
+      'test',
+      'analyze_no_dart_code_test',
+    );
     var file = File(join(outDir, 'pubspec.yaml'));
     await file.parent.create(recursive: true);
     await file.writeAsString('''
@@ -145,14 +177,21 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 ''');
 
-    await packageRunCi(outDir,
-        options: PackageRunCiOptions(analyzeOnly: true, offline: true));
+    await packageRunCi(
+      outDir,
+      options: PackageRunCiOptions(analyzeOnly: true, offline: true),
+    );
   });
   test('analyze no flutter code', () async {
     // Somehow on node, build contains pubspec.yaml at its root and should be ignored
     // try to reproduce here
-    var outDir = join('.dart_tool', 'dev_build', 'test',
-        'analyze_no_flutter_code_test', 'sub');
+    var outDir = join(
+      '.dart_tool',
+      'dev_build',
+      'test',
+      'analyze_no_flutter_code_test',
+      'sub',
+    );
     var file = File(join(outDir, 'pubspec.yaml'));
     await file.parent.create(recursive: true);
     await file.writeAsString('''
@@ -165,19 +204,28 @@ dependencies:
 ''');
 
     // Make it handles sub dir too
-    await packageRunCi(dirname(outDir),
-        options: PackageRunCiOptions(
-            analyzeOnly: true,
-            formatOnly: true,
-            offline: true,
-            recursive: true));
-    await packageRunCi(outDir,
-        options: PackageRunCiOptions(analyzeOnly: true, offline: true));
+    await packageRunCi(
+      dirname(outDir),
+      options: PackageRunCiOptions(
+        analyzeOnly: true,
+        formatOnly: true,
+        offline: true,
+        recursive: true,
+      ),
+    );
+    await packageRunCi(
+      outDir,
+      options: PackageRunCiOptions(analyzeOnly: true, offline: true),
+    );
   });
 
   test('DartPackageIo', () async {
-    var outDir =
-        join('.dart_tool', 'dev_build', 'test', 'dart_package_io_test');
+    var outDir = join(
+      '.dart_tool',
+      'dev_build',
+      'test',
+      'dart_package_io_test',
+    );
     var file = File(join(outDir, 'pubspec.yaml'));
     await file.parent.create(recursive: true);
     await file.writeAsString('''
@@ -201,8 +249,8 @@ environment:
     var workPath = await pathGetResolvedWorkPath('.');
     expect(workPath, '.'); // Could change if switching to workspace
     expect(
-        await pathGetPackageConfigJsonPath('.'),
-        join(path, '.dart_tool',
-            'package_config.json')); // Could change if switching to workspace
+      await pathGetPackageConfigJsonPath('.'),
+      join(path, '.dart_tool', 'package_config.json'),
+    ); // Could change if switching to workspace
   });
 }

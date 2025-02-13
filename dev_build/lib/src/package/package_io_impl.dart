@@ -128,10 +128,15 @@ class _DartPackagesCache {
     if (pkg != null) {
       return pkg;
     }
-    var standalonePackageConfigPath =
-        join(pathGetDartToolDir(packageDir), 'package_config.json');
-    var workspaceRefPath =
-        join(pathGetDartToolDir(packageDir), 'pub', 'workspace_ref.json');
+    var standalonePackageConfigPath = join(
+      pathGetDartToolDir(packageDir),
+      'package_config.json',
+    );
+    var workspaceRefPath = join(
+      pathGetDartToolDir(packageDir),
+      'pub',
+      'workspace_ref.json',
+    );
 
     _DartPackage setPackage(_DartPackage pkg) {
       map[key] = pkg;
@@ -144,10 +149,14 @@ class _DartPackagesCache {
       var workspaceRef = await pathGetYaml(workspaceRefPath);
       var workspaceRoot = workspaceRef['workspaceRoot'];
       if (workspaceRoot is String) {
-        var workspaceRootPath =
-            normalize(absolute(join(dirname(workspaceRefPath), workspaceRoot)));
-        var workspacePackageConfigPath =
-            join(workspaceRootPath, pathDartToolDirPart, 'package_config.json');
+        var workspaceRootPath = normalize(
+          absolute(join(dirname(workspaceRefPath), workspaceRoot)),
+        );
+        var workspacePackageConfigPath = join(
+          workspaceRootPath,
+          pathDartToolDirPart,
+          'package_config.json',
+        );
         if (File(workspacePackageConfigPath).existsSync()) {
           return setPackage(_DartPackage(packageDir, workspaceRootPath));
         }
@@ -177,11 +186,18 @@ final _cache = _DartPackagesCache();
 ///
 /// Get a dependency path, you can get the project dir through its parent
 /// null if not found
-Future<String?> pathGetResolvedPackagePath(String path, String package,
-    {bool? windows}) async {
+Future<String?> pathGetResolvedPackagePath(
+  String path,
+  String package, {
+  bool? windows,
+}) async {
   var packageConfigMap = await pathGetPackageConfigMap(path);
-  return pathPackageConfigMapGetPackagePath(path, packageConfigMap, package,
-      windows: windows);
+  return pathPackageConfigMapGetPackagePath(
+    path,
+    packageConfigMap,
+    package,
+    windows: windows,
+  );
 }
 
 /// Pubspec overrides path
@@ -239,8 +255,11 @@ String _toFilePath(String parent, String path, {bool? windows}) {
 /// Get a library path, you can get the project dir through its parent
 /// null if not found
 String? pathPackageConfigMapGetPackagePath(
-    String path, Map packageConfigMap, String package,
-    {bool? windows}) {
+  String path,
+  Map packageConfigMap,
+  String package, {
+  bool? windows,
+}) {
   var pkg = _cache.get(path);
   var packagesList = packageConfigMap['packages'] as Iterable;
   for (var packageMap in packagesList) {
