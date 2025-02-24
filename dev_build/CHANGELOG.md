@@ -1,6 +1,8 @@
-## 1.1.2
+## 1.1.2+1
 
 * Requires dart 3.7
+* Add `chrome-js-test` and `vm-test` options to run_ci to run only tests.
+* Add `compiledExe` helper to dart package
 
 ## 1.1.1+8
 
