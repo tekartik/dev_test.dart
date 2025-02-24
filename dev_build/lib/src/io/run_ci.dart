@@ -73,8 +73,14 @@ Future<void> runCiMain(List<String> arguments) async {
         ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
         ..addFlag('no-build', help: 'No build performed', negatable: false)
         ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
+        ..addFlag('vm-test', help: 'VM test only', negatable: false)
         ..addFlag('no-vm-test', help: 'No VM test', negatable: false)
         ..addFlag('no-browser-test', help: 'No Browser test', negatable: false)
+        ..addFlag(
+          'chrome-js-test',
+          help: 'Only Chrome dart2js',
+          negatable: false,
+        )
         ..addFlag('no-node-test', help: 'No Node test', negatable: false)
         ..addFlag('no-npm-install', help: 'No NPM install', negatable: false)
         ..addFlag(
@@ -201,9 +207,11 @@ Future<void> runCiMain(List<String> arguments) async {
   var noAnalyze = result['no-analyze'] as bool;
   var noBuild = result['no-build'] as bool;
   var noPubGet = result['no-pub-get'] as bool;
+  var vmTestOnly = result.flag('vm-test');
   var noVmTest = result['no-vm-test'] as bool;
   var noNodeTest = result['no-node-test'] as bool;
   var noBrowserTest = result['no-browser-test'] as bool;
+  var chromeJsTestOnly = result.flag('chrome-js-test');
   var noNpmInstall = result['no-npm-install'] as bool;
   var noOverride = result['no-override'] as bool;
   var formatOnly = result['format'] as bool;
@@ -253,9 +261,11 @@ Future<void> runCiMain(List<String> arguments) async {
     noBuild: noBuild,
     noPubGet: noPubGet,
     noVmTest: noVmTest,
+    vmTestOnly: vmTestOnly,
     noNodeTest: noNodeTest,
     noNpmInstall: noNpmInstall,
     noBrowserTest: noBrowserTest,
+    chromeJsTestOnly: chromeJsTestOnly,
     formatOnly: formatOnly,
     testOnly: testOnly,
     buildOnly: buildOnly,

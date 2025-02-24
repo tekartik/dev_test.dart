@@ -431,22 +431,29 @@ Future<void> singlePackageRunCiImpl(
       if (!options.noTest) {
         var filteredDartDirs = await filterTopLevelDartDirs(path);
         if (filteredDartDirs.contains('test')) {
+          var vmTestOnly = options.vmTestOnly;
+          var chromeJsTestOnly = options.chromeJsTestOnly;
+          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+          var noVmTest = options.noVmTest || chromeJsTestOnly;
+          var noBrowserTest = !isWeb || options.noBrowserTest || vmTestOnly;
+          var noNodeTest =
+              isNodeSupportedSync &&
+              (options.noNodeTest || vmTestOnly || chromeJsTestOnly);
           var platforms = <String>[if (!options.noVmTest) 'vm'];
           var supportedPlatforms = <String>[
-            if (!options.noVmTest) 'vm',
-            if (!options.noBrowserTest) 'chrome',
-            if (!options.noNodeTest && isNodeSupportedSync) 'node',
+            if (!noVmTest) 'vm',
+            if (!noBrowserTest) 'chrome',
+            if (!noNodeTest) 'node',
           ];
           // Tmp don't compile as wasm on windows as it times out
           var noWasm = Platform.isWindows;
 
-          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-          if (!options.noBrowserTest && isWeb) {
+          if (!noBrowserTest) {
             platforms.add('chrome');
           }
           // Add node for standard run test
           var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
-          if (!options.noNodeTest && (isNodePackage && isNodeSupportedSync)) {
+          if (!noNodeTest && isNodePackage) {
             platforms.add('node');
 
             if (!options.noNpmInstall) {
@@ -494,7 +501,7 @@ Future<void> singlePackageRunCiImpl(
     ''');
           }
 
-          if (isWeb) {
+          if (!noBrowserTest) {
             if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
               if (dartVersion >= Version(2, 10, 0, pre: '110')) {
                 stderr.writeln(

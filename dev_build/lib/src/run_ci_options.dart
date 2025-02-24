@@ -81,6 +81,12 @@ class PackageRunCiOptions {
   /// Only run test.
   final bool testOnly;
 
+  /// Only run vm test
+  final bool vmTestOnly;
+
+  /// Only run chrome dart2js test
+  final bool chromeJsTestOnly;
+
   /// Only run build.
   final bool buildOnly;
 
@@ -128,7 +134,9 @@ class PackageRunCiOptions {
     this.fixOnly = false,
     this.noNodeTest = false,
     this.noVmTest = false,
+    this.vmTestOnly = false,
     this.noBrowserTest = false,
+    this.chromeJsTestOnly = false,
     this.noTest = false,
     this.noAnalyze = false,
     this.noFormat = false,
@@ -145,16 +153,17 @@ class PackageRunCiOptions {
     this.filterDartProjectOptions,
     this.printPath = false,
   }) {
+    var isTestOnlyAction = testOnly || vmTestOnly || chromeJsTestOnly;
     var isOnlyAction =
         (formatOnly ||
             buildOnly ||
-            testOnly ||
+            isTestOnlyAction ||
             analyzeOnly ||
             pubGetOnly ||
             pubUpgradeOnly ||
             fixOnly);
     if (isOnlyAction) {
-      noTest = !testOnly;
+      noTest = !isTestOnlyAction;
 
       noBuild = !buildOnly;
       noAnalyze = !analyzeOnly;
@@ -176,7 +185,9 @@ class PackageRunCiOptions {
     fixOnly: fixOnly,
     noNodeTest: noNodeTest,
     noVmTest: noVmTest,
+    vmTestOnly: vmTestOnly,
     noBrowserTest: noBrowserTest,
+    chromeJsTestOnly: chromeJsTestOnly,
     noTest: noTest,
     noAnalyze: noAnalyze,
     noFormat: noFormat,
