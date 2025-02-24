@@ -2,6 +2,9 @@
 library;
 
 import 'package:dev_build/package.dart';
+// ignore: unused_import
+import 'package:dev_build/src/dev_utils.dart';
+import 'package:dev_build/src/version.dart';
 import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:test/test.dart';
@@ -14,9 +17,11 @@ class _RunCiBinContext {
   _RunCiBinContext(this.shell);
 }
 
-var compiledRunCiExeFuture = DartPackageIo(
-  '.',
-).compiledExe(script: join('bin', 'run_ci.dart'));
+var compiledRunCiExeFuture = DartPackageIo('.').compiledExe(
+  script: join('bin', 'run_ci.dart'),
+  minVersion: packageVersion,
+  verbose: false, // devWarning(true),
+);
 
 void main() {
   group('bin', () {

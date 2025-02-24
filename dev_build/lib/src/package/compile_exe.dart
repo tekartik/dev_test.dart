@@ -35,6 +35,7 @@ extension DartPackageIoCompileExeExt on DartPackageIo {
     String? script,
     bool force = false,
     Version? minVersion,
+    bool verbose = false,
   }) async {
     script = normalize(
       absolute(
@@ -51,7 +52,7 @@ extension DartPackageIoCompileExeExt on DartPackageIo {
     var exe = join(path, 'build', folder, '$scriptBasename$exeExtension');
     var exeDir = dirname(exe);
 
-    var shell = Shell(verbose: false);
+    var shell = Shell(verbose: verbose);
     var file = File(exe);
 
     var needCompile = force || !file.existsSync();
@@ -63,6 +64,9 @@ extension DartPackageIoCompileExeExt on DartPackageIo {
       if (minVersion != null) {
         var version = await _getVersion(exe);
         if (version != null && version >= minVersion) {
+          if (verbose) {
+            stdout.writeln('found version $version exe $exe');
+          }
           return DartPackageIoCompiledExe(exe, version);
         } else {
           needCompile = true;
@@ -76,6 +80,9 @@ extension DartPackageIoCompileExeExt on DartPackageIo {
       );
     }
     var version = await _getVersion(exe);
+    if (verbose) {
+      stdout.writeln('version $version exe $exe');
+    }
     return DartPackageIoCompiledExe(exe, version);
   }
 }
