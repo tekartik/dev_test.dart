@@ -121,7 +121,7 @@ Iterable<String> pubspecYamlGetDependenciesPackageName(
   Map yaml, {
   PubDependencyKind? kind,
 }) {
-  var dependencies = pubspecYamlGetDependenciesMap(yaml);
+  var dependencies = pubspecYamlGetDependenciesMap(yaml, kind: kind);
   if (dependencies != null) {
     return dependencies.keys.cast<String>();
   }
