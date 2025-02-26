@@ -1,5 +1,32 @@
 import 'list_utils.dart';
 
+/// Internal use only
+typedef Model = Map<String, Object?>;
+
+/// as Model
+Model asModel(Map map) => map is Model ? map : map.cast<String, Object?>();
+
+/// as Model or null
+Model? asModelOrNull(Map? map) => map?.cast<String, Object?>();
+
+/// Internal use only
+extension TekartikObjectPrvExt on Object {
+  /// as Model if possible
+  Model? get anyAsModel {
+    var self = this;
+    if (self is Map) {
+      return asModel(self);
+    }
+    return null;
+  }
+}
+
+/// Get a map value as a map
+Model? mapValueAsMap(Map map, String key) {
+  var value = map[key] as Object?;
+  return value?.anyAsModel;
+}
+
 /// Clone a map.
 Map<K, V> cloneMap<K, V>(Map<K, V> original) {
   final map = <K, V?>{};
@@ -42,5 +69,8 @@ T? _getPartsMapValue<T>(Map? map, Iterable<String> parts) {
       return null;
     }
   }
-  return value as T?;
+  if (value is T) {
+    return value;
+  }
+  return null;
 }

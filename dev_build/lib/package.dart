@@ -8,7 +8,12 @@ export 'src/package/compile_exe.dart'
     show DartPackageIoCompileExeExt, DartPackageIoCompiledExe;
 export 'src/package/filter_dart_project_options.dart'
     show FilterDartProjectOptions, FilterDartProjectOptionsExt;
-export 'src/package/package.dart' show DartPackage, DartPackageExt;
+export 'src/package/package.dart'
+    show
+        DartPackage,
+        DartPackageReader,
+        DartPackageWriterExt,
+        DartPackageReaderExt;
 export 'src/package/package_io_impl.dart' show DartPackageIo, DartPackageIoExt;
 export 'src/package/recursive_pub_path.dart'
     show recursivePubPath, recursivePackagesRun;
