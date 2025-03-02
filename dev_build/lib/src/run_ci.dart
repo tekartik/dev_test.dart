@@ -276,6 +276,7 @@ Future<void> singlePackageRunCiImpl(
       options: PubIoPackageOptions(verbose: options.verbose),
     );
     await pubIoPackage.ready;
+    var dofPub = pubIoPackage.dofPub;
     if (options.prjInfo) {
       stdout.writeln('# package: ${normalize(absolute(path))}');
     } else {
@@ -375,7 +376,7 @@ Future<void> singlePackageRunCiImpl(
       }
       if (!skip) {
         var offlineSuffix = options.offline ? ' --offline' : '';
-        var dofPub = pubIoPackage.dofPub;
+
         switch (action) {
           case _PubWorkspaceCacheAction.upgrade:
             await runScript('$dofPub upgrade$offlineSuffix');
@@ -461,9 +462,10 @@ Future<void> singlePackageRunCiImpl(
               // Workaround issue about complaining old pubspec on node...
               // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
             }
+
             await runScript('''
           # Get dependencies
-          dart pub get --offline
+          $dofPub get --offline
     ''');
           }
 
@@ -505,12 +507,12 @@ Future<void> singlePackageRunCiImpl(
             if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
               if (dartVersion >= Version(2, 10, 0, pre: '110')) {
                 stderr.writeln(
-                  '\'dart pub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589',
+                  '\'$dofPub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589',
                 );
               } else {
                 await runScript('''
       # Build runner test
-      dart pub run build_runner test -- -p chrome
+      $dofPub run build_runner test -- -p chrome
       ''');
               }
             }
@@ -533,9 +535,9 @@ Future<void> singlePackageRunCiImpl(
             // webdev could not run for this project.
             // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
             if (Platform.isWindows) {
-              await runScript('dart pub get');
+              await runScript('$dofPub get');
             }
-            await runScript('dart pub global run webdev build');
+            await runScript('$dofPub global run webdev build');
           }
         }
       }
