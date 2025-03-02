@@ -1,9 +1,10 @@
-## 1.1.2+4
+## 1.1.2+5
 
 * Requires dart 3.7
 * Add `chrome-js-test` and `vm-test` options to run_ci to run only tests.
 * Add `compiledExe` helper to dart package
 * Add get dependency helper to DartPackageReader
+* Handle workspace in `run_ci` when mixin dart and flutter projects
 
 ## 1.1.1+8
 
