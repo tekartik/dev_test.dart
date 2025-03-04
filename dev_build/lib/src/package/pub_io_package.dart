@@ -1,6 +1,7 @@
 import 'package:dev_build/build_support.dart';
 import 'package:dev_build/shell.dart';
 import 'package:dev_build/src/pub_io.dart';
+import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/stdio.dart';
 
@@ -144,6 +145,10 @@ class PubIoPackage {
 
   /// Dart or flutter
   String get dof => isFlutter ? 'flutter' : 'dart';
+
+  /// shell environment
+  ShellEnvironment get shellEnvironment =>
+      _useFlutterPub ? flutterDartShellEnvironment : ShellEnvironment();
 
   /// Dart pub of flutter pub (handles workspace)
   String get dofPub => '${_useFlutterPub ? 'flutter' : 'dart'} pub';

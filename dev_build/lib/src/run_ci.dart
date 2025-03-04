@@ -265,288 +265,298 @@ Future<void> singlePackageRunCiImpl(
 ) async {
   options = options.clone();
   try {
-    var ciRunner = SinglePackageCiRunner(path, options);
-    await ciRunner.init();
-    if (options.printPath) {
-      stdout.writeln(normalize(absolute(path)));
-      return;
-    }
     var pubIoPackage = PubIoPackage(
       path,
       options: PubIoPackageOptions(verbose: options.verbose),
     );
     await pubIoPackage.ready;
-    var dofPub = pubIoPackage.dofPub;
-    if (options.prjInfo) {
-      stdout.writeln('# package: ${normalize(absolute(path))}');
-    } else {
-      stdout.writeln('# package: $path');
-    }
-    var shell = Shell(workingDirectory: path);
-
-    // Project info
-    if (options.prjInfo) {
-      try {
-        var boundaries = ciRunner.pubspecSdkBoundaries;
-        if (boundaries != null) {
-          var minSdkVersion = boundaries.min?.value ?? _unsetVersion;
-          // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
-          var tags = <String>[
-            if (ciRunner.isFlutterPackage) 'flutter',
-            if (minSdkVersion < _minNullableVersion) 'non-nullable',
-          ];
-          if (tags.isNotEmpty) {
-            stdout.writeln('sdk: $boundaries (${tags.join(',')})');
-          } else {
-            stdout.writeln('sdk: $boundaries');
-          }
-        }
-      } catch (e) {
-        stderr.writeln(e.toString());
-      }
-    }
-    if (options.noRunCi) {
-      return;
-    }
-
-    if (!options.noOverride &&
-        File(join(path, skipRunCiFilePath)).existsSync()) {
-      stdout.writeln('Skipping run_ci');
-      return;
-    }
-
-    var pubspecMap = await pathGetPubspecYamlMap(path);
-    var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
-
-    var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
-
-    if (!sdkBoundaries.matches(dartVersion)) {
-      stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
-      return;
-    }
-
-    if (isFlutterPackage) {
-      if (!isFlutterSupportedSync) {
-        stderr.writeln('flutter not supported for package in $path');
-        return;
-      }
-    }
-
-    // ensure test exists
-    if (!Directory(join(path, 'test')).existsSync()) {
-      options.noTest = true;
-    }
-
-    Future<List<ProcessResult>> runScript(String script) async {
-      if (options.dryRun) {
-        scriptToCommands(script).forEach((command) {
-          stdout.writeln('\$ $command');
-        });
-        return <ProcessResult>[];
-      }
-      return await shell.run(script);
-    }
-
-    if (!options.noPubGetOrUpgrade) {
-      var offline = options.offline;
-      var action =
-          options.pubUpgradeOnly
-              ? _PubWorkspaceCacheAction.upgrade
-              : (options.pubDowngradeOnly
-                  ? _PubWorkspaceCacheAction.downgrade
-                  : _PubWorkspaceCacheAction.get);
-      var skip = false;
-      var workspaceBehavior =
-          (pubIoPackage.isWorkspace || pubIoPackage.hasWorkspaceResolution) &&
-          _pubWorkspacesCache != null;
-      if (workspaceBehavior) {
-        var workspaceRoot = normalize(
-          absolute(await pubIoPackage.getWorkspaceRootPath()),
-        );
-        var lastCache = _pubWorkspacesCache!._map[workspaceRoot];
-        if (lastCache?.offline == offline && lastCache?.action == action) {
-          skip = true;
-        } else {
-          _pubWorkspacesCache!._map[workspaceRoot] = _PubWorkspaceCache(
-            workspaceRoot,
-            action,
-            offline,
-          );
-        }
-      }
-      if (!skip) {
-        var offlineSuffix = options.offline ? ' --offline' : '';
-
-        switch (action) {
-          case _PubWorkspaceCacheAction.upgrade:
-            await runScript('$dofPub upgrade$offlineSuffix');
-            break;
-          case _PubWorkspaceCacheAction.downgrade:
-            await runScript('$dofPub downgrade$offlineSuffix');
-            break;
-          case _PubWorkspaceCacheAction.get:
-            await runScript('$dofPub get$offlineSuffix');
-            break;
-        }
-      }
-    }
-    // Enough for workspace root
-    if (ciRunner.isWorkspaceRoot) {
-      return;
-    }
-    if (options.fixOnly) {
-      await runScript('dart fix --apply');
-    }
-    // Specific run
-    if (!options.noOverride &&
-        File(join(path, _runCiOverridePath)).existsSync()) {
-      // Run it instead
-      await runScript('dart run $_runCiOverridePath');
-      return;
-    }
-
-    await ciRunner.format();
-    await ciRunner.analyze();
-    if (isFlutterPackage) {
-      if (!options.noTest) {
-        // 'test', '--no-pub'
-        // Flutter way
-        await runScript('''
-      # Test
-      flutter test --no-pub
-    ''');
-      }
-      if (!options.noBuild) {
-        /// Try building web if possible
-
-        /// requires at least beta
-        if (await flutterEnableWeb()) {
-          if (File(join(path, 'web', 'index.html')).existsSync()) {
-            // await checkAndActivatePackage('webdev');
-            await runScript('flutter build web');
-          }
-        }
-      }
-    } else {
-      // Test?
-      if (!options.noTest) {
-        var filteredDartDirs = await filterTopLevelDartDirs(path);
-        if (filteredDartDirs.contains('test')) {
-          var vmTestOnly = options.vmTestOnly;
-          var chromeJsTestOnly = options.chromeJsTestOnly;
-          var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-          var noVmTest = options.noVmTest || chromeJsTestOnly;
-          var noBrowserTest = !isWeb || options.noBrowserTest || vmTestOnly;
-          var noNodeTest =
-              isNodeSupportedSync &&
-              (options.noNodeTest || vmTestOnly || chromeJsTestOnly);
-          var platforms = <String>[if (!options.noVmTest) 'vm'];
-          var supportedPlatforms = <String>[
-            if (!noVmTest) 'vm',
-            if (!noBrowserTest) 'chrome',
-            if (!noNodeTest) 'node',
-          ];
-          // Tmp don't compile as wasm on windows as it times out
-          var noWasm = Platform.isWindows;
-
-          if (!noBrowserTest) {
-            platforms.add('chrome');
-          }
-          // Add node for standard run test
-          var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
-          if (!noNodeTest && isNodePackage) {
-            platforms.add('node');
-
-            if (!options.noNpmInstall) {
-              await nodeSetupCheck(path);
-              // Workaround issue about complaining old pubspec on node...
-              // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
-            }
-
-            await runScript('''
-          # Get dependencies
-          $dofPub get --offline
-    ''');
-          }
-
-          // Check available dart test platforms
-          var dartTestFile = File(join(path, 'dart_test.yaml'));
-          Map? dartTestMap;
-          if (dartTestFile.existsSync()) {
-            try {
-              dartTestMap =
-                  (loadYaml(await dartTestFile.readAsString()) as Map);
-            } catch (_) {}
-          }
-          var testConfig = buildTestConfig(
-            platforms: platforms,
-            supportedPlatforms: supportedPlatforms,
-            dartTestMap: dartTestMap,
-            noWasm: noWasm,
-          );
-
-          if (testConfig.hasNode) {
-            try {
-              await nodeSetupCheck(path);
-            } catch (e) {
-              stderr.writeln('(ignored) Error setting up node: $e');
-            }
-          }
-          if (testConfig.configLines.isNotEmpty) {
-            for (var line in testConfig.configLines) {
-              await runScript('dart test${line.toCommandLineArgument()}'); //
-            }
-          } else if (testConfig.args.isNotEmpty) {
-            await runScript('''
-    # Test
-    dart test${testConfig.toCommandLineArgument()}
-    ''');
-          }
-
-          if (!noBrowserTest) {
-            if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-              if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-                stderr.writeln(
-                  '\'$dofPub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589',
-                );
-              } else {
-                await runScript('''
-      # Build runner test
-      $dofPub run build_runner test -- -p chrome
-      ''');
-              }
-            }
-          }
-        }
-      }
-
-      if (!options.noBuild) {
-        /// Try web dev if possible
-        if (pubspecYamlHasAllDependencies(pubspecMap, [
-          'build_web_compilers',
-          'build_runner',
-        ])) {
-          if (File(join(path, 'web', 'index.html')).existsSync()) {
-            await checkAndActivateWebdev();
-
-            // Work around for something that happens on windows
-            // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
-            // $ dart pub global run webdev build
-            // webdev could not run for this project.
-            // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
-            if (Platform.isWindows) {
-              await runScript('$dofPub get');
-            }
-            await runScript('$dofPub global run webdev build');
-          }
-        }
-      }
-    }
+    await pubIoPackage.shellEnvironment.runZoned(() async {
+      await _zonedSinglePackageRunCiImpl(pubIoPackage, options);
+    });
   } catch (e) {
     if (options.ignoreErrors) {
       stderr.writeln('Ignoring error $e');
     } else {
       rethrow;
+    }
+  }
+}
+
+/// Run basic tests on dart/flutter package
+///
+Future<void> _zonedSinglePackageRunCiImpl(
+  PubIoPackage pubIoPackage,
+  PackageRunCiOptions options,
+) async {
+  var ciRunner = SinglePackageCiRunner(pubIoPackage, options);
+  await ciRunner.init();
+  var path = pubIoPackage.path;
+  if (options.printPath) {
+    stdout.writeln(normalize(absolute(path)));
+    return;
+  }
+  var dofPub = pubIoPackage.dofPub;
+  if (options.prjInfo) {
+    stdout.writeln('# package: ${normalize(absolute(path))}');
+  } else {
+    stdout.writeln('# package: $path');
+  }
+  var shell = Shell(workingDirectory: path);
+
+  // Project info
+  if (options.prjInfo) {
+    try {
+      var boundaries = ciRunner.pubspecSdkBoundaries;
+      if (boundaries != null) {
+        var minSdkVersion = boundaries.min?.value ?? _unsetVersion;
+        // devPrint(minSdk Version $minSdkVersion vs $unsetVersion/$warnMinimumVersion');
+        var tags = <String>[
+          if (ciRunner.isFlutterPackage) 'flutter',
+          if (minSdkVersion < _minNullableVersion) 'non-nullable',
+        ];
+        if (tags.isNotEmpty) {
+          stdout.writeln('sdk: $boundaries (${tags.join(',')})');
+        } else {
+          stdout.writeln('sdk: $boundaries');
+        }
+      }
+    } catch (e) {
+      stderr.writeln(e.toString());
+    }
+  }
+  if (options.noRunCi) {
+    return;
+  }
+
+  if (!options.noOverride && File(join(path, skipRunCiFilePath)).existsSync()) {
+    stdout.writeln('Skipping run_ci');
+    return;
+  }
+
+  var pubspecMap = await pathGetPubspecYamlMap(path);
+  var isFlutterPackage = pubspecYamlSupportsFlutter(pubspecMap);
+
+  var sdkBoundaries = pubspecYamlGetSdkBoundaries(pubspecMap)!;
+
+  if (!sdkBoundaries.matches(dartVersion)) {
+    stderr.writeln('Unsupported sdk boundaries for dart $dartVersion');
+    return;
+  }
+
+  if (isFlutterPackage) {
+    if (!isFlutterSupportedSync) {
+      stderr.writeln('flutter not supported for package in $path');
+      return;
+    }
+  }
+
+  // ensure test exists
+  if (!Directory(join(path, 'test')).existsSync()) {
+    options.noTest = true;
+  }
+
+  Future<List<ProcessResult>> runScript(String script) async {
+    if (options.dryRun) {
+      scriptToCommands(script).forEach((command) {
+        stdout.writeln('\$ $command');
+      });
+      return <ProcessResult>[];
+    }
+    return await shell.run(script);
+  }
+
+  if (!options.noPubGetOrUpgrade) {
+    var offline = options.offline;
+    var action =
+        options.pubUpgradeOnly
+            ? _PubWorkspaceCacheAction.upgrade
+            : (options.pubDowngradeOnly
+                ? _PubWorkspaceCacheAction.downgrade
+                : _PubWorkspaceCacheAction.get);
+    var skip = false;
+    var workspaceBehavior =
+        (pubIoPackage.isWorkspace || pubIoPackage.hasWorkspaceResolution) &&
+        _pubWorkspacesCache != null;
+    if (workspaceBehavior) {
+      var workspaceRoot = normalize(
+        absolute(await pubIoPackage.getWorkspaceRootPath()),
+      );
+      var lastCache = _pubWorkspacesCache!._map[workspaceRoot];
+      if (lastCache?.offline == offline && lastCache?.action == action) {
+        skip = true;
+      } else {
+        _pubWorkspacesCache!._map[workspaceRoot] = _PubWorkspaceCache(
+          workspaceRoot,
+          action,
+          offline,
+        );
+      }
+    }
+    if (!skip) {
+      var offlineSuffix = options.offline ? ' --offline' : '';
+
+      switch (action) {
+        case _PubWorkspaceCacheAction.upgrade:
+          await runScript('$dofPub upgrade$offlineSuffix');
+          break;
+        case _PubWorkspaceCacheAction.downgrade:
+          await runScript('$dofPub downgrade$offlineSuffix');
+          break;
+        case _PubWorkspaceCacheAction.get:
+          await runScript('$dofPub get$offlineSuffix');
+          break;
+      }
+    }
+  }
+  // Enough for workspace root
+  if (ciRunner.isWorkspaceRoot) {
+    return;
+  }
+  if (options.fixOnly) {
+    await runScript('dart fix --apply');
+  }
+  // Specific run
+  if (!options.noOverride &&
+      File(join(path, _runCiOverridePath)).existsSync()) {
+    // Run it instead
+    await runScript('dart run $_runCiOverridePath');
+    return;
+  }
+
+  await ciRunner.format();
+  await ciRunner.analyze();
+  if (isFlutterPackage) {
+    if (!options.noTest) {
+      // 'test', '--no-pub'
+      // Flutter way
+      await runScript('''
+      # Test
+      flutter test --no-pub
+    ''');
+    }
+    if (!options.noBuild) {
+      /// Try building web if possible
+
+      /// requires at least beta
+      if (await flutterEnableWeb()) {
+        if (File(join(path, 'web', 'index.html')).existsSync()) {
+          // await checkAndActivatePackage('webdev');
+          await runScript('flutter build web');
+        }
+      }
+    }
+  } else {
+    // Test?
+    if (!options.noTest) {
+      var filteredDartDirs = await filterTopLevelDartDirs(path);
+      if (filteredDartDirs.contains('test')) {
+        var vmTestOnly = options.vmTestOnly;
+        var chromeJsTestOnly = options.chromeJsTestOnly;
+        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
+        var noVmTest = options.noVmTest || chromeJsTestOnly;
+        var noBrowserTest = !isWeb || options.noBrowserTest || vmTestOnly;
+        var noNodeTest =
+            isNodeSupportedSync &&
+            (options.noNodeTest || vmTestOnly || chromeJsTestOnly);
+        var platforms = <String>[if (!options.noVmTest) 'vm'];
+        var supportedPlatforms = <String>[
+          if (!noVmTest) 'vm',
+          if (!noBrowserTest) 'chrome',
+          if (!noNodeTest) 'node',
+        ];
+        // Tmp don't compile as wasm on windows as it times out
+        var noWasm = Platform.isWindows;
+
+        if (!noBrowserTest) {
+          platforms.add('chrome');
+        }
+        // Add node for standard run test
+        var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
+        if (!noNodeTest && isNodePackage) {
+          platforms.add('node');
+
+          if (!options.noNpmInstall) {
+            await nodeSetupCheck(path);
+            // Workaround issue about complaining old pubspec on node...
+            // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+          }
+
+          await runScript('''
+          # Get dependencies
+          $dofPub get --offline
+    ''');
+        }
+
+        // Check available dart test platforms
+        var dartTestFile = File(join(path, 'dart_test.yaml'));
+        Map? dartTestMap;
+        if (dartTestFile.existsSync()) {
+          try {
+            dartTestMap = (loadYaml(await dartTestFile.readAsString()) as Map);
+          } catch (_) {}
+        }
+        var testConfig = buildTestConfig(
+          platforms: platforms,
+          supportedPlatforms: supportedPlatforms,
+          dartTestMap: dartTestMap,
+          noWasm: noWasm,
+        );
+
+        if (testConfig.hasNode) {
+          try {
+            await nodeSetupCheck(path);
+          } catch (e) {
+            stderr.writeln('(ignored) Error setting up node: $e');
+          }
+        }
+        if (testConfig.configLines.isNotEmpty) {
+          for (var line in testConfig.configLines) {
+            await runScript('dart test${line.toCommandLineArgument()}'); //
+          }
+        } else if (testConfig.args.isNotEmpty) {
+          await runScript('''
+    # Test
+    dart test${testConfig.toCommandLineArgument()}
+    ''');
+        }
+
+        if (!noBrowserTest) {
+          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
+            if (dartVersion >= Version(2, 10, 0, pre: '110')) {
+              stderr.writeln(
+                '\'$dofPub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589',
+              );
+            } else {
+              await runScript('''
+      # Build runner test
+      $dofPub run build_runner test -- -p chrome
+      ''');
+            }
+          }
+        }
+      }
+    }
+
+    if (!options.noBuild) {
+      /// Try web dev if possible
+      if (pubspecYamlHasAllDependencies(pubspecMap, [
+        'build_web_compilers',
+        'build_runner',
+      ])) {
+        if (File(join(path, 'web', 'index.html')).existsSync()) {
+          await checkAndActivateWebdev();
+
+          // Work around for something that happens on windows
+          // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
+          // $ dart pub global run webdev build
+          // webdev could not run for this project.
+          // The pubspec.lock file has changed since the .dart_tool/package_config.json file was generated, please run "pub get" again.
+          if (Platform.isWindows) {
+            await runScript('$dofPub get');
+          }
+          await runScript('$dofPub global run webdev build');
+        }
+      }
     }
   }
 }
@@ -577,6 +587,8 @@ Future<bool> flutterEnableWeb() async {
 
 /// CiRunner helper
 class SinglePackageCiRunner {
+  final PubIoPackage _pubIoPackage;
+
   /// Shell
   late final shell = Shell(workingDirectory: path);
 
@@ -600,7 +612,8 @@ class SinglePackageCiRunner {
 
   /// Init pubspec map
   Future<void> init() async {
-    _pubspecMap = await pathGetPubspecYamlMap(path);
+    await _pubIoPackage.ready;
+    _pubspecMap = _pubIoPackage.pubspecYaml;
     _isFlutterPackage = pubspecYamlSupportsFlutter(_pubspecMap);
     if (_verbose) {
       stdout.writeln(
@@ -610,13 +623,13 @@ class SinglePackageCiRunner {
   }
 
   /// Path
-  final String path;
+  String get path => _pubIoPackage.path;
 
   /// Options
   final PackageRunCiOptions options;
 
   /// CiRunner
-  SinglePackageCiRunner(this.path, this.options);
+  SinglePackageCiRunner(this._pubIoPackage, this.options);
 
   /// Run a script
   Future<List<ProcessResult>> runScript(String script) async {
@@ -683,4 +696,15 @@ class SinglePackageCiRunner {
       }
     }
   }
+}
+
+/// Flutter dart prepended env
+ShellEnvironment get flutterDartShellEnvironment {
+  var env = ShellEnvironment();
+  var stdDartExePath = dartExecutable;
+  var flutterDartExeParth = flutterDartExecutablePath;
+  if (stdDartExePath != null && flutterDartExeParth != null) {
+    env.paths.prepend(dirname(flutterDartExeParth));
+  }
+  return env;
 }

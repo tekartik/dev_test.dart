@@ -41,6 +41,7 @@ void runCiMenu(String path) {
       write('Not a dart project, error: $e');
     }
   });
+
   item('pub get', () async {
     await package.pubGet();
   });
