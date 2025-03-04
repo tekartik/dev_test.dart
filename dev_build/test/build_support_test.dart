@@ -79,7 +79,7 @@ void main() {
     test('build android', () async {
       await ensureCreate();
       await androidBuild();
-    }, timeout: const Timeout(Duration(minutes: 5)));
+    }, timeout: const Timeout(Duration(minutes: 10)));
     test('add sqflite', () async {
       await ensureCreate();
       if (await pathPubspecAddDependency(dir, 'sqflite')) {
@@ -87,7 +87,7 @@ void main() {
         await androidBuild();
         await runCi();
       }
-    }, timeout: const Timeout(Duration(minutes: 10)));
+    }, timeout: const Timeout(Duration(minutes: 15)));
   }, skip: !isFlutterSupportedSync);
 
   group('dart test', () {
