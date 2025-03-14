@@ -441,7 +441,7 @@ Future<void> _zonedSinglePackageRunCiImpl(
       if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
           // await checkAndActivatePackage('webdev');
-          await runScript('flutter build web');
+          await runScript('flutter build web --no-pub');
         }
       }
     }
