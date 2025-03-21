@@ -123,6 +123,13 @@ Future<void> showMenu(void Function() declare) async {
   await menuManager.showMenu(controller.menu);
 }
 
+/// Pop the current menu.
+///
+/// Return true if the menu was popped, false if it was the last menu.
+Future<bool> popMenu() async {
+  return menuManager.popMenu();
+}
+
 /// Write a line on the presenter, deprecated to make it a temp debug call
 @Deprecated('Dev only')
 void devWrite(Object? message) {

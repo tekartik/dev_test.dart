@@ -55,6 +55,19 @@ void commonMainMenu() {
       item('write hi', () {
         write('hi from slow_sub');
       });
+      item('pop', () {
+        popMenu();
+      });
+    });
+    item('custom menu', () {
+      showMenu(() {
+        item('custom item', () {
+          write('custom item');
+        });
+        item('pop', () {
+          popMenu();
+        });
+      });
     });
   });
 }
