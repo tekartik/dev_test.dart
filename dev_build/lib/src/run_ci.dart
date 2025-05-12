@@ -412,6 +412,12 @@ Future<void> _zonedSinglePackageRunCiImpl(
   if (ciRunner.isWorkspaceRoot) {
     return;
   }
+  var name = pubspecYamlGetPackageName(pubspecMap)!;
+  // Enough if its name starts with an underscore
+  if (name.startsWith('_')) {
+    return;
+  }
+
   if (options.fixOnly) {
     await runScript('dart fix --apply');
   }
