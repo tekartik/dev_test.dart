@@ -1,4 +1,4 @@
-## 1.1.2+8
+## 1.1.2+9
 
 * Requires dart 3.7
 * Add `chrome-js-test` and `vm-test` options to run_ci to run only tests.
@@ -6,6 +6,7 @@
 * Add get dependency helper to DartPackageReader
 * Handle workspace in `run_ci` when mixin dart and flutter projects
 * Add `popMenu` helper to `menu.dart`'
+* Skip project starting with underscore in `run_ci` (i.e. `_` also)
 
 ## 1.1.1+8
 
