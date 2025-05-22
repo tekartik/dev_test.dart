@@ -1,4 +1,4 @@
-## 1.1.2+10
+## 1.1.2+11
 
 * Requires dart 3.7
 * Add `chrome-js-test` and `vm-test` options to run_ci to run only tests.

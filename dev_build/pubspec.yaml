@@ -1,5 +1,5 @@
 name: dev_build
-version: 1.1.2+10
+version: 1.1.2+11
 description: Development utilities for dart and flutter packages. CI and build helpers.
 repository: https://github.com/tekartik/dev_test.dart/tree/master/dev_build
 

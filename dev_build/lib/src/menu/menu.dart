@@ -146,7 +146,7 @@ Future<String> prompt([Object? message]) {
 Future<void> menuRun() async {
   var declarer = _declarer;
   if (declarer != null) {
-    __declarer = null;
     await declarer.run();
+    __declarer = null;
   }
 }
