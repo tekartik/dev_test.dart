@@ -143,9 +143,10 @@ Future<String> prompt([Object? message]) {
 }
 
 /// run the last declared menu/items
-Future menuRun() async {
-  if (_declarer != null) {
-    await _declarer!.run();
+Future<void> menuRun() async {
+  var declarer = _declarer;
+  if (declarer != null) {
     __declarer = null;
+    await declarer.run();
   }
 }
