@@ -44,8 +44,8 @@ class PubIoPackage {
   //     },
   /// Get resolved dependency list
   Future<List<String>> getResolvedDependencies() async {
-    var packageConfigMap =
-        _packageConfigMap ??= await cachedOrGetPackageConfigMap();
+    var packageConfigMap = _packageConfigMap ??=
+        await cachedOrGetPackageConfigMap();
 
     var packages = List.of(packageConfigGetPackages(packageConfigMap))..sort();
     return packages;
@@ -53,8 +53,8 @@ class PubIoPackage {
 
   /// Get resolved package path
   Future<String?> getResolvedPackagePath(String package) async {
-    var packageConfigMap =
-        _packageConfigMap ??= await cachedOrGetPackageConfigMap();
+    var packageConfigMap = _packageConfigMap ??=
+        await cachedOrGetPackageConfigMap();
 
     var packages = pathPackageConfigMapGetPackagePath(
       path,

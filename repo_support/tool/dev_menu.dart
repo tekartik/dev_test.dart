@@ -16,8 +16,11 @@ Future<void> main(List<String> args) async {
       var packages = packageConfigGetPackages(configMap);
       for (var package in packages) {
         print(package);
-        var packagePath =
-            pathPackageConfigMapGetPackagePath('.', configMap, package)!;
+        var packagePath = pathPackageConfigMapGetPackagePath(
+          '.',
+          configMap,
+          package,
+        )!;
         // There should be pubspec.yaml in the package
         print(packagePath);
         print(

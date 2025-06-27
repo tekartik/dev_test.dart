@@ -29,10 +29,8 @@ void main() {
       Future<_RunCiBinContext> setupDartScriptShell() async {
         return _RunCiBinContext(
           Shell(
-            environment:
-                ShellEnvironment()
-                  ..aliases['run_ci'] =
-                      'dart run ${join('bin', 'run_ci.dart')}',
+            environment: ShellEnvironment()
+              ..aliases['run_ci'] = 'dart run ${join('bin', 'run_ci.dart')}',
           ),
         );
       }
@@ -41,8 +39,8 @@ void main() {
         var compiledRunCiExe = await compiledRunCiExeFuture;
         return _RunCiBinContext(
           Shell(
-            environment:
-                ShellEnvironment()..aliases['run_ci'] = compiledRunCiExe.path,
+            environment: ShellEnvironment()
+              ..aliases['run_ci'] = compiledRunCiExe.path,
           ),
         );
       }

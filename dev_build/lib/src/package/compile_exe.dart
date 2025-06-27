@@ -46,8 +46,9 @@ extension DartPackageIoCompileExeExt on DartPackageIo {
       ),
     );
     var scriptBasename = basenameWithoutExtension(script);
-    var folder =
-        Platform.isWindows ? 'windows' : (Platform.isMacOS ? 'macos' : 'linux');
+    var folder = Platform.isWindows
+        ? 'windows'
+        : (Platform.isMacOS ? 'macos' : 'linux');
     var exeExtension = Platform.isWindows ? '.exe' : '';
     var exe = join(path, 'build', folder, '$scriptBasename$exeExtension');
     var exeDir = dirname(exe);

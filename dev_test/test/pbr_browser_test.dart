@@ -10,12 +10,11 @@ import 'test_utils.dart';
 
 Future checkCaseTest(String name, int count, {String? testNameFilter}) async {
   // $ pub run build_runner test -- -r json -j 1 --no-color -p chrome test/multiplatform/case/one_solo_test_case_test.dart
-  final runResult =
-      (await run(
-        'dart pub run build_runner test -- -r json -j 1 --no-color '
-        '-p chrome${(testNameFilter != null) ? ' -n $testNameFilter' : ''}'
-        ' ${caseNamePath(name)}',
-      )).first;
+  final runResult = (await run(
+    'dart pub run build_runner test -- -r json -j 1 --no-color '
+    '-p chrome${(testNameFilter != null) ? ' -n $testNameFilter' : ''}'
+    ' ${caseNamePath(name)}',
+  )).first;
   //print(runResult.outLines);
   expect(
     runResult.exitCode,

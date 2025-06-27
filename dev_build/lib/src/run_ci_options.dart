@@ -156,12 +156,12 @@ class PackageRunCiOptions {
     var isTestOnlyAction = testOnly || vmTestOnly || chromeJsTestOnly;
     var isOnlyAction =
         (formatOnly ||
-            buildOnly ||
-            isTestOnlyAction ||
-            analyzeOnly ||
-            pubGetOnly ||
-            pubUpgradeOnly ||
-            fixOnly);
+        buildOnly ||
+        isTestOnlyAction ||
+        analyzeOnly ||
+        pubGetOnly ||
+        pubUpgradeOnly ||
+        fixOnly);
     if (isOnlyAction) {
       noTest = !isTestOnlyAction;
 

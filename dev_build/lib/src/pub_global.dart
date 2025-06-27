@@ -64,11 +64,10 @@ Future<void> checkAndActivateWebdev({bool? verbose}) async {
 
   var needUpdate = false;
   try {
-    var lines =
-        (await run(
-          'dart pub global run $webdev --version',
-          verbose: verbose,
-        )).outLines.toList();
+    var lines = (await run(
+      'dart pub global run $webdev --version',
+      verbose: verbose,
+    )).outLines.toList();
     var webdevVersion = extractWebdevVersionFromOutLines(lines);
     if (webdevVersion == null) {
       // ignore: avoid_print

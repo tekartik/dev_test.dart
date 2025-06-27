@@ -11,10 +11,9 @@ void printVersion() {
 }
 
 Future<void> main(List<String> arguments) async {
-  var parser =
-      ArgParser()
-        ..addFlag('version', abbr: 'v', help: 'Application version')
-        ..addFlag('help', abbr: 'h', help: 'Help');
+  var parser = ArgParser()
+    ..addFlag('version', abbr: 'v', help: 'Application version')
+    ..addFlag('help', abbr: 'h', help: 'Help');
   var result = parser.parse(arguments);
   if (result['help'] as bool) {
     printVersion();

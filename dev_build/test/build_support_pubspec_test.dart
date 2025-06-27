@@ -37,8 +37,7 @@ void main() {
     }
 
     test('pubspec supports', () {
-      var pubspecMap =
-          parseMap('''
+      var pubspecMap = parseMap('''
 dependencies:
   flutter:
       ''')!;
@@ -46,8 +45,7 @@ dependencies:
       expect(pubspecYamlSupportsWeb(pubspecMap), isFalse);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
 
-      pubspecMap =
-          parseMap('''
+      pubspecMap = parseMap('''
 dev_dependencies:
   build_web_compilers:
       ''')!;
@@ -55,8 +53,7 @@ dev_dependencies:
       expect(pubspecYamlSupportsWeb(pubspecMap), isTrue);
       expect(pubspecYamlSupportsNode(pubspecMap), isFalse);
 
-      pubspecMap =
-          parseMap('''
+      pubspecMap = parseMap('''
 dev_dependencies:
   build_node_compilers:
       ''')!;
@@ -330,14 +327,20 @@ environment:
         var packages = packageConfigGetPackages(map);
         expect(packages, contains('process_run'));
         expect(packages, isNot(contains('sqflite')));
-        var devTestPath =
-            pathPackageConfigMapGetPackagePath('.', map, 'dev_build')!;
+        var devTestPath = pathPackageConfigMapGetPackagePath(
+          '.',
+          map,
+          'dev_build',
+        )!;
         var devTestPath2 = await pathGetResolvedPackagePath('.', 'dev_build');
 
         expect(devTestPath, normalize(absolute('.')));
         expect(devTestPath2, normalize(absolute('.')));
-        var processRunPath =
-            pathPackageConfigMapGetPackagePath('.', map, 'process_run')!;
+        var processRunPath = pathPackageConfigMapGetPackagePath(
+          '.',
+          map,
+          'process_run',
+        )!;
         var processRunPath2 = await pathGetResolvedPackagePath(
           '.',
           'process_run',

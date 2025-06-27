@@ -53,97 +53,87 @@ Future<void> main(List<String> arguments) async {
 
 /// Run ci binary main
 Future<void> runCiMain(List<String> arguments) async {
-  var menuParser =
-      ArgParser()..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
-  var configParser =
-      ArgParser()
-        ..addFlag(
-          flagSkipRunCi,
-          negatable: false,
-          help:
-              'Mark project folder as skipped locally (.local/ must be source control ignored)',
-        )
-        ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
-  var parser =
-      ArgParser()
-        ..addFlag('version', help: 'Application version', negatable: false)
-        ..addFlag('verbose', abbr: 'v', help: 'Verbose mode', negatable: false)
-        ..addFlag('no-format', help: 'No format test', negatable: false)
-        ..addFlag('no-test', help: 'No test ran', negatable: false)
-        ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
-        ..addFlag('no-build', help: 'No build performed', negatable: false)
-        ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
-        ..addFlag('vm-test', help: 'VM test only', negatable: false)
-        ..addFlag('no-vm-test', help: 'No VM test', negatable: false)
-        ..addFlag('no-browser-test', help: 'No Browser test', negatable: false)
-        ..addFlag(
-          'chrome-js-test',
-          help: 'Only Chrome dart2js',
-          negatable: false,
-        )
-        ..addFlag('no-node-test', help: 'No Node test', negatable: false)
-        ..addFlag('no-npm-install', help: 'No NPM install', negatable: false)
-        ..addFlag(
-          'no-override',
-          help: 'Do not run \'tool/run_ci_override.dart\' if found',
-          negatable: false,
-        )
-        ..addFlag(
-          'ignore-errors',
-          abbr: 'i',
-          help:
-              'Ignore errors (stop the current package but run the other packages)',
-          negatable: false,
-        )
-        ..addFlag('format', help: 'Format only', negatable: false)
-        ..addFlag('test', help: 'Test only', negatable: false)
-        ..addFlag('analyze', help: 'Analyze only', negatable: false)
-        ..addFlag(fixFlagName, help: 'Fix only', negatable: false)
-        ..addFlag('build', help: 'Build only', negatable: false)
-        ..addFlag('pub-get', help: 'Get only', negatable: false)
-        ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
-        ..addFlag(
-          'pub-downgrade',
-          help: 'Run pub downgrade only',
-          negatable: false,
-        )
-        ..addFlag('offline', help: 'Offline', negatable: false)
-        ..addFlag(prjInfoFlagName, help: 'Project info', negatable: false)
-        ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
-        ..addFlag('dry-run', help: 'Dry run', negatable: false)
-        ..addOption(
-          'concurrency',
-          abbr: 'j',
-          help: 'Package concurrency (poolSize)',
-          defaultsTo: '$defaultConcurrency',
-        )
-        ..addFlag(
-          'recursive',
-          help: 'Recursive (try to find dart/flutter project recursively',
-          defaultsTo: true,
-          negatable: true,
-        )
-        ..addFlag(
-          ignoreSdkConstraintsFlagName,
-          help: 'Ignore SDK constraints when selecting projects',
-          negatable: false,
-        )
-        ..addOption(
-          minSdkOptionName,
-          help: 'Minimum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')',
-        )
-        ..addOption(
-          maxSdkOptionName,
-          help: 'Maximum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')',
-        )
-        ..addFlag(
-          printPathFlagName,
-          help: 'Just print the package path (no action)',
-          negatable: false,
-        )
-        ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
-        ..addCommand('config', configParser)
-        ..addCommand('menu', menuParser);
+  var menuParser = ArgParser()
+    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
+  var configParser = ArgParser()
+    ..addFlag(
+      flagSkipRunCi,
+      negatable: false,
+      help:
+          'Mark project folder as skipped locally (.local/ must be source control ignored)',
+    )
+    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false);
+  var parser = ArgParser()
+    ..addFlag('version', help: 'Application version', negatable: false)
+    ..addFlag('verbose', abbr: 'v', help: 'Verbose mode', negatable: false)
+    ..addFlag('no-format', help: 'No format test', negatable: false)
+    ..addFlag('no-test', help: 'No test ran', negatable: false)
+    ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
+    ..addFlag('no-build', help: 'No build performed', negatable: false)
+    ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
+    ..addFlag('vm-test', help: 'VM test only', negatable: false)
+    ..addFlag('no-vm-test', help: 'No VM test', negatable: false)
+    ..addFlag('no-browser-test', help: 'No Browser test', negatable: false)
+    ..addFlag('chrome-js-test', help: 'Only Chrome dart2js', negatable: false)
+    ..addFlag('no-node-test', help: 'No Node test', negatable: false)
+    ..addFlag('no-npm-install', help: 'No NPM install', negatable: false)
+    ..addFlag(
+      'no-override',
+      help: 'Do not run \'tool/run_ci_override.dart\' if found',
+      negatable: false,
+    )
+    ..addFlag(
+      'ignore-errors',
+      abbr: 'i',
+      help:
+          'Ignore errors (stop the current package but run the other packages)',
+      negatable: false,
+    )
+    ..addFlag('format', help: 'Format only', negatable: false)
+    ..addFlag('test', help: 'Test only', negatable: false)
+    ..addFlag('analyze', help: 'Analyze only', negatable: false)
+    ..addFlag(fixFlagName, help: 'Fix only', negatable: false)
+    ..addFlag('build', help: 'Build only', negatable: false)
+    ..addFlag('pub-get', help: 'Get only', negatable: false)
+    ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
+    ..addFlag('pub-downgrade', help: 'Run pub downgrade only', negatable: false)
+    ..addFlag('offline', help: 'Offline', negatable: false)
+    ..addFlag(prjInfoFlagName, help: 'Project info', negatable: false)
+    ..addFlag(noRunCiFlagName, help: 'No ci is executed', negatable: false)
+    ..addFlag('dry-run', help: 'Dry run', negatable: false)
+    ..addOption(
+      'concurrency',
+      abbr: 'j',
+      help: 'Package concurrency (poolSize)',
+      defaultsTo: '$defaultConcurrency',
+    )
+    ..addFlag(
+      'recursive',
+      help: 'Recursive (try to find dart/flutter project recursively',
+      defaultsTo: true,
+      negatable: true,
+    )
+    ..addFlag(
+      ignoreSdkConstraintsFlagName,
+      help: 'Ignore SDK constraints when selecting projects',
+      negatable: false,
+    )
+    ..addOption(
+      minSdkOptionName,
+      help: 'Minimum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')',
+    )
+    ..addOption(
+      maxSdkOptionName,
+      help: 'Maximum SDK version constraints (ex: \'>=2.12.0 <3.0.0\')',
+    )
+    ..addFlag(
+      printPathFlagName,
+      help: 'Just print the package path (no action)',
+      negatable: false,
+    )
+    ..addFlag('help', abbr: 'h', help: 'Help', negatable: false)
+    ..addCommand('config', configParser)
+    ..addCommand('menu', menuParser);
   var result = parser.parse(arguments);
   var paths = result.rest.isEmpty ? ['.'] : result.rest;
 
@@ -246,10 +236,12 @@ Future<void> runCiMain(List<String> arguments) async {
     );
   } else if (minSdkVersion != null || maxSdkVersion != null) {
     filterDartProjectOptions = FilterDartProjectOptions(
-      minSdk:
-          minSdkVersion != null ? VersionBoundaries.parse(minSdkVersion) : null,
-      maxSdk:
-          maxSdkVersion != null ? VersionBoundaries.parse(maxSdkVersion) : null,
+      minSdk: minSdkVersion != null
+          ? VersionBoundaries.parse(minSdkVersion)
+          : null,
+      maxSdk: maxSdkVersion != null
+          ? VersionBoundaries.parse(maxSdkVersion)
+          : null,
     );
   }
   var options = PackageRunCiOptions(

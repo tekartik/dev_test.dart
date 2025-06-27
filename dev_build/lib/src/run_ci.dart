@@ -367,12 +367,11 @@ Future<void> _zonedSinglePackageRunCiImpl(
 
   if (!options.noPubGetOrUpgrade) {
     var offline = options.offline;
-    var action =
-        options.pubUpgradeOnly
-            ? _PubWorkspaceCacheAction.upgrade
-            : (options.pubDowngradeOnly
-                ? _PubWorkspaceCacheAction.downgrade
-                : _PubWorkspaceCacheAction.get);
+    var action = options.pubUpgradeOnly
+        ? _PubWorkspaceCacheAction.upgrade
+        : (options.pubDowngradeOnly
+              ? _PubWorkspaceCacheAction.downgrade
+              : _PubWorkspaceCacheAction.get);
     var skip = false;
     var workspaceBehavior =
         (pubIoPackage.isWorkspace || pubIoPackage.hasWorkspaceResolution) &&

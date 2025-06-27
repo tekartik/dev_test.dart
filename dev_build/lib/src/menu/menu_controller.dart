@@ -13,10 +13,9 @@ class DevMenuController {
   DevMenu? _menu;
 
   /// Resulting menu
-  DevMenu get menu =>
-      _menu ??= () {
-        var declarer = menuNewDeclarer();
-        declare();
-        return declarer.devMenu;
-      }();
+  DevMenu get menu => _menu ??= () {
+    var declarer = menuNewDeclarer();
+    declare();
+    return declarer.devMenu;
+  }();
 }

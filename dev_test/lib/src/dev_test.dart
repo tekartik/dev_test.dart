@@ -8,8 +8,8 @@ Test testImplementation = WithDescriptionsTest(DartTest());
 /// Test descriptions.
 List<String> get testDescriptions =>
     (testImplementation is WithTestDescriptions)
-        ? (testImplementation as WithTestDescriptions).testDescriptions
-        : ['dev_test'];
+    ? (testImplementation as WithTestDescriptions).testDescriptions
+    : ['dev_test'];
 
 /// Dart test implementation.
 abstract class Test {
