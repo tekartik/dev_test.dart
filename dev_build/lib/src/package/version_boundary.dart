@@ -279,4 +279,9 @@ class VersionBoundaries {
     }
     return false;
   }
+
+  /// Copy with new values
+  VersionBoundaries copyWith({VersionBoundary? min, VersionBoundary? max}) {
+    return VersionBoundaries(min ?? this.min, max ?? this.max);
+  }
 }

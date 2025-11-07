@@ -18,7 +18,8 @@ export 'package:dev_build/src/mixin/package.dart'
         pathGetPackageConfigMap,
         packageConfigGetPackages,
         PubDependencyKind,
-        pubspecYamlGetDependenciesPackageName;
+        pubspecYamlGetDependenciesPackageName,
+        pubspecYamlGetDependenciesMap;
 export 'package:dev_build/src/node_support.dart'
     show nodeSetupCheck, isNodeSupportedSync;
 export 'package:process_run/shell.dart' show isFlutterSupportedSync;
