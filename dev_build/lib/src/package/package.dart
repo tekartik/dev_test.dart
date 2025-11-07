@@ -103,8 +103,25 @@ extension DartPackageWriterExt on DartPackage {
 String? pubspecYamlGetPackageName(Map yaml) => yaml['name'] as String?;
 
 /// Get the package version from pubspec.yaml
-Version pubspecYamlGetVersion(Map yaml) =>
+Version pubspecYamlGetVersion(Map yaml) => _pubspecYamlGetVersion(yaml);
+
+/// Get the package version from pubspec.yaml
+/// Could be not valid for workspace
+Version? pubspecYamlGetVersionOrNull(Map yaml) =>
+    _pubspecYamlGetVersionOrNull(yaml);
+
+/// Get the package version from pubspec.yaml
+Version _pubspecYamlGetVersion(Map yaml) =>
     Version.parse(yaml['version'] as String);
+
+/// Get the package version from pubspec.yaml
+Version? _pubspecYamlGetVersionOrNull(Map yaml) {
+  try {
+    return _pubspecYamlGetVersion(yaml);
+  } catch (_) {
+    return null;
+  }
+}
 
 /// Get the test_dependencies packages name
 Iterable<String>? pubspecYamlGetTestDependenciesPackageName(Map yaml) {

@@ -19,6 +19,10 @@ void main() {
       expect(pubspecYamlGetPackageName(pubspecMap), 'dev_build');
       expect(pubspecYamlGetVersion(pubspecMap), greaterThan(Version(1, 0, 0)));
       expect(
+        pubspecYamlGetVersionOrNull(pubspecMap),
+        pubspecYamlGetVersion(pubspecMap),
+      );
+      expect(
         pubspecYamlHasAnyDependencies(pubspecMap, ['build_node_compilers']),
         isFalse,
       );

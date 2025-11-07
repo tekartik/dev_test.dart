@@ -14,6 +14,7 @@ export 'package:dev_build/src/package/package.dart'
         pubspecYamlSupportsNode,
         pubspecYamlSupportsWeb,
         pubspecYamlGetVersion,
+        pubspecYamlGetVersionOrNull,
         pubspecYamlGetPackageName,
         pubspecYamlSupportsTest,
         pubspecYamlGetSdkBoundaries,

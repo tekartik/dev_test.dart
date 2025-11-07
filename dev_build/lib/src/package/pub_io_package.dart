@@ -4,6 +4,7 @@ import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/stdio.dart';
+import 'package:pub_semver/pub_semver.dart';
 
 /// Pub io options
 class PubIoPackageOptions {
@@ -105,6 +106,9 @@ class PubIoPackage {
 
   /// Ok when ready
   late Map<String, Object?> pubspecYaml;
+
+  /// Get the package Version (or null) from pubspec.yaml
+  Version? get versionOrNull => pubspecYamlGetVersionOrNull(pubspecYaml);
 
   /// True for workspace
   bool get isWorkspace => pubspecYamlIsWorkspaceRoot(pubspecYaml);

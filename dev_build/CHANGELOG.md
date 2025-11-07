@@ -1,6 +1,7 @@
-## 1.1.3
+## 1.1.3+1
 
 * Add pubspecYamlGetDependenciesMap and copyWith method to VersionBoundaries
+* Add pubspecYamlGetVersionOrNull helper
 
 ## 1.1.2+11
 

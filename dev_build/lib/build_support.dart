@@ -3,6 +3,7 @@ export 'package:dev_build/src/mixin/package.dart'
         pubspecYamlHasAnyDependencies,
         pubspecYamlGetSdkBoundaries,
         pubspecYamlGetVersion,
+        pubspecYamlGetVersionOrNull,
         pubspecYamlGetPackageName,
         pubspecYamlSupportsFlutter,
         pubspecYamlIsWorkspaceRoot,
