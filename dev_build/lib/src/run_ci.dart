@@ -4,8 +4,8 @@ import 'package:dev_build/src/package/pub_io_package.dart';
 import 'package:dev_build/src/package/test_config.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell_run.dart';
-import 'package:process_run/src/shell_utils.dart'; // ignore: implementation_imports
+import 'package:process_run/shell.dart';
+
 import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
@@ -357,8 +357,12 @@ Future<void> _zonedSinglePackageRunCiImpl(
 
   Future<List<ProcessResult>> runScript(String script) async {
     if (options.dryRun) {
-      scriptToCommands(script).forEach((command) {
-        stdout.writeln('\$ $command');
+      shellScriptSplitLines(script).forEach((line) {
+        if (shellScriptLineIsComment(line)) {
+          stdout.writeln(line);
+        } else {
+          stdout.writeln('\$ $line');
+        }
       });
       return <ProcessResult>[];
     }
@@ -639,8 +643,12 @@ class SinglePackageCiRunner {
   /// Run a script
   Future<List<ProcessResult>> runScript(String script) async {
     if (options.dryRun) {
-      scriptToCommands(script).forEach((command) {
-        stdout.writeln('\$ $command');
+      shellScriptSplitLines(script).forEach((line) {
+        if (shellScriptLineIsComment(line)) {
+          stdout.writeln(line);
+        } else {
+          stdout.writeln('\$ $line');
+        }
       });
       return <ProcessResult>[];
     }

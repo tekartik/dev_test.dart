@@ -1,3 +1,7 @@
+## 1.1.4-1
+
+* Requires dart 3.10
+
 ## 1.1.3+1
 
 * Add pubspecYamlGetDependenciesMap and copyWith method to VersionBoundaries
