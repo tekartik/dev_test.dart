@@ -1,6 +1,7 @@
 import 'package:args/args.dart';
 import 'package:dev_build/menu/menu_io.dart';
 import 'package:dev_build/package.dart';
+import 'package:dev_build/shell.dart';
 import 'package:dev_build/src/io/run_ci_menu.dart';
 import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
@@ -279,34 +280,49 @@ Future<void> runCiMain(List<String> arguments) async {
     await singlePackageRunCi(dir, options: options);
   }
 
-  /// Init a cache to prevent running multiple times the same get/downgrade/upgrade command
-  runCiInitPubWorkspacesCache();
-  if (recursive) {
-    for (var path in paths) {
-      await packageRunCiImpl(
-        path,
-        options,
-        recursive: recursive,
-        poolSize: poolSize,
-      );
-    }
-  } else {
-    for (var path in paths) {
-      if (!(await isPubPackageRoot(
-        path,
-        filterDartProjectOptions: filterDartProjectOptions,
-      ))) {
-        stderr.writeln(
-          '${absolute(path)} not a dart package, use --recursive option',
+  try {
+    /// Init a cache to prevent running multiple times the same get/downgrade/upgrade command
+    runCiInitPubWorkspacesCache();
+    if (recursive) {
+      for (var path in paths) {
+        await packageRunCiImpl(
+          path,
+          options,
+          recursive: recursive,
+          poolSize: poolSize,
         );
-        exit(1);
-      } else {
-        await runDir(path);
+      }
+    } else {
+      for (var path in paths) {
+        if (!(await isPubPackageRoot(
+          path,
+          filterDartProjectOptions: filterDartProjectOptions,
+        ))) {
+          stderr.writeln(
+            '${absolute(path)} not a dart package, use --recursive option',
+          );
+          exit(1);
+        } else {
+          await runDir(path);
+        }
       }
     }
-  }
-  if (ignoreErrors) {
-    stdout.writeln('run_ci done ignoring errors.');
+    if (ignoreErrors) {
+      stdout.writeln('run_ci done ignoring errors.');
+    }
+  } catch (e) {
+    if (e is ShellException) {
+      void writeHeader() {
+        stderr.writeln(List.generate(64, (_) => '#').join());
+      }
+
+      writeHeader();
+      stderr.writeln('run_ci failed $e');
+      writeHeader();
+      stderr.writeln();
+      stderr.write(e.toDebugString());
+    }
+    rethrow;
   }
   // var pubspecYaml = pathGetPubspecYamlMap(packageDir)
 }
