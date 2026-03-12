@@ -31,7 +31,7 @@ run_ci
 # Perform recursively a pub downgrade and analyze.
 run_ci --pub-downgrade --analyze --no-override --recursive
 
-# Perform dart fix --apply recursively
+# Perform dart fix --apply and format recursively
 run_ci --fix --recursive
 ```
 

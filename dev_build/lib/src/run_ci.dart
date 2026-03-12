@@ -422,7 +422,8 @@ Future<void> _zonedSinglePackageRunCiImpl(
   }
 
   if (options.fixOnly) {
-    await runScript('dart fix --apply');
+    await ciRunner.fix();
+    return;
   }
   // Specific run
   if (!options.noOverride &&
@@ -675,15 +676,15 @@ class SinglePackageCiRunner {
     }
   }
 
-  /// Analyze
-  Future<void> format() async {
+  /// Check or fix format
+  Future<void> format({bool fix = false}) async {
     if (isWorkspaceRoot) {
       return;
     }
     filteredDartDirs ??= await filterTopLevelDartDirs(path);
     var filteredDartDirsArg = filteredDartDirs!.join(' ');
 
-    if (!options.noFormat) {
+    if (fix || !options.noFormat) {
       // Previous version were using dart_style, we now use dart format
       // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was alloed
 
@@ -692,10 +693,17 @@ class SinglePackageCiRunner {
         filteredDartDirsArg = '.';
       }
       try {
-        await runScript('''
-      # Formatting
-      dart format --set-exit-if-changed $filteredDartDirsArg
+        if (fix) {
+          await runScript('''
+            # Format
+            dart format $filteredDartDirsArg
     ''');
+        } else {
+          await runScript('''
+            # Check Formatting
+            dart format --set-exit-if-changed $filteredDartDirsArg
+    ''');
+        }
       } catch (e) {
         // Sometimes we allow formatting errors...
 
@@ -708,6 +716,12 @@ class SinglePackageCiRunner {
         rethrow;
       }
     }
+  }
+
+  /// Fix basic issues
+  Future<void> fix() async {
+    await format(fix: true);
+    await runScript('dart fix --apply');
   }
 }
 

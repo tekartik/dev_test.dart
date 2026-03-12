@@ -93,7 +93,11 @@ Future<void> runCiMain(List<String> arguments) async {
     ..addFlag('format', help: 'Format only', negatable: false)
     ..addFlag('test', help: 'Test only', negatable: false)
     ..addFlag('analyze', help: 'Analyze only', negatable: false)
-    ..addFlag(fixFlagName, help: 'Fix only', negatable: false)
+    ..addFlag(
+      fixFlagName,
+      help: 'Fix basic issues (run dart format and dart fix)',
+      negatable: false,
+    )
     ..addFlag('build', help: 'Build only', negatable: false)
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
