@@ -1,3 +1,7 @@
+## 1.1.5
+
+* reformat code when doing `--fix` option in `run_ci`
+
 ## 1.1.4
 
 * Requires dart 3.10
