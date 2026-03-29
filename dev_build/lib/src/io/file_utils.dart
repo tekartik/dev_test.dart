@@ -4,7 +4,7 @@ import 'package:process_run/stdio.dart';
 extension DevDirectoryExt on Directory {
   /// Create if needed
   Future<void> prepare() async {
-    if (await exists()) {
+    if (existsSync()) {
       try {
         await delete(recursive: true);
       } catch (_) {}
