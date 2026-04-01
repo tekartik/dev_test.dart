@@ -282,6 +282,9 @@ Future<void> singlePackageRunCiImpl(
   }
 }
 
+/// Special macos chrome timeout issue
+var _chromeTestTimeoutRetriedOnce = false;
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> _zonedSinglePackageRunCiImpl(
@@ -521,28 +524,45 @@ Future<void> _zonedSinglePackageRunCiImpl(
         }
         if (testConfig.configLines.isNotEmpty) {
           for (var line in testConfig.configLines) {
-            await runScript('dart test${line.toCommandLineArgument()}'); //
+            Future<void> doRunTest() async {
+              await runScript('dart test${line.toCommandLineArgument()}');
+            }
+
+            try {
+              await doRunTest();
+            } catch (e) {
+              // Handle timeout at least once....
+              // happens on github actions
+              // Compiled nnnnnnnn input bytes (nnnn characters source) to nnnnnnnn characters JavaScript in nnn seconds
+              // Failed to load "test/xxxx_test.dart":
+              // Timed out waiting for Chrome to connect.
+              // Browser output: [5290:20472:0401/230040.569143:ERROR:chrome/browser/chrome_browser_main.cc:1263] The use of Rosetta to run the x64 version of Chromium on Arm is neither tested nor maintained, and unexpected behavior will likely result. Please check that all tools that spawn Chromium are Arm-native.
+              if (!_chromeTestTimeoutRetriedOnce &&
+                  Platform.isMacOS &&
+                  (e is ShellException) &&
+                  ((e.result?.errText.contains(
+                            'Timed out waiting for Chrome to connect',
+                          ) ??
+                          false) ||
+                      (e.result?.outText.contains(
+                            'Timed out waiting for Chrome to connect',
+                          ) ??
+                          false))) {
+                stderr.writeln(
+                  '(ignored) Timeout waiting for Chrome to connect, retrying once...',
+                );
+                _chromeTestTimeoutRetriedOnce = true;
+                await doRunTest();
+              } else {
+                rethrow;
+              }
+            }
           }
         } else if (testConfig.args.isNotEmpty) {
           await runScript('''
     # Test
     dart test${testConfig.toCommandLineArgument()}
     ''');
-        }
-
-        if (!noBrowserTest) {
-          if (pubspecYamlSupportsBuildRunner(pubspecMap)) {
-            if (dartVersion >= Version(2, 10, 0, pre: '110')) {
-              stderr.writeln(
-                '\'$dofPub run build_runner test -- -p chrome\' skipped issue: https://github.com/dart-lang/sdk/issues/43589',
-              );
-            } else {
-              await runScript('''
-      # Build runner test
-      $dofPub run build_runner test -- -p chrome
-      ''');
-            }
-          }
         }
       }
     }
