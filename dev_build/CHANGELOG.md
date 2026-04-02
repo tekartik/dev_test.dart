@@ -1,3 +1,7 @@
+## 1.1.5+2
+
+* Retry dart chrome test once on macos if timeout to connect
+
 ## 1.1.5
 
 * reformat code when doing `--fix` option in `run_ci`

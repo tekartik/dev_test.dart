@@ -187,4 +187,7 @@ class PubIoPackage {
       }
     }
   }
+
+  @override
+  String toString() => 'PubIoPackage($path)';
 }
