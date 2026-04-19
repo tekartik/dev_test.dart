@@ -1,4 +1,5 @@
 import 'package:process_run/shell_run.dart';
+import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 List<String>? _installedGlobalPackages;
@@ -79,13 +80,19 @@ Future<void> checkAndActivateWebdev({bool? verbose}) async {
         (webdevVersion <= Version(2, 7, 11))) {
       needUpdate = true;
     }
+    if (verbose) {
+      stdout.writeln(
+        'webdev version: $webdevVersion ${needUpdate ? '(need update)' : ''}',
+      );
+    }
   } catch (e) {
-    // ignore: avoid_print
-    print('failed to get webdev version $e');
+    if (verbose) {
+      stderr.writeln('failed to get webdev version $e, updating...');
+    }
     needUpdate = true;
   }
 
   if (needUpdate) {
-    await _pubGlobalActivate(webdev);
+    await _pubGlobalActivate(webdev, verbose: verbose);
   }
 }
