@@ -1,3 +1,7 @@
+## 1.1.6-1
+
+* menu: add `enterItem`/`leaveItem`
+
 ## 1.1.5+3
 
 * Retry dart chrome test once on macos if timeout to connect
