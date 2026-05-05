@@ -3,16 +3,18 @@ export 'package:dev_build/src/menu/menu.dart'
         command,
         showMenu,
         popMenu,
-        // ignore: deprecated_member_use_from_same_package
+        // ignore: invalid_use_of_do_not_submit_member
         solo_menu,
-        // ignore: deprecated_member_use_from_same_package
+        // ignore: invalid_use_of_do_not_submit_member
         solo_item,
         prompt,
         menu,
         write,
         enter,
+        enterItem,
         item,
         leave,
-        // ignore: deprecated_member_use_from_same_package
+        leaveItem,
+        // ignore: invalid_use_of_do_not_submit_member, deprecated_member_use_from_same_package
         devWrite,
         menuRun;

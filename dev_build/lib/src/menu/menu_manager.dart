@@ -249,7 +249,12 @@ class MenuManager {
     } else {
       // Update hash in browser for example
       await menuPresenter.preProcessItem(item);
-      await runner.run(item);
+      await runner.runItemEnters();
+      try {
+        await runner.run(item);
+      } finally {
+        await runner.runItemLeaves();
+      }
     }
   }
 

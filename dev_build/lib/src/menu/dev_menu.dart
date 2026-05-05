@@ -100,6 +100,19 @@ class MenuEnter extends Object with _RunnableMixin, _WithParentMixin {
   }
 }
 
+/// Item enter.
+class ItemEnter extends Object with _RunnableMixin, _WithParentMixin {
+  /// The enter function.
+  ItemEnter(MenuItemFn fn) {
+    this.fn = fn;
+  }
+
+  @override
+  String toString() {
+    return 'item_enter';
+  }
+}
+
 /// Menu command (?, ., -)
 class MenuCommand extends Object with _WithParentMixin {
   /// The command function.
@@ -124,6 +137,19 @@ class MenuLeave extends Object with _RunnableMixin, _WithParentMixin {
   @override
   String toString() {
     return 'leave';
+  }
+}
+
+/// Menu leave.
+class ItemLeave extends Object with _RunnableMixin, _WithParentMixin {
+  /// The leave function.
+  ItemLeave(MenuItemFn fn) {
+    this.fn = fn;
+  }
+
+  @override
+  String toString() {
+    return 'item_leave';
   }
 }
 
@@ -207,6 +233,8 @@ class DevMenu extends Object
 
   final _enters = <MenuEnter>[];
   final _leaves = <MenuLeave>[];
+  final _itemEnters = <ItemEnter>[];
+  final _itemLeaves = <ItemLeave>[];
   MenuCommand? _command;
 
   /// The menu enters.
@@ -214,6 +242,12 @@ class DevMenu extends Object
 
   /// The menu leaves.
   Iterable<MenuLeave> get leaves => _leaves;
+
+  /// The item enters.
+  Iterable<ItemEnter> get itemEnters => _itemEnters;
+
+  /// The menu leaves.
+  Iterable<ItemLeave> get itemLeaves => _itemLeaves;
 
   /// The default command handlers.
   MenuCommand? get command => _command;
@@ -236,6 +270,18 @@ class DevMenu extends Object
   void addLeave(MenuLeave menuLeave) {
     fixParent(menuLeave);
     _leaves.add(menuLeave);
+  }
+
+  /// Add an item enter.
+  void addItemEnter(ItemEnter itemEnter) {
+    fixParent(itemEnter);
+    _itemEnters.add(itemEnter);
+  }
+
+  /// Add a menu leave.
+  void addItemLeave(ItemLeave itemLeave) {
+    fixParent(itemLeave);
+    _itemLeaves.add(itemLeave);
   }
 
   /// Add a menu.

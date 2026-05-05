@@ -64,6 +64,20 @@ class MenuRunner {
     }
   }
 
+  /// Run item enters (called before each item execution).
+  Future<void> runItemEnters() async {
+    for (var enter in menu.itemEnters) {
+      await run(enter);
+    }
+  }
+
+  /// Run item leaves (called after each item execution).
+  Future<void> runItemLeaves() async {
+    for (var leave in menu.itemLeaves) {
+      await run(leave);
+    }
+  }
+
   /// when the menu is left.
   Future leave() async {
     if (debugMenuManager) {

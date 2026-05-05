@@ -69,5 +69,25 @@ void commonMainMenu() {
         });
       });
     });
+    menu('item_callbacks', () {
+      enter(() {
+        write('-- enter --');
+      });
+      enterItem(() {
+        write('-- before item --');
+      });
+      leaveItem(() {
+        write('-- after item --');
+      });
+      leave(() {
+        write('-- leave --');
+      });
+      item('write hi', () {
+        write('hi from item_callbacks');
+      });
+      item('write bye', () {
+        write('bye from item_callbacks');
+      });
+    });
   });
 }

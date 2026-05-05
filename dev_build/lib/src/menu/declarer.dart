@@ -50,6 +50,9 @@ class Declarer {
   /// current test menu
   DevMenu devMenu = RootMenu();
 
+  /// Auto run
+  var autoRun = true;
+
   /// Menu, running body.
   void menu(
     String name,
@@ -84,6 +87,18 @@ class Declarer {
   void leave(dynamic Function() body) {
     final leave = MenuLeave(body);
     devMenu.addLeave(leave);
+  }
+
+  /// Enter an item.
+  void enterItem(dynamic Function() body) {
+    final enter = ItemEnter(body);
+    devMenu.addItemEnter(enter);
+  }
+
+  /// Leave a menu.
+  void leaveItem(dynamic Function() body) {
+    final leave = ItemLeave(body);
+    devMenu.addItemLeave(leave);
   }
 
   /// Menu item.

@@ -2,6 +2,8 @@ library;
 
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 import 'declarer.dart';
 import 'menu_controller.dart';
 import 'menu_manager.dart';
@@ -17,10 +19,14 @@ Declarer? __declarer;
 Declarer? get _declarer {
   if (__declarer == null) {
     __declarer = Declarer();
-    scheduleMicrotask(() {
-      // An automatic microtask is run after the menu is declarer
-      menuRun();
-    });
+    if (__declarer!.autoRun) {
+      scheduleMicrotask(() {
+        if (__declarer!.autoRun) {
+          // An automatic microtask is run after the menu is declarer
+          menuRun();
+        }
+      });
+    }
   }
   return __declarer;
 }
@@ -41,7 +47,7 @@ void menu(
   void Function() body, {
   String? cmd,
   bool? group,
-  @Deprecated('Dev only') bool? solo,
+  @doNotSubmit bool? solo,
 }) {
   _declarer!.menu(name, body, cmd: cmd, group: group, solo: solo);
 }
@@ -56,7 +62,7 @@ void item(
   String name,
   dynamic Function() body, {
   String? cmd,
-  @Deprecated('Dev only') bool? solo,
+  @doNotSubmit bool? solo,
 }) {
   _declarer!.item(name, body, cmd: cmd, solo: solo);
 }
@@ -69,44 +75,55 @@ void enter(dynamic Function() body) {
 }
 
 ///
-/// Declare function called when we enter a non handled command
-///
-void command(dynamic Function(String command) body) {
-  _declarer!.command(body);
-}
-
-///
 /// Declare function called when we leave a menu
 ///
 void leave(dynamic Function() body) {
   _declarer!.leave(body);
 }
 
+///
+/// Declare function called when we enter a menu
+///
+void enterItem(dynamic Function() body) {
+  _declarer!.enterItem(body);
+}
+
+///
+/// Declare function called when we leave a menu
+///
+void leaveItem(dynamic Function() body) {
+  _declarer!.leaveItem(body);
+}
+
+///
+/// Declare function called when we enter a non handled command
+///
+void command(dynamic Function(String command) body) {
+  _declarer!.command(body);
+}
+
 /// Unless [solo] is set to false, will run as solo.
 ///
 /// Deprecated for temp usage only.
-@Deprecated('Dev only')
+@doNotSubmit
 // ignore: non_constant_identifier_names
 void solo_item(
   String name,
   dynamic Function() body, {
   String? cmd,
-  @Deprecated('Dev only') bool? solo,
+  bool? solo,
 }) {
+  // ignore: invalid_use_of_do_not_submit_member
   item(name, body, cmd: cmd, solo: solo ?? true);
 }
 
 /// Unless [solo] is set to false, will run as solo.
 ///
 /// Deprecated for temp usage only.
-@Deprecated('Dev only')
+@doNotSubmit
 // ignore: non_constant_identifier_names
-void solo_menu(
-  String name,
-  void Function() body, {
-  String? cmd,
-  @Deprecated('Dev only') bool? solo,
-}) {
+void solo_menu(String name, void Function() body, {String? cmd, bool? solo}) {
+  // ignore: invalid_use_of_do_not_submit_member
   menu(name, body, cmd: cmd, solo: solo ?? true);
 }
 
@@ -131,7 +148,7 @@ Future<bool> popMenu() async {
 }
 
 /// Write a line on the presenter, deprecated to make it a temp debug call
-@Deprecated('Dev only')
+@doNotSubmit
 void devWrite(Object? message) {
   write(message);
 }
@@ -146,6 +163,7 @@ Future<String> prompt([Object? message]) {
 Future<void> menuRun() async {
   var declarer = _declarer;
   if (declarer != null) {
+    declarer.autoRun = false;
     await declarer.run();
     __declarer = null;
   }
