@@ -3,8 +3,8 @@ library;
 
 import 'dart:async';
 
+import 'package:dev_build/shell.dart';
 import 'package:dev_test/test.dart';
-import 'package:process_run/cmd_run.dart';
 
 import 'test_utils.dart';
 
@@ -16,20 +16,14 @@ Future checkCaseTest(
 }) async {
   // pub run test -r json -j 1 --no-color -p vm test/multiplatform/case/one_solo_test_in_group_case_test.dart
 
-  var cmd = PubCmd([
-    'run',
-    'test',
-    '-r',
-    'json',
-    '-j',
-    '1',
-    '--no-color',
-    '-p',
-    'vm',
-    if (testNameFilter != null) ...['-n', testNameFilter],
-    caseNamePath(name),
-  ]);
-  final runResult = await runCmd(cmd);
+  var shell = Shell(options: ShellOptions(throwOnError: false));
+  var cmd = ShellCommand.parse(
+    'dart test -r json -j 1 --no-color -p vm'
+    '${(testNameFilter != null) ? ' -n ${shellArgument(testNameFilter)}' : ''}'
+    ' ${caseNamePath(name)}',
+  );
+  final runResult = await shell.runCommand(cmd);
+
   // print('exitCode: ${runResult.exitCode}');
   // devPrint(cmd);
   // devPrint('stdout: ${runResult.stdout}');
@@ -46,7 +40,7 @@ Future checkCaseTest(
 var longTimeout = const Timeout(Duration(minutes: 4));
 
 void main() {
-  group('pub_run_io_test', () {
+  group('dart_io_test', () {
     test('cases', () async {
       await checkCaseTest('one_solo_test_case_test.dart', 1); // report included
       await checkCaseTest(
