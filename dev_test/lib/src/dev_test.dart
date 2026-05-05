@@ -1,6 +1,7 @@
 import 'package:dev_test/src/dart_test.dart';
 import 'package:dev_test/src/description_test.dart';
 import 'package:dev_test/src/import_test.dart' show Timeout;
+import 'package:matcher/expect.dart' as xp;
 
 /// default implementation is a regular dart test
 Test testImplementation = WithDescriptionsTest(DartTest());
@@ -10,6 +11,19 @@ List<String> get testDescriptions =>
     (testImplementation is WithTestDescriptions)
     ? (testImplementation as WithTestDescriptions).testDescriptions
     : ['dev_test'];
+
+/// Dev test mixin providing a default implementation for [expect].
+mixin DevTestMixin implements Test {
+  @override
+  void expect(
+    Object? actual,
+    Object? matcher, {
+    String? reason,
+    Object? /* String|bool */ skip,
+  }) {
+    xp.expect(actual, matcher, reason: reason, skip: skip);
+  }
+}
 
 /// Dart test implementation.
 abstract class Test {
@@ -46,6 +60,14 @@ abstract class Test {
 
   /// overriding  [_test.tearDown]
   void tearDownAll(dynamic Function() callback);
+
+  /// overriding  [_expect.expect]
+  void expect(
+    Object? actual,
+    Object? matcher, {
+    String? reason,
+    Object? /* String|bool */ skip,
+  });
 }
 
 /// Test descriptions.
@@ -93,6 +115,7 @@ void group(
     timeout: timeout,
     skip: skip,
     onPlatform: onPlatform,
+    // ignore: deprecated_member_use
     solo: solo,
   );
 }
@@ -117,10 +140,15 @@ void tearDownAll(dynamic Function() callback) {
   testImplementation.tearDownAll(callback);
 }
 
-/// expect (see test.dart)
-//void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {
-//  testImplementation.expect(actual, matcher, reason: reason, skip: skip);
-//}
+/// overriding [_test.expect]
+void expect(
+  Object? actual,
+  Object? matcher, {
+  String? reason,
+  Object? /* String|bool */ skip,
+}) {
+  testImplementation.expect(actual, matcher, reason: reason, skip: skip);
+}
 
 // Add-ons
 
@@ -175,6 +203,7 @@ solo_group(
     timeout: timeout,
     skip: skip,
     onPlatform: onPlatform,
+    // ignore: deprecated_member_use
     solo: true,
   );
 }

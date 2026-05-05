@@ -1,5 +1,5 @@
 name: dev_test
-version: 1.0.1+1
+version: 1.0.2-1
 description: Test utilities for dart and flutter packages on top of test_api package.
 repository: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 
@@ -12,7 +12,7 @@ dependencies:
   test_core: '>=0.6.16 <2.0.0'
 
   matcher: '>=0.12.16 <2.0.0'
-  dev_build: '>=1.1.5+3 <3.0.0'
+  dev_build: '>=1.1.6-1 <3.0.0'
   process_run: '>=1.3.2 <3.0.0'
   pub_semver: '>=2.1.4 <4.0.0'
   yaml: '>=3.1.2 <5.0.0'

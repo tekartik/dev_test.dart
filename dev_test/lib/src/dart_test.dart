@@ -1,10 +1,10 @@
 // not flutter
-import 'package:dev_test/src/dev_test.dart' show Test;
+import 'package:dev_test/src/dev_test.dart' show Test, DevTestMixin;
 import 'package:dev_test/src/import_test.dart' as test_impl;
 import 'package:dev_test/src/import_test.dart' show Timeout;
 
 /// Dart test implementation.
-class DartTest implements Test {
+class DartTest with DevTestMixin implements Test {
   @override
   void test(
     String description,

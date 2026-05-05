@@ -1,9 +1,10 @@
 export 'package:dev_test/src/import_test.dart'
     hide expect, test, group, setUp, tearDown, setUpAll, tearDownAll;
-export 'package:matcher/expect.dart';
+export 'package:matcher/expect.dart' hide expect;
 
 export 'src/dev_test.dart'
     show
+        expect,
         // redefined
         test,
         group,

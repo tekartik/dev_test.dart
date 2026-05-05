@@ -1,11 +1,14 @@
 // not flutter
 import 'dart:async';
 
-import 'package:dev_test/src/dev_test.dart' show Test, WithTestDescriptions;
+import 'package:dev_test/src/dev_test.dart'
+    show Test, WithTestDescriptions, DevTestMixin;
 import 'package:dev_test/test.dart' show Timeout;
 
 /// dWith descriptions test implementation.
-class WithDescriptionsTest implements Test, WithTestDescriptions {
+class WithDescriptionsTest
+    with DevTestMixin
+    implements Test, WithTestDescriptions {
   final Test _impl;
 
   @override
@@ -17,6 +20,11 @@ class WithDescriptionsTest implements Test, WithTestDescriptions {
 
   /// With descriptions test implementation.
   WithDescriptionsTest(this._impl);
+
+  @override
+  void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {
+    _impl.expect(actual, matcher, reason: reason, skip: skip);
+  }
 
   @override
   void test(

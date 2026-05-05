@@ -1,3 +1,7 @@
+## 1.0.2-1
+
+* add `mainDevTestMenu` to run tests in a menu
+
 ## 1.0.1+1
 
 * Requires dart 3.11
