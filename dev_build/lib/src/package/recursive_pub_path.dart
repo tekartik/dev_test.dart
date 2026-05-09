@@ -181,24 +181,21 @@ Future<List<String>> recursivePubPath(
           if (FileSystemEntity.isDirectorySync(subDir)) {
             // Also handle the case where the directory linked is a dart project
             futures.add(() async {
-              var isLink = FileSystemEntity.isLinkSync(subDir);
+              // follow links
+              var dir = subDir;
+
+              var isLink = FileSystemEntity.isLinkSync(dir);
               if (isLink) {
-                if (await isPubPackageRoot(
-                  subDir,
-                  filterDartProjectOptions: filterDartProjectOptions,
-                )) {
-                  sub.add(subDir);
-                }
-                return;
+                dir = await Link(dir).target();
               }
               var subPubDirs = await filterPubPath(
-                [subDir],
+                [dir],
                 dependencies: dependencies,
                 readConfig: readConfig,
                 filterDartProjectOptions: filterDartProjectOptions,
               );
               sub.addAll(subPubDirs);
-              sub.addAll(await getSubDirs(subDir));
+              sub.addAll(await getSubDirs(dir));
             }());
           }
         }
