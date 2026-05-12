@@ -2,7 +2,6 @@
 library;
 
 import 'package:dev_build/package.dart';
-import 'package:pub_semver/pub_semver.dart';
 import 'package:test/test.dart';
 
 void main() {

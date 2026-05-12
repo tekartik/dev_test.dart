@@ -10,7 +10,6 @@ import 'package:dev_build/src/package/recursive_pub_path.dart'
 import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart';
-import 'package:pub_semver/pub_semver.dart';
 import 'package:test/test.dart';
 
 void main() {

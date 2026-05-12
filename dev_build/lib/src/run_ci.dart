@@ -7,7 +7,6 @@ import 'package:path/path.dart';
 import 'package:process_run/shell.dart';
 
 import 'package:process_run/stdio.dart';
-import 'package:pub_semver/pub_semver.dart';
 import 'package:yaml/yaml.dart';
 
 import 'import.dart';

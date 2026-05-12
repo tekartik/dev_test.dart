@@ -25,6 +25,7 @@ export 'package:dev_build/src/node_support.dart'
     show nodeSetupCheck, isNodeSupportedSync;
 export 'package:process_run/shell.dart' show isFlutterSupportedSync;
 
+export 'package.dart' show VersionBoundaries;
 export 'src/build_support.dart'
     show
         buildSupportsAndroid,
