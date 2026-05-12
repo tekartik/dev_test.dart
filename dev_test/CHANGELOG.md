@@ -1,4 +1,4 @@
-## 1.0.2-1
+## 1.0.2
 
 * add `mainDevTestMenu` to run tests in a menu
 
