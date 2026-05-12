@@ -4,6 +4,7 @@ import 'package:pub_semver/pub_semver.dart';
 
 List<String>? _installedGlobalPackages;
 
+/// Prefer PubGlobalPackageService
 /// Returns true if the package was activated during this call.
 Future<bool> checkAndActivatePackage(String package, {bool? verbose}) async {
   var list = await getInstalledGlobalPackages(verbose: verbose);

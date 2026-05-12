@@ -15,6 +15,18 @@ export 'src/package/package.dart'
         DartPackageWriterExt,
         DartPackageReaderExt;
 export 'src/package/package_io_impl.dart' show DartPackageIo, DartPackageIoExt;
+export 'src/package/pub_global_package.dart'
+    show
+        PubGlobalPackage,
+        PubGlobalHostedPackage,
+        PubGlobalGitPackage,
+        PubGlobalPathPackage,
+        PubGlobalHostedPackageInstall,
+        PubGlobalGitPackageInstall,
+        PubGlobalPathPackageInstall;
+export 'src/package/pub_global_package_service.dart'
+    show PubGlobalPackageService, checkOrPubActivateHostedPackage;
+
 export 'src/package/recursive_pub_path.dart'
     show recursivePubPath, recursivePackagesRun;
 export 'src/run_ci.dart'

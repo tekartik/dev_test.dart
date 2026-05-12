@@ -45,6 +45,7 @@ export 'src/build_support.dart'
         dartTemplatePackage,
         dartTemplateWeb,
         dartCreateProject;
+export 'src/dev_build_support.dart' show checkOrPubActivateDevBuild;
 export 'src/package/package_io_impl.dart'
     show pathPackageConfigMapGetPackagePath, pathGetResolvedPackagePath;
 export 'src/pub_global.dart'

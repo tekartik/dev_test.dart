@@ -168,6 +168,16 @@ class VersionBoundaries {
     : min = versionMin?.lowerBoundary,
       max = versionMax?.upperBoundary;
 
+  /// At least version.
+  VersionBoundaries.lower(Version version)
+    : min = VersionBoundary.lower(version),
+      max = null;
+
+  /// At most version.
+  VersionBoundaries.upper(Version version)
+    : min = null,
+      max = VersionBoundary.upper(version);
+
   /// Version boundaries pinned.
   VersionBoundaries.version(Version version)
     : min = VersionBoundary(version, true),
