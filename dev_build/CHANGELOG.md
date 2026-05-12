@@ -1,3 +1,7 @@
+## 1.1.7-1
+
+* Add `PubGlobalPackage` and related services for installing pub global package.
+
 ## 1.1.6
 
 * menu: add `enterItem`/`leaveItem`
