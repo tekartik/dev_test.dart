@@ -13,6 +13,17 @@ bool isDirectoryNotLinkSynk(String path) =>
     FileSystemEntity.isDirectorySync(path) &&
     !FileSystemEntity.isLinkSync(path);
 
+/// Resolve a relative link if necessary
+String _linkTargetSync(String path) {
+  var link = Link(path);
+  var target = link.targetSync();
+
+  if (isRelative(target)) {
+    target = normalize(absolute(join(path, '..', target)));
+  }
+  return target;
+}
+
 /// Normalize path using posix style
 /// Not valid if current path contains a part containing a backslash (not recommended)
 String posixNormalize(String path) {
@@ -131,7 +142,7 @@ Future<List<String>> filterPubPath(
   var list = <String>[];
 
   for (final dir in dirs) {
-    if (isDirectoryNotLinkSynk(dir)) {
+    if (FileSystemEntity.isDirectorySync(dir)) {
       final handled = await _checkProjectMatch(
         dir,
         dependencies: dependencies,
@@ -142,7 +153,7 @@ Future<List<String>> filterPubPath(
         list.add(dir);
       }
     } else {
-      throw '$dir not a directory';
+      throw ArgumentError('$dir not a directory');
     }
   }
   return list;
@@ -186,7 +197,7 @@ Future<List<String>> recursivePubPath(
 
               var isLink = FileSystemEntity.isLinkSync(dir);
               if (isLink) {
-                dir = await Link(dir).target();
+                dir = _linkTargetSync(dir);
               }
               var subPubDirs = await filterPubPath(
                 [dir],
@@ -207,10 +218,10 @@ Future<List<String>> recursivePubPath(
   }
 
   for (final dir in dirs) {
-    if (isDirectoryNotLinkSynk(dir)) {
+    if (FileSystemEntity.isDirectorySync(dir)) {
       pubDirs.addAll(await getSubDirs(dir));
     } else {
-      throw '$dir not a directory';
+      throw ArgumentError('$dir not a directory');
     }
   }
 

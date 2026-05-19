@@ -4,6 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:dev_build/package.dart';
+import 'package:dev_build/src/io/file_utils.dart';
 import 'package:dev_build/src/mixin/package.dart';
 import 'package:dev_build/src/package/recursive_pub_path.dart'
     show posixNormalize, recursiveActions;
@@ -71,13 +72,45 @@ void main() {
     );
   });
 
+  var minPubspecYamlContent = 'name: dummy\nenvironment:\n  sdk: ^$dartVersion';
+  test('recursivePubPath absolute link', () async {
+    // Somehow on node, build contains pubspec.yaml at its root and should be ignored
+    // try to reproduce here
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'absolute_link_test');
+    await Directory(outDir).prepare();
+    var file = File(join(outDir, 'b', 'pubspec.yaml'));
+    await file.parent.create(recursive: true);
+    await file.writeAsString(minPubspecYamlContent);
+    var link = Link(join(outDir, 'a', 'sub'));
+    await link.create(absolute(join(outDir, 'b')), recursive: true);
+
+    expect(await recursivePubPath([join(outDir, 'a')]), [
+      absolute(join(outDir, 'b')),
+    ]);
+  });
+  test('recursivePubPath relative link', () async {
+    // Somehow on node, build contains pubspec.yaml at its root and should be ignored
+    // try to reproduce here
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'relative_link_test');
+    await Directory(outDir).prepare();
+    var file = File(join(outDir, 'b', 'pubspec.yaml'));
+    await file.parent.create(recursive: true);
+    await file.writeAsString(minPubspecYamlContent);
+    var link = Link(join(outDir, 'a', 'sub'));
+    await link.create(join('..', 'b'), recursive: true);
+
+    expect(await recursivePubPath([join(outDir, 'a')]), [
+      absolute(join(outDir, 'b')),
+    ]);
+  });
+
   test('recursivePubPath ignore build', () async {
     // Somehow on node, build contains pubspec.yaml at its root and should be ignored
     // try to reproduce here
     var outDir = join('.dart_tool', 'dev_build', 'test', 'recursive_test');
     var file = File(join(outDir, 'build', 'pubspec.yaml'));
     await file.parent.create(recursive: true);
-    await file.writeAsString('name: dummy');
+    await file.writeAsString(minPubspecYamlContent);
 
     expect(await recursivePubPath([outDir]), isEmpty);
   });
