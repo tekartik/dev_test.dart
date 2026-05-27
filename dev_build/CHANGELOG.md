@@ -1,4 +1,4 @@
-## 1.1.7+3
+## 1.1.7+4
 
 * Add `PubGlobalPackage` and related services for installing pub global package.
 * Fix relative link handling when listing pub directories

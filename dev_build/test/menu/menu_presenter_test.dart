@@ -45,8 +45,7 @@ void main() {
       var presenter = MenuPresenter1();
       //menu('test', () {});
       await menuRun();
-      write('some text');
-      writeln('some other text');
+      writeln('some text');
 
       // presenter is still null
       expect(presenter.menu.name, '_root_');
