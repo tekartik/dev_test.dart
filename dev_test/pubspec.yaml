@@ -4,7 +4,7 @@ description: Test utilities for dart and flutter packages on top of test_api pac
 repository: https://github.com/tekartik/dev_test.dart/tree/master/dev_test
 
 environment:
-  sdk: ^3.11.0
+  sdk: ^3.12.0
 
 dependencies:
   # flutter 3.41 pinned to 0.7.10

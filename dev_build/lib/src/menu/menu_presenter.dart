@@ -57,6 +57,28 @@ class _NullMenuPresenter extends Object
   void write(Object message) {}
 }
 
+class _PrintMenuPresenter with MenuPresenterMixin implements MenuPresenter {
+  @override
+  void presentMenu(DevMenu menu) {}
+
+  @override
+  Future<String> prompt(Object? message) async {
+    writeln(message ?? '');
+    return '';
+  }
+
+  @override
+  void write(Object message) {
+    writeln(message);
+  }
+
+  @override
+  void writeln(Object message) {
+    // ignore: avoid_print
+    print(message);
+  }
+}
+
 /// Default null presenter, not event a print.
 class NullMenuPresenter extends _NullMenuPresenter {
   /// Default null presenter, not event a print.
@@ -74,8 +96,10 @@ MenuPresenter? _menuPresenter;
 /// Default test menu presenter.
 MenuPresenter? get menuPresenterOrNull => _menuPresenter;
 
-/// Default test menu presenter.
-MenuPresenter get menuPresenter => _menuPresenter ?? nullMenuPresenter;
+final _printPresenter = _PrintMenuPresenter();
+
+/// Default test menu presenter, ensure write is printed
+MenuPresenter get menuPresenter => _menuPresenter ?? _printPresenter;
 
 /// Change default test menu presenter.
 set menuPresenter(MenuPresenter menuPresenter) =>

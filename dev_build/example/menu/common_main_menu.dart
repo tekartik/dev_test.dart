@@ -3,6 +3,7 @@ library;
 import 'package:dev_build/menu/menu_io.dart';
 
 void main(List<String> arguments) {
+  writeln('commonMainMenu');
   mainMenuConsole(arguments, () {
     commonMainMenu();
   });
@@ -11,7 +12,7 @@ void main(List<String> arguments) {
 void commonMainMenu() {
   menu('main', () {
     item('write hola', () async {
-      write('Hola');
+      writeln('Hola');
     });
     item('write lorem lipsum', () async {
       write(
