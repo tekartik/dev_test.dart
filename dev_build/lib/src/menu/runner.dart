@@ -90,7 +90,7 @@ class Runner {
 
   /// Write a line on the presenter.
   void write(Object message) {
-    menuPresenter.write(message);
+    menuPresenter.writeln(message);
   }
 }
 

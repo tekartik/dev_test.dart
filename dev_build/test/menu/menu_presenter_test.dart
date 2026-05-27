@@ -29,6 +29,11 @@ class MenuPresenter1 extends Object
   }
 
   @override
+  void writeln(Object message) {
+    text = message.toString();
+  }
+
+  @override
   void write(Object message) {
     text = message.toString();
   }

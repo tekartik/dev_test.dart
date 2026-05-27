@@ -12,6 +12,9 @@ abstract class MenuPresenter {
   Future<String> prompt(Object? message);
 
   /// write the console
+  void writeln(Object message);
+
+  /// Compat - DEPRECATED prefer writeln
   void write(Object message);
 
   /// pre process item.
@@ -28,6 +31,11 @@ abstract mixin class MenuPresenterMixin implements MenuPresenter {
 
   @override
   Future preProcessMenu(DevMenu menu) async {}
+
+  @override
+  void writeln(Object message) {
+    write(message);
+  }
 }
 
 /// Default null presenter, not event a print.
@@ -41,6 +49,9 @@ class _NullMenuPresenter extends Object
   Future<String> prompt(Object? message) async {
     return '';
   }
+
+  @override
+  void writeln(Object message) {}
 
   @override
   void write(Object message) {}

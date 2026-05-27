@@ -1,7 +1,8 @@
-## 1.1.7+1
+## 1.1.7+2
 
 * Add `PubGlobalPackage` and related services for installing pub global package.
 * Fix relative link handling when listing pub directories
+* menu: add `writeln`
 
 ## 1.1.6
 

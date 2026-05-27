@@ -234,8 +234,13 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
   }
 
   @override
-  void write(Object message) {
+  void writeln(Object message) {
     stdout.writeln('$message');
+  }
+
+  @override
+  void write(Object message) {
+    writeln('$message');
   }
 
   @override

@@ -54,7 +54,7 @@ class MenuRunner {
         await result;
       }
     } catch (e, st) {
-      menuPresenter.write('ERROR CAUGHT $e $st');
+      menuPresenter.writeln('ERROR CAUGHT $e $st');
 
       rethrow;
     } finally {
