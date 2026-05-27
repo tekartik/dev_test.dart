@@ -46,6 +46,7 @@ void main() {
       //menu('test', () {});
       await menuRun();
       write('some text');
+      writeln('some other text');
 
       // presenter is still null
       expect(presenter.menu.name, '_root_');

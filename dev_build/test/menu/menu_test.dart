@@ -5,6 +5,12 @@ import 'package:test/test.dart';
 
 void main() {
   group('test_menu', () {
+    test('api', () {
+      // ignore: unnecessary_statements
+      write;
+      // ignore: unnecessary_statements
+      writeln;
+    });
     //MenuManager.debug.on
     test('solo', () async {
       var ran = false;

@@ -129,6 +129,11 @@ void solo_menu(String name, void Function() body, {String? cmd, bool? solo}) {
 
 /// Write a line on the presenter
 void write(Object? message) {
+  writeln(message);
+}
+
+/// Write a line on the presenter
+void writeln(Object? message) {
   menuPresenter.writeln(message ?? '<null>');
 }
 
