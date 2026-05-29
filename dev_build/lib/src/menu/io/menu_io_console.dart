@@ -23,7 +23,6 @@ String _exitCommand = '.';
 String _helpCommand = '?';
 
 class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
-
   _MenuManagerConsole(this.arguments) {
     var parser = ArgParser();
     parser.addFlag('help', abbr: 'h');

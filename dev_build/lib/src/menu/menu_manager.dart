@@ -43,12 +43,12 @@ Future processMenu(DevMenu menu) async {
 
 /// The test menu manager.
 class MenuManager {
-
   /// The test menu manager.
   MenuManager(this.presenter) {
     // unique?
     menuManager = this;
   }
+
   /// The presenter.
   final MenuPresenter presenter;
 

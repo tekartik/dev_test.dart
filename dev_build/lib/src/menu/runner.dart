@@ -7,9 +7,9 @@ import 'menu_manager.dart';
 
 /// Test runner.
 class Runner {
-
   /// Test menu presenter.
   Runner(this.declarer);
+
   /// Test menu declarer.
   Declarer declarer;
 

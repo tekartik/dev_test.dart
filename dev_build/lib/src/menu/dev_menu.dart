@@ -28,7 +28,6 @@ abstract class MenuItemBase {
 abstract class DevMenuItem
     with DevMenuOrItemMixin
     implements Runnable, WithParent, MenuItemBase {
-
   /// A menu item.
   factory DevMenuItem.fn(
     String name,
@@ -43,6 +42,7 @@ abstract class DevMenuItem
   factory DevMenuItem.menu(DevMenu menu) {
     return MenuMenuItem(menu);
   }
+
   /// The command to trigger this item.
   @override
   String? get cmd;
@@ -59,7 +59,6 @@ typedef MenuItemFn<R> = R? Function();
 typedef TestCommandFn<R> = R Function(String command);
 
 abstract class _BaseMenuItem {
-
   _BaseMenuItem(this.name, this.solo);
   final bool? solo;
   String name;
@@ -115,9 +114,9 @@ class ItemEnter extends Object with _RunnableMixin, _WithParentMixin {
 
 /// Menu command (?, ., -)
 class MenuCommand extends Object with _WithParentMixin {
-
   /// Menu command.
   MenuCommand(this.fn);
+
   /// The command function.
   final TestCommandFn fn;
 
@@ -157,7 +156,6 @@ class ItemLeave extends Object with _RunnableMixin, _WithParentMixin {
 class RunnableMenuItem extends _BaseMenuItem
     with _RunnableMixin, _WithParentMixin
     implements DevMenuItem {
-
   /// A runnable test item.
   RunnableMenuItem(String name, MenuItemFn fn, {this.cmd, bool? solo})
     : super(name, solo) {
@@ -174,9 +172,9 @@ class RunnableMenuItem extends _BaseMenuItem
 class MenuMenuItem extends _BaseMenuItem
     with _WithParentMixin
     implements DevMenuItem {
-
   /// A menu test item.
   MenuMenuItem(this.menu) : super(menu.name, menu.solo);
+
   /// The menu.
   DevMenu menu;
 
@@ -210,7 +208,6 @@ mixin DevMenuOrItemMixin implements MenuItemBase {}
 class DevMenu extends Object
     with _WithParentMixin, DevMenuOrItemMixin
     implements TestObject {
-
   /// A test menu.
   DevMenu(this.name, {this.cmd, this.group, this.solo});
   @override

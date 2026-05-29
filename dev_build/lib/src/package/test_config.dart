@@ -2,7 +2,6 @@ import 'package:meta/meta.dart';
 
 /// Config line
 class TestConfigLine {
-
   /// Config line
   TestConfigLine({this.platform, this.compiler, List<String>? compilers}) {
     if (platform != null) {
@@ -16,6 +15,7 @@ class TestConfigLine {
       args.addAll(['--compiler', compiler!]);
     }
   }
+
   /// Compiler (vm, dart2js, dart2wasm)
   final String? compiler;
 

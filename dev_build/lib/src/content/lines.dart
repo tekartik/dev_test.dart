@@ -41,7 +41,6 @@ bool _areCodeUnitsEscaped(List<int> codeUnits) {
 
 /// YamlLinesContent
 abstract class YamlLinesContent {
-
   /// Create a YamlLinesContent from text.
   factory YamlLinesContent.withText(String content) {
     return _YamlLinesContent.withText(content);
@@ -51,6 +50,7 @@ abstract class YamlLinesContent {
   factory YamlLinesContent.withLines(List<String> lines) {
     return _YamlLinesContent.withLines(lines);
   }
+
   /// Split lines.
   static List<String> splitLines(String content) {
     return LineSplitter.split(content).toList();

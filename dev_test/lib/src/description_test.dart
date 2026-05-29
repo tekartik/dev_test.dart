@@ -9,7 +9,6 @@ import 'package:dev_test/test.dart' show Timeout;
 class WithDescriptionsTest
     with DevTestMixin
     implements Test, WithTestDescriptions {
-
   /// With descriptions test implementation.
   WithDescriptionsTest(this._impl);
   final Test _impl;

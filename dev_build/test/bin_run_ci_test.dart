@@ -12,7 +12,6 @@ import 'package:test/test.dart';
 var rootProjectPath = '..';
 
 class _RunCiBinContext {
-
   _RunCiBinContext(this.shell);
   final Shell shell;
 }

@@ -5,9 +5,9 @@ import 'package:dev_build/menu/menu.dart';
 /// off by default
 /// turning it on raises a warning so that you don't checkin code like that.
 class DevFlag {
-
   /// Create a DevFlag.
   DevFlag([this.explanation]);
+
   /// Optional explanation.
   final String? explanation;
 

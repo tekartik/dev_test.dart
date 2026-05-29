@@ -11,7 +11,6 @@ extension VersionBoundaryVersionExt on Version {
 
 /// Version boundary.
 class VersionBoundary {
-
   /// Version boundary.
   const VersionBoundary(this.value, this.include);
 
@@ -20,6 +19,7 @@ class VersionBoundary {
 
   /// Upper boundary excluded by default
   const VersionBoundary.upper(this.value) : include = false;
+
   /// Version.
   final Version value;
 
@@ -49,7 +49,6 @@ class VersionBoundary {
 
 /// Version boundaries.
 class VersionBoundaries {
-
   /// Version boundaries.
   const VersionBoundaries(this.min, this.max);
 
@@ -72,6 +71,7 @@ class VersionBoundaries {
   VersionBoundaries.version(Version version)
     : min = VersionBoundary(version, true),
       max = VersionBoundary(version, true);
+
   /// min.
   final VersionBoundary? min;
 

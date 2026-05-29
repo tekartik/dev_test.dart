@@ -7,9 +7,9 @@ import 'menu_manager.dart';
 
 /// Test menu runner.
 class MenuRunner {
-
   /// Test menu runner.
   MenuRunner(this.parent, this.menu);
+
   /// The menu.
   final DevMenu menu;
 

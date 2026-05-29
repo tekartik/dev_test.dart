@@ -127,11 +127,11 @@ class PubGlobalHostedPackage
 class PubGlobalHostedPackageInstall
     with _PubGlobalPackageMixin
     implements PubGlobalHostedPackage {
-
   /// Hosted package
   PubGlobalHostedPackageInstall(String name, {this.versionBoundaries}) {
     this.name = name;
   }
+
   /// For installation
   final VersionBoundaries? versionBoundaries;
   @override
@@ -159,7 +159,6 @@ String _extractSource(String source) {
 abstract class PubGlobalSourcePackage
     with _PubGlobalPackageMixin
     implements PubGlobalPackage {
-
   /// Global package from source (git, path).
   PubGlobalSourcePackage(String name, {Version? version}) {
     this.name = name;

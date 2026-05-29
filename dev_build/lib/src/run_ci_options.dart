@@ -30,7 +30,6 @@ List<String> filterDartDirs(List<String> dirs) => dirs
 
 /// Package run options
 class PackageRunCiOptions {
-
   /// Package run ci options.
   PackageRunCiOptions({
     this.formatOnly = false,
@@ -81,6 +80,7 @@ class PackageRunCiOptions {
       noFormat = !formatOnly;
     }
   }
+
   /// Run in verbose mode.
   final bool verbose;
 
@@ -206,6 +206,5 @@ class PackageRunCiOptions {
   );
 
   /// True if no pub get or upgrade
-  bool get noPubGetOrUpgrade =>
-      !(pubGetOnly || pubUpgradeOnly) && noPubGet;
+  bool get noPubGetOrUpgrade => !(pubGetOnly || pubUpgradeOnly) && noPubGet;
 }

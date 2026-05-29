@@ -11,9 +11,9 @@ import 'package.dart';
 
 /// Io base implementation.
 abstract class DartPackageIo with DartPackageMixin {
-
   /// Create a package from a path.
   factory DartPackageIo(String path) => _DartPackageIoImpl(path);
+
   /// Package path
   String get path;
 
