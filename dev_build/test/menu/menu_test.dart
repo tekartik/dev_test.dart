@@ -78,7 +78,7 @@ void main() {
         // ignore: invalid_use_of_do_not_submit_member
         solo_item('test', () {
           log.add('test');
-          throw 'boom';
+          throw StateError('boom');
         });
       });
 

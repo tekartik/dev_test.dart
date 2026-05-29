@@ -236,17 +236,17 @@ enum _PubWorkspaceCacheAction { get, upgrade, downgrade }
 
 /// Last action done on a workspace, invalide others.
 class _PubWorkspaceCache {
+
+  _PubWorkspaceCache(this.workspaceRoot, this.action, this.offline);
   final String workspaceRoot;
   final bool offline;
   final _PubWorkspaceCacheAction action;
-
-  _PubWorkspaceCache(this.workspaceRoot, this.action, this.offline);
 }
 
 class _PubWorkspacesCache {
-  final _map = <String, _PubWorkspaceCache>{};
 
   _PubWorkspacesCache();
+  final _map = <String, _PubWorkspaceCache>{};
 }
 
 _PubWorkspacesCache? _pubWorkspacesCache;
@@ -616,6 +616,9 @@ Future<bool> flutterEnableWeb() async {
 
 /// CiRunner helper
 class SinglePackageCiRunner {
+
+  /// CiRunner
+  SinglePackageCiRunner(this._pubIoPackage, this.options);
   final PubIoPackage _pubIoPackage;
 
   /// Shell
@@ -656,9 +659,6 @@ class SinglePackageCiRunner {
 
   /// Options
   final PackageRunCiOptions options;
-
-  /// CiRunner
-  SinglePackageCiRunner(this._pubIoPackage, this.options);
 
   /// Run a script
   Future<List<ProcessResult>> runScript(String script) async {

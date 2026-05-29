@@ -12,9 +12,9 @@ import 'package:test/test.dart';
 var rootProjectPath = '..';
 
 class _RunCiBinContext {
-  final Shell shell;
 
   _RunCiBinContext(this.shell);
+  final Shell shell;
 }
 
 var compiledRunCiExeFuture = DartPackageIo('.').compiledExe(

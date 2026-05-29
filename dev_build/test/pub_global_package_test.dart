@@ -9,14 +9,14 @@ void main() {
   group('global_package', () {
     test('hosted', () {
       // pub global activate markdown
-      final line = 'markdown 0.9.0';
+      const line = 'markdown 0.9.0';
       var package =
           PubGlobalPackage.fromListLine(line) as PubGlobalHostedPackage;
       expect(package.name, 'markdown');
       expect(package.version, Version(0, 9, 0));
       expect(package.activateArgs, ['markdown']);
 
-      final activatedLine = 'Activated markdown 0.10.0.';
+      const activatedLine = 'Activated markdown 0.10.0.';
       package =
           PubGlobalPackage.fromActivatedLine(activatedLine, package.name)
               as PubGlobalHostedPackage;
@@ -42,7 +42,7 @@ void main() {
 
     test('git', () {
       // pub global activate --source git https://github.com/tekartik/pubglobalupdate.dart
-      final line =
+      const line =
           "my_script 0.1.0 from Git repository 'https://github.com/tekartik/my_script.dart'";
       final package =
           PubGlobalPackage.fromListLine(line) as PubGlobalGitPackage;
@@ -104,7 +104,7 @@ void main() {
     });
     test('path', () {
       // pub global activate --source path /media/ssd/devx/git/bitbucket.org/alextk/script.dart
-      final line = 'my_script 0.1.0 at path "/my_path/my_script.dart"';
+      const line = 'my_script 0.1.0 at path "/my_path/my_script.dart"';
       final package =
           PubGlobalPackage.fromListLine(line) as PubGlobalPathPackage;
       expect(package.name, 'my_script');

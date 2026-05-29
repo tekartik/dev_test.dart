@@ -11,11 +11,11 @@ import 'package.dart';
 
 /// Io base implementation.
 abstract class DartPackageIo with DartPackageMixin {
-  /// Package path
-  String get path;
 
   /// Create a package from a path.
   factory DartPackageIo(String path) => _DartPackageIoImpl(path);
+  /// Package path
+  String get path;
 
   /// File has been read and can be used.
   Future<void> get ready;
@@ -39,11 +39,11 @@ extension DartPackageIoExt on DartPackageIo {
 }
 
 class _DartPackageIoImpl with DartPackageMixin implements DartPackageIo {
-  @override
-  final String path;
   _DartPackageIoImpl(this.path) {
     pubspecYamlContent = YamlLinesContentIo(join(path, 'pubspec.yaml'));
   }
+  @override
+  final String path;
   YamlLinesContentIo get pubspecYamlContentIo =>
       pubspecYamlContent as YamlLinesContentIo;
 
@@ -167,11 +167,11 @@ class _DartPackagesCache {
 }
 
 class _DartPackage {
+  _DartPackage(this.path, this.workspace);
   final String path;
 
   /// Resolved workspace if any, path if root
   final String? workspace;
-  _DartPackage(this.path, this.workspace);
 }
 
 /// in .dart_tool/pub/workspace_ref.json

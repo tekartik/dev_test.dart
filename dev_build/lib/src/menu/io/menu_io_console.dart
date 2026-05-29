@@ -23,11 +23,6 @@ String _exitCommand = '.';
 String _helpCommand = '?';
 
 class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
-  static final String tag = '[test_menu_console]';
-
-  List<String> arguments;
-
-  late bool verbose;
 
   _MenuManagerConsole(this.arguments) {
     var parser = ArgParser();
@@ -48,6 +43,11 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
 
     initialCommands = results.rest;
   }
+  static const String tag = '[test_menu_console]';
+
+  List<String> arguments;
+
+  late bool verbose;
 
   // Not null if currently prompting
   Completer<String>? promptCompleter;

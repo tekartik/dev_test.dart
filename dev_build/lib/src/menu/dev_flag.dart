@@ -5,11 +5,11 @@ import 'package:dev_build/menu/menu.dart';
 /// off by default
 /// turning it on raises a warning so that you don't checkin code like that.
 class DevFlag {
-  /// Optional explanation.
-  final String? explanation;
 
   /// Create a DevFlag.
   DevFlag([this.explanation]);
+  /// Optional explanation.
+  final String? explanation;
 
   /// Is the flag on?
   bool get on => _on ?? false;

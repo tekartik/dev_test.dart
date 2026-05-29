@@ -8,15 +8,19 @@ import 'package:pub_semver/pub_semver.dart';
 
 /// Pub io options
 class PubIoPackageOptions {
-  /// Verbose
-  final bool verbose;
-
   /// Pub io package options
   PubIoPackageOptions({this.verbose = false});
+
+  /// Verbose
+  final bool verbose;
 }
 
 /// Pub io package
 class PubIoPackage {
+  /// Pub io package
+  PubIoPackage(this.path, {PubIoPackageOptions? options})
+    : options = options ?? PubIoPackageOptions();
+
   /// Options
   final PubIoPackageOptions options;
 
@@ -137,15 +141,11 @@ class PubIoPackage {
         }
       }
     }
-    throw 'No workspace root found';
+    throw StateError('No workspace root found');
   }
 
   /// True for flutter project
   late final bool isFlutter;
-
-  /// Pub io package
-  PubIoPackage(this.path, {PubIoPackageOptions? options})
-    : options = options ?? PubIoPackageOptions();
 
   /// Dart or flutter
   String get dof => isFlutter ? 'flutter' : 'dart';

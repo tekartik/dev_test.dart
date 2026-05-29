@@ -20,13 +20,13 @@ abstract class YamlLinesContentIo implements YamlLinesContent {
 class _YamlLinesContentIo
     with YamlLinesContentMixin
     implements YamlLinesContentIo {
-  /// File.
-  late File file;
 
   /// Create a YamlLinesContentIo from a path.
   _YamlLinesContentIo(String path) {
     file = File(path);
   }
+  /// File.
+  late File file;
 
   @override
   String get separator => yamlSeparatorIo;

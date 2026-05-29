@@ -6,7 +6,7 @@ import 'package:process_run/stdio.dart' as io;
 
 import 'mixin/package.dart';
 
-final String _pubspecYaml = 'pubspec.yaml';
+const String _pubspecYaml = 'pubspec.yaml';
 
 /// return true if root package
 

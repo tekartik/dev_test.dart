@@ -7,11 +7,11 @@ import 'menu_manager.dart';
 
 /// Test runner.
 class Runner {
-  /// Test menu declarer.
-  Declarer declarer;
 
   /// Test menu presenter.
   Runner(this.declarer);
+  /// Test menu declarer.
+  Declarer declarer;
 
   /// run.
   Future<void> run() async {

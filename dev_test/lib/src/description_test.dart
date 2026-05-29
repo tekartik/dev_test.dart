@@ -9,6 +9,9 @@ import 'package:dev_test/test.dart' show Timeout;
 class WithDescriptionsTest
     with DevTestMixin
     implements Test, WithTestDescriptions {
+
+  /// With descriptions test implementation.
+  WithDescriptionsTest(this._impl);
   final Test _impl;
 
   @override
@@ -17,9 +20,6 @@ class WithDescriptionsTest
 
   List<String>? _currentDescriptions; // set when the test is ran
   final List<String> _descriptions = [];
-
-  /// With descriptions test implementation.
-  WithDescriptionsTest(this._impl);
 
   @override
   void expect(Object? actual, Object? matcher, {String? reason, Object? skip}) {

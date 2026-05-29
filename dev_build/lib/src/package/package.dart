@@ -25,18 +25,10 @@ var _kindKeyMap = {
 };
 
 /// Dart package.
-abstract class DartPackage implements DartPackageReader {
-  /// Dart package from a yaml content.
-  factory DartPackage.withContent(String content) {
-    return _DartPackageImpl(YamlLinesContent.withText(content));
-  }
-}
+abstract class DartPackage implements DartPackageReader {}
 
 /// Dart package reader.
 abstract class DartPackageReader {
-  /// Pubspec yaml content.
-  Map<String, Object?> get pubspecYaml;
-
   /// Factory constructor from existing pubspec yaml.
   factory DartPackageReader.pubspecYaml(Map<String, Object?> pubspecYaml) {
     return _DartPackageReader(pubspecYaml: pubspecYaml);
@@ -46,13 +38,15 @@ abstract class DartPackageReader {
   factory DartPackageReader.pubspecString(String content) {
     return DartPackageReader.pubspecYaml(content.yamlMap);
   }
+
+  /// Pubspec yaml content.
+  Map<String, Object?> get pubspecYaml;
 }
 
 class _DartPackageReader implements DartPackageReader {
+  _DartPackageReader({required this.pubspecYaml});
   @override
   final Map<String, Object?> pubspecYaml;
-
-  _DartPackageReader({required this.pubspecYaml});
 }
 
 /// Dart package reader extension.
@@ -80,10 +74,6 @@ mixin DartPackageMixin implements DartPackage {
   @override
   // ignore: deprecated_member_use_from_same_package
   Map<String, Object?> get pubspecYaml => pubspecYamlContent.yaml;
-}
-
-class _DartPackageImpl with DartPackageMixin {
-  _DartPackageImpl(YamlLinesContent pubspecYamlContent);
 }
 
 /// Dart package.

@@ -41,10 +41,6 @@ bool _areCodeUnitsEscaped(List<int> codeUnits) {
 
 /// YamlLinesContent
 abstract class YamlLinesContent {
-  /// Split lines.
-  static List<String> splitLines(String content) {
-    return LineSplitter.split(content).toList();
-  }
 
   /// Create a YamlLinesContent from text.
   factory YamlLinesContent.withText(String content) {
@@ -54,6 +50,10 @@ abstract class YamlLinesContent {
   /// Create a YamlLinesContent from lines.
   factory YamlLinesContent.withLines(List<String> lines) {
     return _YamlLinesContent.withLines(lines);
+  }
+  /// Split lines.
+  static List<String> splitLines(String content) {
+    return LineSplitter.split(content).toList();
   }
 
   /// Separator default to \n but on io it is \r\n on windows

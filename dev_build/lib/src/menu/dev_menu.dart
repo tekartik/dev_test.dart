@@ -28,13 +28,6 @@ abstract class MenuItemBase {
 abstract class DevMenuItem
     with DevMenuOrItemMixin
     implements Runnable, WithParent, MenuItemBase {
-  /// The command to trigger this item.
-  @override
-  String? get cmd;
-
-  /// The name of the item.
-  @override
-  String get name;
 
   /// A menu item.
   factory DevMenuItem.fn(
@@ -50,6 +43,13 @@ abstract class DevMenuItem
   factory DevMenuItem.menu(DevMenu menu) {
     return MenuMenuItem(menu);
   }
+  /// The command to trigger this item.
+  @override
+  String? get cmd;
+
+  /// The name of the item.
+  @override
+  String get name;
 }
 
 /// A test item function.
@@ -59,12 +59,12 @@ typedef MenuItemFn<R> = R? Function();
 typedef TestCommandFn<R> = R Function(String command);
 
 abstract class _BaseMenuItem {
+
+  _BaseMenuItem(this.name, this.solo);
   final bool? solo;
   String name;
 
   String? get cmd;
-
-  _BaseMenuItem(this.name, this.solo);
 
   @override
   String toString() {
@@ -115,11 +115,11 @@ class ItemEnter extends Object with _RunnableMixin, _WithParentMixin {
 
 /// Menu command (?, ., -)
 class MenuCommand extends Object with _WithParentMixin {
-  /// The command function.
-  final TestCommandFn fn;
 
   /// Menu command.
   MenuCommand(this.fn);
+  /// The command function.
+  final TestCommandFn fn;
 
   @override
   String toString() {
@@ -157,14 +157,14 @@ class ItemLeave extends Object with _RunnableMixin, _WithParentMixin {
 class RunnableMenuItem extends _BaseMenuItem
     with _RunnableMixin, _WithParentMixin
     implements DevMenuItem {
-  @override
-  String? cmd;
 
   /// A runnable test item.
   RunnableMenuItem(String name, MenuItemFn fn, {this.cmd, bool? solo})
     : super(name, solo) {
     this.fn = fn;
   }
+  @override
+  String? cmd;
 
   /// If the item is test (if its parent is a group)
   bool? get test => parent?.group == true;
@@ -174,14 +174,14 @@ class RunnableMenuItem extends _BaseMenuItem
 class MenuMenuItem extends _BaseMenuItem
     with _WithParentMixin
     implements DevMenuItem {
+
+  /// A menu test item.
+  MenuMenuItem(this.menu) : super(menu.name, menu.solo);
   /// The menu.
   DevMenu menu;
 
   @override
   String? get cmd => menu.cmd;
-
-  /// A menu test item.
-  MenuMenuItem(this.menu) : super(menu.name, menu.solo);
 
   @override
   Future run() async {
@@ -210,6 +210,9 @@ mixin DevMenuOrItemMixin implements MenuItemBase {}
 class DevMenu extends Object
     with _WithParentMixin, DevMenuOrItemMixin
     implements TestObject {
+
+  /// A test menu.
+  DevMenu(this.name, {this.cmd, this.group, this.solo});
   @override
   final String? cmd;
   @override
@@ -227,9 +230,6 @@ class DevMenu extends Object
 
   /// The length of the items.
   int get length => _items.length;
-
-  /// A test menu.
-  DevMenu(this.name, {this.cmd, this.group, this.solo});
 
   final _enters = <MenuEnter>[];
   final _leaves = <MenuLeave>[];

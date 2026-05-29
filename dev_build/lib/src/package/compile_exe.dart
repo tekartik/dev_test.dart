@@ -7,14 +7,14 @@ import 'package:process_run/shell.dart';
 
 /// Compile exe info
 class DartPackageIoCompiledExe {
+
+  /// Compile exe info
+  DartPackageIoCompiledExe(this.path, this.version);
   /// Exe path
   final String path;
 
   /// Version
   final Version? version;
-
-  /// Compile exe info
-  DartPackageIoCompiledExe(this.path, this.version);
 }
 
 ///

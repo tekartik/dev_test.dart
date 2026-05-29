@@ -4,6 +4,13 @@ import 'package.dart';
 
 /// Filter dart project options
 class FilterDartProjectOptions {
+
+  /// Create filter options.
+  FilterDartProjectOptions({
+    this.ignoreSdkConstraints,
+    this.minSdk,
+    this.maxSdk,
+  });
   /// Ignore sdk constraints (default to false)
   final bool? ignoreSdkConstraints;
 
@@ -12,13 +19,6 @@ class FilterDartProjectOptions {
 
   /// Constraint on maxSdk.
   final VersionBoundaries? maxSdk;
-
-  /// Create filter options.
-  FilterDartProjectOptions({
-    this.ignoreSdkConstraints,
-    this.minSdk,
-    this.maxSdk,
-  });
 
   @override
   String toString() {

@@ -11,11 +11,6 @@ extension VersionBoundaryVersionExt on Version {
 
 /// Version boundary.
 class VersionBoundary {
-  /// Version.
-  final Version value;
-
-  /// Include.
-  final bool include;
 
   /// Version boundary.
   const VersionBoundary(this.value, this.include);
@@ -25,6 +20,11 @@ class VersionBoundary {
 
   /// Upper boundary excluded by default
   const VersionBoundary.upper(this.value) : include = false;
+  /// Version.
+  final Version value;
+
+  /// Include.
+  final bool include;
 
   @override
   String toString() => '$value $include';
@@ -49,6 +49,29 @@ class VersionBoundary {
 
 /// Version boundaries.
 class VersionBoundaries {
+
+  /// Version boundaries.
+  const VersionBoundaries(this.min, this.max);
+
+  /// Default is lower bound included, upper excluted.
+  VersionBoundaries.versions(Version? versionMin, Version? versionMax)
+    : min = versionMin?.lowerBoundary,
+      max = versionMax?.upperBoundary;
+
+  /// At least version.
+  VersionBoundaries.lower(Version version)
+    : min = VersionBoundary.lower(version),
+      max = null;
+
+  /// At most version.
+  VersionBoundaries.upper(Version version)
+    : min = null,
+      max = VersionBoundary.upper(version);
+
+  /// Version boundaries pinned.
+  VersionBoundaries.version(Version version)
+    : min = VersionBoundary(version, true),
+      max = VersionBoundary(version, true);
   /// min.
   final VersionBoundary? min;
 
@@ -159,29 +182,6 @@ class VersionBoundaries {
     }
     return sb.toString();
   }
-
-  /// Version boundaries.
-  const VersionBoundaries(this.min, this.max);
-
-  /// Default is lower bound included, upper excluted.
-  VersionBoundaries.versions(Version? versionMin, Version? versionMax)
-    : min = versionMin?.lowerBoundary,
-      max = versionMax?.upperBoundary;
-
-  /// At least version.
-  VersionBoundaries.lower(Version version)
-    : min = VersionBoundary.lower(version),
-      max = null;
-
-  /// At most version.
-  VersionBoundaries.upper(Version version)
-    : min = null,
-      max = VersionBoundary.upper(version);
-
-  /// Version boundaries pinned.
-  VersionBoundaries.version(Version version)
-    : min = VersionBoundary(version, true),
-      max = VersionBoundary(version, true);
 
   /// Compat
   static VersionBoundaries? tryParse(String text) {

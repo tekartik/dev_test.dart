@@ -30,6 +30,57 @@ List<String> filterDartDirs(List<String> dirs) => dirs
 
 /// Package run options
 class PackageRunCiOptions {
+
+  /// Package run ci options.
+  PackageRunCiOptions({
+    this.formatOnly = false,
+    this.testOnly = false,
+    this.buildOnly = false,
+    this.analyzeOnly = false,
+    this.pubGetOnly = false,
+    this.verbose = false,
+    this.recursive = false,
+    this.pubUpgradeOnly = false,
+    this.pubDowngradeOnly = false,
+    this.fixOnly = false,
+    this.noNodeTest = false,
+    this.noVmTest = false,
+    this.vmTestOnly = false,
+    this.noBrowserTest = false,
+    this.chromeJsTestOnly = false,
+    this.noTest = false,
+    this.noAnalyze = false,
+    this.noFormat = false,
+    this.noPubGet = false,
+    this.noBuild = false,
+    this.offline = false,
+    this.noNpmInstall = false,
+    this.poolSize,
+    this.noOverride = false,
+    this.dryRun = false,
+    this.prjInfo = false,
+    this.noRunCi = false,
+    this.ignoreErrors = false,
+    this.filterDartProjectOptions,
+    this.printPath = false,
+  }) {
+    var isTestOnlyAction = testOnly || vmTestOnly || chromeJsTestOnly;
+    var isOnlyAction =
+        (formatOnly ||
+        buildOnly ||
+        isTestOnlyAction ||
+        analyzeOnly ||
+        pubGetOnly ||
+        pubUpgradeOnly ||
+        fixOnly);
+    if (isOnlyAction) {
+      noTest = !isTestOnlyAction;
+
+      noBuild = !buildOnly;
+      noAnalyze = !analyzeOnly;
+      noFormat = !formatOnly;
+    }
+  }
   /// Run in verbose mode.
   final bool verbose;
 
@@ -120,57 +171,6 @@ class PackageRunCiOptions {
   /// Just print the path
   final bool printPath;
 
-  /// Package run ci options.
-  PackageRunCiOptions({
-    this.formatOnly = false,
-    this.testOnly = false,
-    this.buildOnly = false,
-    this.analyzeOnly = false,
-    this.pubGetOnly = false,
-    this.verbose = false,
-    this.recursive = false,
-    this.pubUpgradeOnly = false,
-    this.pubDowngradeOnly = false,
-    this.fixOnly = false,
-    this.noNodeTest = false,
-    this.noVmTest = false,
-    this.vmTestOnly = false,
-    this.noBrowserTest = false,
-    this.chromeJsTestOnly = false,
-    this.noTest = false,
-    this.noAnalyze = false,
-    this.noFormat = false,
-    this.noPubGet = false,
-    this.noBuild = false,
-    this.offline = false,
-    this.noNpmInstall = false,
-    this.poolSize,
-    this.noOverride = false,
-    this.dryRun = false,
-    this.prjInfo = false,
-    this.noRunCi = false,
-    this.ignoreErrors = false,
-    this.filterDartProjectOptions,
-    this.printPath = false,
-  }) {
-    var isTestOnlyAction = testOnly || vmTestOnly || chromeJsTestOnly;
-    var isOnlyAction =
-        (formatOnly ||
-        buildOnly ||
-        isTestOnlyAction ||
-        analyzeOnly ||
-        pubGetOnly ||
-        pubUpgradeOnly ||
-        fixOnly);
-    if (isOnlyAction) {
-      noTest = !isTestOnlyAction;
-
-      noBuild = !buildOnly;
-      noAnalyze = !analyzeOnly;
-      noFormat = !formatOnly;
-    }
-  }
-
   /// Clone the options
   PackageRunCiOptions clone() => PackageRunCiOptions(
     formatOnly: formatOnly,
@@ -207,5 +207,5 @@ class PackageRunCiOptions {
 
   /// True if no pub get or upgrade
   bool get noPubGetOrUpgrade =>
-      (pubGetOnly || pubUpgradeOnly) ? false : noPubGet;
+      !(pubGetOnly || pubUpgradeOnly) && noPubGet;
 }

@@ -9,12 +9,12 @@ import 'package:test/test.dart';
 class MenuPresenter1 extends Object
     with MenuPresenterMixin
     implements MenuPresenter {
-  String? text;
 
   MenuPresenter1() {
     // set as presenter
     menuPresenter = this;
   }
+  String? text;
 
   late DevMenu menu;
 

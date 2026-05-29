@@ -83,7 +83,7 @@ abstract class PubGlobalPackage {
 
   /// Get global package from actived line.
   static PubGlobalPackage? fromActivatedLine(String line, String packageName) {
-    final activated = 'activated';
+    const activated = 'activated';
     if (line.toLowerCase().startsWith(activated)) {
       final start = line.indexOf(packageName, activated.length);
       if (start != -1) {
@@ -127,13 +127,13 @@ class PubGlobalHostedPackage
 class PubGlobalHostedPackageInstall
     with _PubGlobalPackageMixin
     implements PubGlobalHostedPackage {
-  /// For installation
-  final VersionBoundaries? versionBoundaries;
 
   /// Hosted package
   PubGlobalHostedPackageInstall(String name, {this.versionBoundaries}) {
     this.name = name;
   }
+  /// For installation
+  final VersionBoundaries? versionBoundaries;
   @override
   List<String> get activateArgs => [name, ?versionBoundaries?.toShortString()];
 }
@@ -159,6 +159,12 @@ String _extractSource(String source) {
 abstract class PubGlobalSourcePackage
     with _PubGlobalPackageMixin
     implements PubGlobalPackage {
+
+  /// Global package from source (git, path).
+  PubGlobalSourcePackage(String name, {Version? version}) {
+    this.name = name;
+    this.version = version;
+  }
   late String _source;
 
   /// Package source.
@@ -166,12 +172,6 @@ abstract class PubGlobalSourcePackage
 
   /// Source type (git, path)
   String get sourceType;
-
-  /// Global package from source (git, path).
-  PubGlobalSourcePackage(String name, {Version? version}) {
-    this.name = name;
-    this.version = version;
-  }
   @override
   List<String> get activateArgs => ['--source', sourceType, source];
 

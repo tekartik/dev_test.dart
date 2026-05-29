@@ -28,7 +28,7 @@ void commonMainMenu() {
       print('hi');
     });
     item('crash', () {
-      throw 'crash';
+      throw StateError('crash');
     });
     menu('sub', () {
       menu('below', () {

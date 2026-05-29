@@ -7,6 +7,9 @@ import 'menu_manager.dart';
 
 /// Test menu runner.
 class MenuRunner {
+
+  /// Test menu runner.
+  MenuRunner(this.parent, this.menu);
   /// The menu.
   final DevMenu menu;
 
@@ -28,9 +31,6 @@ class MenuRunner {
 
   /// Entered.
   bool entered = false;
-
-  /// Test menu runner.
-  MenuRunner(this.parent, this.menu);
 
   /// Enter the menu.
   Future<void> enter() async {
