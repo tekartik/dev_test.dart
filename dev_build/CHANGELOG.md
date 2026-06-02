@@ -1,3 +1,7 @@
+## 1.1.8
+
+* Requires dart 3.12
+
 ## 1.1.7+5
 
 * Add `PubGlobalPackage` and related services for installing pub global package.
