@@ -1,4 +1,5 @@
 export 'package:pub_semver/pub_semver.dart';
+
 export 'src/mixin/package.dart'
     show
         VersionBoundaries,
@@ -27,9 +28,9 @@ export 'src/package/pub_global_package.dart'
         PubGlobalPathPackageInstall;
 export 'src/package/pub_global_package_service.dart'
     show PubGlobalPackageService, checkOrPubActivateHostedPackage;
-
 export 'src/package/recursive_pub_path.dart'
     show recursivePubPath, recursivePackagesRun;
+
 export 'src/run_ci.dart'
     show packageRunCi, ioPackageRunCi, runCiInitPubWorkspacesCache;
 export 'src/run_ci_options.dart' show PackageRunCiOptions;

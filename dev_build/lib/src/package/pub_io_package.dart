@@ -1,6 +1,5 @@
 import 'package:dev_build/build_support.dart';
 import 'package:dev_build/shell.dart';
-import 'package:dev_build/src/pub_io.dart';
 import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/stdio.dart';

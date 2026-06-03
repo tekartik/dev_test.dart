@@ -232,4 +232,10 @@ void main() {
       skip: 'Temp skip during nnbd migration',
     );
   });
+  test('PubPackageRoot', () async {
+    expect(
+      await getPubPackageRoot(join('test', 'build_support_test.dart')),
+      getPubPackageRootSync('.'),
+    );
+  });
 }

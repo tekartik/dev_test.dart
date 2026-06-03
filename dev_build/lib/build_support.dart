@@ -51,3 +51,9 @@ export 'src/package/package_io_impl.dart'
     show pathPackageConfigMapGetPackagePath, pathGetResolvedPackagePath;
 export 'src/pub_global.dart'
     show checkAndActivateWebdev, checkAndActivatePackage;
+export 'src/pub_io.dart'
+    show
+        isPubPackageRootSync,
+        isPubPackageRoot,
+        getPubPackageRoot,
+        getPubPackageRootSync;
