@@ -69,6 +69,7 @@ class PackageRunCiOptions {
         buildOnly ||
         isTestOnlyAction ||
         analyzeOnly ||
+        pubDowngradeOnly ||
         pubGetOnly ||
         pubUpgradeOnly ||
         fixOnly);

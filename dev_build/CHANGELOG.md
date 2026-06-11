@@ -1,8 +1,9 @@
-## 1.1.8+1
+## 1.1.8+2
 
 * Requires dart 3.12
 * Add `isPubPackageRootSync`, `isPubPackageRoot`, `getPubPackageRoot`, `getPubPackageRootSync`
   to `build_support`
+* Use pub workspace cache by default
 
 ## 1.1.7+5
 

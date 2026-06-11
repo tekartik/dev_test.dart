@@ -129,7 +129,17 @@ Future<void> packageRunCi(
   bool? verbose,
   bool? pubUpgrade,
   int? poolSize,
+
+  /// Internally a pub cache is used
+  /// for a given action
+  /// If set to false or unset, a new cache is created
+  /// If set to true, no cache is used, unless a one exists
+  bool? noPubWorkspaceCache,
 }) async {
+  noPubWorkspaceCache ??= false;
+  if (!noPubWorkspaceCache) {
+    runCiInitPubWorkspacesCache();
+  }
   options ??= PackageRunCiOptions(
     noPubGet: noPubGet ?? false,
     noTest: noTest ?? false,
