@@ -445,15 +445,8 @@ Future<void> _zonedSinglePackageRunCiImpl(
 
   await ciRunner.format();
   await ciRunner.analyze();
+  await ciRunner.runTest();
   if (isFlutterPackage) {
-    if (!options.noTest) {
-      // 'test', '--no-pub'
-      // Flutter way
-      await runScript('''
-      # Test
-      flutter test --no-pub
-    ''');
-    }
     if (!options.noBuild) {
       /// Try building web if possible
 
@@ -466,114 +459,6 @@ Future<void> _zonedSinglePackageRunCiImpl(
       }
     }
   } else {
-    // Test?
-    if (!options.noTest) {
-      var filteredDartDirs = await filterTopLevelDartDirs(path);
-      if (filteredDartDirs.contains('test')) {
-        var vmTestOnly = options.vmTestOnly;
-        var chromeJsTestOnly = options.chromeJsTestOnly;
-        var isWeb = pubspecYamlSupportsWeb(pubspecMap);
-        var noVmTest = options.noVmTest || chromeJsTestOnly;
-        var noBrowserTest = !isWeb || options.noBrowserTest || vmTestOnly;
-        var noNodeTest =
-            isNodeSupportedSync &&
-            (options.noNodeTest || vmTestOnly || chromeJsTestOnly);
-        var platforms = <String>[if (!options.noVmTest) 'vm'];
-        var supportedPlatforms = <String>[
-          if (!noVmTest) 'vm',
-          if (!noBrowserTest) 'chrome',
-          if (!noNodeTest) 'node',
-        ];
-        // Tmp don't compile as wasm on windows as it times out
-        var noWasm = Platform.isWindows;
-
-        if (!noBrowserTest) {
-          platforms.add('chrome');
-        }
-        // Add node for standard run test
-        var isNodePackage = pubspecYamlSupportsNode(pubspecMap);
-        if (!noNodeTest && isNodePackage) {
-          platforms.add('node');
-
-          if (!options.noNpmInstall) {
-            await nodeSetupCheck(path);
-            // Workaround issue about complaining old pubspec on node...
-            // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
-          }
-
-          await runScript('''
-          # Get dependencies
-          $dofPub get --offline
-    ''');
-        }
-
-        // Check available dart test platforms
-        var dartTestFile = File(join(path, 'dart_test.yaml'));
-        Map? dartTestMap;
-        if (dartTestFile.existsSync()) {
-          try {
-            dartTestMap = (loadYaml(await dartTestFile.readAsString()) as Map);
-          } catch (_) {}
-        }
-        var testConfig = buildTestConfig(
-          platforms: platforms,
-          supportedPlatforms: supportedPlatforms,
-          dartTestMap: dartTestMap,
-          noWasm: noWasm,
-        );
-
-        if (testConfig.hasNode) {
-          try {
-            await nodeSetupCheck(path);
-          } catch (e) {
-            stderr.writeln('(ignored) Error setting up node: $e');
-          }
-        }
-        if (testConfig.configLines.isNotEmpty) {
-          for (var line in testConfig.configLines) {
-            Future<void> doRunTest() async {
-              await runScript('dart test${line.toCommandLineArgument()}');
-            }
-
-            try {
-              await doRunTest();
-            } catch (e) {
-              // Handle timeout at least once....
-              // happens on github actions
-              // Compiled nnnnnnnn input bytes (nnnn characters source) to nnnnnnnn characters JavaScript in nnn seconds
-              // Failed to load "test/xxxx_test.dart":
-              // Timed out waiting for Chrome to connect.
-              // Browser output: [5290:20472:0401/230040.569143:ERROR:chrome/browser/chrome_browser_main.cc:1263] The use of Rosetta to run the x64 version of Chromium on Arm is neither tested nor maintained, and unexpected behavior will likely result. Please check that all tools that spawn Chromium are Arm-native.
-              if (!_chromeTestTimeoutRetriedOnce &&
-                  Platform.isMacOS &&
-                  (e is ShellException) &&
-                  ((e.result?.errText.contains(
-                            'Timed out waiting for Chrome to connect',
-                          ) ??
-                          false) ||
-                      (e.result?.outText.contains(
-                            'Timed out waiting for Chrome to connect',
-                          ) ??
-                          false))) {
-                stderr.writeln(
-                  '(ignored) Timeout waiting for Chrome to connect, retrying once...',
-                );
-                _chromeTestTimeoutRetriedOnce = true;
-                await doRunTest();
-              } else {
-                rethrow;
-              }
-            }
-          }
-        } else if (testConfig.args.isNotEmpty) {
-          await runScript('''
-    # Test
-    dart test${testConfig.toCommandLineArgument()}
-    ''');
-        }
-      }
-    }
-
     if (!options.noBuild) {
       /// Try web dev if possible
       if (pubspecYamlHasAllDependencies(pubspecMap, [
@@ -748,6 +633,135 @@ class SinglePackageCiRunner {
   Future<void> fix() async {
     await format(fix: true);
     await runScript('dart fix --apply');
+  }
+
+  /// Run tests
+  Future<void> runTest({List<String>? testOptions}) async {
+    var extraArgs = '';
+    if (testOptions != null && testOptions.isNotEmpty) {
+      extraArgs = ' ${testOptions.join(' ')}';
+    }
+    if (isFlutterPackage) {
+      if (!options.noTest) {
+        // 'test', '--no-pub'
+        // Flutter way
+        await runScript('''
+        # Test
+        flutter test --no-pub$extraArgs
+      ''');
+      }
+    } else {
+      // Test?
+      if (!options.noTest) {
+        filteredDartDirs ??= await filterTopLevelDartDirs(path);
+        if (filteredDartDirs!.contains('test')) {
+          var vmTestOnly = options.vmTestOnly;
+          var chromeJsTestOnly = options.chromeJsTestOnly;
+          var isWeb = pubspecYamlSupportsWeb(_pubspecMap);
+          var noVmTest = options.noVmTest || chromeJsTestOnly;
+          var noBrowserTest = !isWeb || options.noBrowserTest || vmTestOnly;
+          var noNodeTest =
+              isNodeSupportedSync &&
+              (options.noNodeTest || vmTestOnly || chromeJsTestOnly);
+          var platforms = <String>[if (!options.noVmTest) 'vm'];
+          var supportedPlatforms = <String>[
+            if (!noVmTest) 'vm',
+            if (!noBrowserTest) 'chrome',
+            if (!noNodeTest) 'node',
+          ];
+          // Tmp don't compile as wasm on windows as it times out
+          var noWasm = Platform.isWindows;
+
+          if (!noBrowserTest) {
+            platforms.add('chrome');
+          }
+          // Add node for standard run test
+          var isNodePackage = pubspecYamlSupportsNode(_pubspecMap);
+          if (!noNodeTest && isNodePackage) {
+            platforms.add('node');
+
+            if (!options.noNpmInstall) {
+              await nodeSetupCheck(path);
+              // Workaround issue about complaining old pubspec on node...
+              // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
+            }
+
+            await runScript('''
+            # Get dependencies
+            ${_pubIoPackage.dofPub} get --offline
+      ''');
+          }
+
+          // Check available dart test platforms
+          var dartTestFile = File(join(path, 'dart_test.yaml'));
+          Map? dartTestMap;
+          if (dartTestFile.existsSync()) {
+            try {
+              dartTestMap =
+                  (loadYaml(await dartTestFile.readAsString()) as Map);
+            } catch (_) {}
+          }
+          var testConfig = buildTestConfig(
+            platforms: platforms,
+            supportedPlatforms: supportedPlatforms,
+            dartTestMap: dartTestMap,
+            noWasm: noWasm,
+          );
+
+          if (testConfig.hasNode) {
+            try {
+              await nodeSetupCheck(path);
+            } catch (e) {
+              stderr.writeln('(ignored) Error setting up node: $e');
+            }
+          }
+          if (testConfig.configLines.isNotEmpty) {
+            for (var line in testConfig.configLines) {
+              Future<void> doRunTest() async {
+                await runScript(
+                  'dart test${line.toCommandLineArgument()}$extraArgs',
+                );
+              }
+
+              try {
+                await doRunTest();
+              } catch (e) {
+                // Handle timeout at least once....
+                // happens on github actions
+                // Compiled nnnnnnnn input bytes (nnnn characters source) to nnnnnnnn characters JavaScript in nnn seconds
+                // Failed to load "test/xxxx_test.dart":
+                // Timed out waiting for Chrome to connect.
+                // Browser output: [5290:20472:0401/230040.569143:ERROR:chrome/browser/chrome_browser_main.cc:1263] The use of Rosetta to run the x64 version of Chromium on Arm is neither tested nor maintained, and unexpected behavior will likely result. Please check that all tools that spawn Chromium are Arm-native.
+                if (!_chromeTestTimeoutRetriedOnce &&
+                    Platform.isMacOS &&
+                    (e is ShellException) &&
+                    ((e.result?.errText.contains(
+                              'Timed out waiting for Chrome to connect',
+                            ) ??
+                            false) ||
+                        (e.result?.outText.contains(
+                              'Timed out waiting for Chrome to connect',
+                            ) ??
+                            false))) {
+                  stderr.writeln(
+                    '(ignored) Timeout waiting for Chrome to connect, retrying once...',
+                  );
+                  _chromeTestTimeoutRetriedOnce = true;
+                  await doRunTest();
+                } else {
+                  rethrow;
+                }
+              }
+            }
+          } else if (testConfig.args.isNotEmpty) {
+            await runScript('''
+      # Test
+      dart test${testConfig.toCommandLineArgument()}$extraArgs
+      ''');
+          }
+        }
+      }
+    }
   }
 }
 
