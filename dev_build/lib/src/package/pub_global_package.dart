@@ -14,9 +14,7 @@ abstract class PubGlobalPackage {
   /// `pub global activate` arguments
   List<String> get activateArgs;
 
-  ///
   /// return null if it cannot be parsed
-  ///
   static PubGlobalPackage? fromListLine(String line) {
     // split the line by spaces to get the arguments
     var parts = line.split(' ');
@@ -142,9 +140,7 @@ String _insetString(String source, [int offset = 1]) {
   return source.substring(offset, source.length - offset);
 }
 
-///
 /// remove enclosing " or '
-///
 String _extractSource(String source) {
   if (source.startsWith('"') && source.endsWith('"')) {
     return _extractSource(_insetString(source));

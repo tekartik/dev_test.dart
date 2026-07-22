@@ -17,7 +17,7 @@ class DartPackageIoCompiledExe {
   final Version? version;
 }
 
-///
+/// Compile exe extension
 extension DartPackageIoCompileExeExt on DartPackageIo {
   Future<Version?> _getVersion(String exe) async {
     try {

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 /// Add a dependency in a brut force way
-///
 String pubspecStringAddDependency(
   String content,
   String dependency, {
@@ -32,7 +31,6 @@ String pubspecStringAddDependency(
 }
 
 /// Remove a dependency in a brut force way
-///
 String pubspecStringRemoveDependency(String content, String dependency) {
   var lines = LineSplitter.split(content).toList();
   int? deleteStartIndex;
