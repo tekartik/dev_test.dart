@@ -1,3 +1,7 @@
+## 1.1.9-1
+
+* Add `PubIoPackage.format` and `PubIoPackage.checkFormat`
+
 ## 1.1.8+3
 
 * Requires dart 3.12

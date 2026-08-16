@@ -174,6 +174,42 @@ class PubIoPackage {
     await shell.run('$dofPub downgrade${offline == true ? ' --offline' : ''}');
   }
 
+  List<String>? _filteredDartDirs;
+
+  /// Top level dart dirs (cached)
+  Future<List<String>> getFilteredDartDirs() async =>
+      _filteredDartDirs ??= await filterTopLevelDartDirs(path);
+
+  /// Format the code (dart format)
+  Future<void> format() => _format(fix: true);
+
+  /// Check the format, throws if some files need formatting.
+  Future<void> checkFormat() => _format(fix: false);
+
+  Future<void> _format({required bool fix}) async {
+    await ready;
+    if (isWorkspace) {
+      return;
+    }
+    var filteredDartDirsArg = (await getFilteredDartDirs()).join(' ');
+    // Needed otherwise formatter is stuck
+    if (filteredDartDirsArg.isEmpty) {
+      filteredDartDirsArg = '.';
+    }
+    // Even for flutter we use `dart format`, before flutter 3.7 `flutter format` was allowed
+    if (fix) {
+      await shell.run('''
+      # Format
+      dart format $filteredDartDirsArg
+''');
+    } else {
+      await shell.run('''
+      # Check Formatting
+      dart format --set-exit-if-changed $filteredDartDirsArg
+''');
+    }
+  }
+
   /// List dependencies
   Future<void> dumpDeps() async {
     var deps = await getResolvedDependencies();
