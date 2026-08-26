@@ -29,7 +29,12 @@ export 'src/package/pub_global_package.dart'
 export 'src/package/pub_global_package_service.dart'
     show PubGlobalPackageService, checkOrPubActivateHostedPackage;
 export 'src/package/recursive_pub_path.dart'
-    show recursivePubPath, recursivePackagesRun;
+    show
+        recursivePubPath,
+        recursivePackagesRun,
+        iteratePubPath,
+        IteratePubPathOptions,
+        IteratePubPathHandler;
 
 export 'src/run_ci.dart'
     show

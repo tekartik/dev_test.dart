@@ -72,6 +72,103 @@ void main() {
     );
   });
 
+  Future<List<String>> iteratePubPathList(
+    List<String> dirs, {
+    IteratePubPathOptions? options,
+    int? limit,
+  }) async {
+    var list = <String>[];
+    await iteratePubPath(
+      dirs,
+      options: options,
+      onPubPath: (pubPath) {
+        list.add(pubPath);
+        return list.length != limit;
+      },
+    );
+    return list;
+  }
+
+  test('iteratePubPath', () async {
+    expect(await iteratePubPathList(['.', '..']), [
+      '.',
+      devTestEntry,
+      repoSupportEntry,
+    ]);
+    expect(await iteratePubPathList(['..', '.']), [
+      '.',
+      devTestEntry,
+      repoSupportEntry,
+    ]);
+    expect(await iteratePubPathList(['..']), [
+      devBuildEntry,
+      devTestEntry,
+      repoSupportEntry,
+    ]);
+    expect(await iteratePubPathList(['.']), ['.']);
+  });
+
+  test('iteratePubPath stop', () async {
+    expect(await iteratePubPathList(['..'], limit: 1), [devBuildEntry]);
+    expect(await iteratePubPathList(['..'], limit: 2), [
+      devBuildEntry,
+      devTestEntry,
+    ]);
+  });
+
+  test('iteratePubPath not recursive', () async {
+    expect(
+      await iteratePubPathList([
+        '..',
+      ], options: const IteratePubPathOptions(recursive: false)),
+      isEmpty,
+    );
+    expect(
+      await iteratePubPathList([
+        '..',
+        '.',
+      ], options: const IteratePubPathOptions(recursive: false)),
+      ['.'],
+    );
+  });
+
+  test('iteratePubPath dependencies', () async {
+    expect(
+      await iteratePubPathList([
+        '..',
+      ], options: const IteratePubPathOptions(dependencies: ['dev_build'])),
+      [devTestEntry, repoSupportEntry],
+    );
+    expect(
+      await iteratePubPathList(
+        ['..'],
+        options: const IteratePubPathOptions(
+          dependencies: ['direct:dev_build'],
+        ),
+      ),
+      [devTestEntry],
+    );
+  });
+
+  test('iteratePubPath readConfig dependencies', () async {
+    expect(
+      await iteratePubPathList([
+        '.',
+      ], options: const IteratePubPathOptions(dependencies: ['async'])),
+      isEmpty,
+    );
+    expect(
+      await iteratePubPathList(
+        ['.'],
+        options: const IteratePubPathOptions(
+          dependencies: ['async'],
+          readConfig: true,
+        ),
+      ),
+      ['.'],
+    );
+  });
+
   var minPubspecYamlContent = 'name: dummy\nenvironment:\n  sdk: ^$dartVersion';
   test('recursivePubPath absolute link', () async {
     // Somehow on node, build contains pubspec.yaml at its root and should be ignored
@@ -100,6 +197,20 @@ void main() {
     await link.create(join('..', 'b'), recursive: true);
 
     expect(await recursivePubPath([join(outDir, 'a')]), [
+      absolute(join(outDir, 'b')),
+    ]);
+  });
+
+  test('iteratePubPath relative link', () async {
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'iterate_link_test');
+    await Directory(outDir).prepare();
+    var file = File(join(outDir, 'b', 'pubspec.yaml'));
+    await file.parent.create(recursive: true);
+    await file.writeAsString(minPubspecYamlContent);
+    var link = Link(join(outDir, 'a', 'sub'));
+    await link.create(join('..', 'b'), recursive: true);
+
+    expect(await iteratePubPathList([join(outDir, 'a')]), [
       absolute(join(outDir, 'b')),
     ]);
   });

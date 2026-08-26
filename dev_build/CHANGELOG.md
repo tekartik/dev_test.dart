@@ -1,5 +1,6 @@
 ## 1.1.9-1
 
+* Add `iteratePubPath` and `IteratePubPathOptions`
 * Add `PubIoPackage.format` and `PubIoPackage.checkFormat`
 
 ## 1.1.8+3

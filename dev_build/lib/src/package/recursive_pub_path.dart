@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:dev_build/shell.dart';
 import 'package:dev_build/src/import.dart';
@@ -304,4 +305,128 @@ Future<void> recursiveActions(
     );
   }
   await Future.wait(futures);
+}
+
+/// Pub path handler. Return true to continue, false to stop the iteration.
+typedef IteratePubPathHandler = FutureOr<bool> Function(String pubPath);
+
+/// Options for [iteratePubPath].
+class IteratePubPathOptions {
+  /// Create iterate options.
+  const IteratePubPathOptions({
+    this.dependencies,
+    this.recursive,
+    this.readConfig,
+    this.filterDartProjectOptions,
+  });
+
+  /// if specified, only the projects that contain such dependency are
+  /// iterated, use either a dependency like `path`, or 'direct:path',
+  /// 'dev:path' or 'override:path'.
+  final List<String>? dependencies;
+
+  /// Iterate the sub directories (default true), when false only [dirs]
+  /// themselves are tested.
+  final bool? recursive;
+
+  /// If true, the package config file is read to also match transitive
+  /// [dependencies].
+  final bool? readConfig;
+
+  /// Dart project filter (sdk constraints).
+  final FilterDartProjectOptions? filterDartProjectOptions;
+}
+
+/// List the sub directories of [dir], links resolved, ignoring hidden and
+/// black listed folders.
+Future<List<String>> _listSubDirs(String dir) async {
+  if (_isToBeIgnored(basename(dir))) {
+    return const <String>[];
+  }
+  var subDirs = <String>[];
+  await Directory(dir).list().listen((FileSystemEntity fse) {
+    var subDir = fse.path;
+    // Make sure it is not added even if it is a package root
+    if (_isToBeIgnored(basename(subDir))) {
+      return;
+    }
+    if (!FileSystemEntity.isDirectorySync(subDir)) {
+      return;
+    }
+    // Also handle the case where the directory linked is a dart project,
+    // follow links
+    if (FileSystemEntity.isLinkSync(subDir)) {
+      subDir = _linkTargetSync(subDir);
+    }
+    subDirs.add(subDir);
+  }).asFuture<void>();
+  return subDirs;
+}
+
+/// Iterate over the pub packages found in [dirs].
+///
+/// [onPubPath] is called for each pub folder found, including [dirs]
+/// themselves, in alphabetical path order (i.e. the order of the list
+/// returned by [recursivePubPath]). Return false to stop the iteration.
+///
+/// Contrary to [recursivePubPath], the folders are scanned lazily, so the
+/// iteration can stop before the whole tree is read.
+///
+/// A folder is never handled twice. Links are resolved and reported using
+/// their target path, which is reported where the link is found, so it can
+/// break the alphabetical order.
+Future<void> iteratePubPath(
+  List<String> dirs, {
+  IteratePubPathOptions? options,
+  required IteratePubPathHandler onPubPath,
+}) async {
+  options ??= const IteratePubPathOptions();
+  var dependencies = options.dependencies;
+  var readConfig = options.readConfig;
+  var filterDartProjectOptions = options.filterDartProjectOptions;
+  var recursive = options.recursive ?? true;
+
+  // Folders to visit, sorted by path.
+  var pending = SplayTreeSet<String>();
+
+  // Absolute normalized paths already queued, to avoid duplicates and
+  // link loops.
+  var queued = <String>{};
+
+  void addPending(String dir) {
+    if (queued.add(normalize(absolute(dir)))) {
+      pending.add(dir);
+    }
+  }
+
+  for (final dir in dirs) {
+    if (!FileSystemEntity.isDirectorySync(dir)) {
+      throw ArgumentError('$dir not a directory');
+    }
+    addPending(dir);
+  }
+
+  while (pending.isNotEmpty) {
+    // Smallest path first, any folder found later is a sub folder of one of
+    // the pending folders, hence greater.
+    var dir = pending.first;
+    pending.remove(dir);
+
+    final handled = await _checkProjectMatch(
+      dir,
+      dependencies: dependencies,
+      readConfig: readConfig,
+      filterDartProjectOptions: filterDartProjectOptions,
+    );
+    if (handled) {
+      if (!await onPubPath(dir)) {
+        return;
+      }
+    }
+    if (recursive) {
+      for (final subDir in await _listSubDirs(dir)) {
+        addPending(subDir);
+      }
+    }
+  }
 }
