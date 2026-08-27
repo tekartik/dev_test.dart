@@ -1,3 +1,7 @@
+## 1.1.9-3
+
+* Skip `flutter build web` when `lib/main.dart` is missing
+
 ## 1.1.9-2
 
 * Add `iteratePubPath` and `IteratePubPathOptions`

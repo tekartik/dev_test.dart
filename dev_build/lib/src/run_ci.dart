@@ -453,8 +453,14 @@ Future<void> _zonedSinglePackageRunCiImpl(
       /// requires at least beta
       if (await flutterEnableWeb()) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
-          // await checkAndActivatePackage('webdev');
-          await runScript('flutter build web --no-pub');
+          if (File(join(path, flutterWebMainDartPath)).existsSync()) {
+            // await checkAndActivatePackage('webdev');
+            await runScript('flutter build web --no-pub');
+          } else {
+            stdout.writeln(
+              'Skipping flutter build web (no $flutterWebMainDartPath)',
+            );
+          }
         }
       }
     }
@@ -482,6 +488,11 @@ Future<void> _zonedSinglePackageRunCiImpl(
     }
   }
 }
+
+/// Flutter web default entry point (relative to the package root).
+///
+/// `flutter build web` fails when missing so the build step is skipped.
+final flutterWebMainDartPath = join('lib', 'main.dart');
 
 bool? _flutterWebEnabled;
 
