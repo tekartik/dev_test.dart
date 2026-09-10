@@ -1,3 +1,7 @@
+## 1.0.4
+
+* Add `dev-test-testing` agent skill in `skills/`, installable with `dart run skills@ get`
+
 ## 1.0.3
 
 * Requires dart 3.12
