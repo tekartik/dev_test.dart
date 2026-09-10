@@ -1,4 +1,4 @@
-## 1.1.9-4
+## 1.1.9
 
 * Add `dev-build-menu`, `dev-build-package` and `dev-build-run-ci` agent skills in `skills/`, installable with `dart run skills@ get`
 
