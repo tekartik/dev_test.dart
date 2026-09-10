@@ -1,3 +1,7 @@
+## 1.1.9-4
+
+* Add `dev-build-menu`, `dev-build-package` and `dev-build-run-ci` agent skills in `skills/`, installable with `dart run skills@ get`
+
 ## 1.1.9-3
 
 * Skip `flutter build web` when `lib/main.dart` is missing
