@@ -11,6 +11,18 @@ There is a convenient way to run a validation test on your package:
 
 It handles VM, web and flutter projects.
 
+## Run without activation
+
+`run_ci` can be ran directly from pub.dev without activating the package:
+
+```
+# Run common validation test on the current package (and nested packages)
+dart run dev_build:run_ci@
+
+# Any run_ci option can be used
+dart run dev_build:run_ci@ --fix --recursive
+```
+
 ## Activation:
 
 ```

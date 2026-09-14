@@ -1,4 +1,4 @@
-## 1.1.10-1
+## 1.1.10
 
 * Don't look for projects inside the `test` folder of a project (`run_ci --recursive`, `packageRunCi`, `recursivePubPath`, `iteratePubPath`)
 
