@@ -226,6 +226,41 @@ void main() {
     expect(await recursivePubPath([outDir]), isEmpty);
   });
 
+  test('recursivePubPath ignore project test folder', () async {
+    // A test folder can contain pubspec.yaml fixtures, they must be ignored
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'ignore_test_dir');
+    await Directory(outDir).prepare();
+    Future<void> writePubspec(String dir) async {
+      var file = File(join(dir, 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString(minPubspecYamlContent);
+    }
+
+    var pkgDir = join(outDir, 'pkg');
+    await writePubspec(pkgDir);
+    await writePubspec(join(pkgDir, 'test', 'fixture'));
+    await writePubspec(join(pkgDir, 'example'));
+    // Not a project, its test folder is scanned
+    await writePubspec(join(outDir, 'no_pkg', 'test', 'fixture'));
+
+    var expected = [
+      join(outDir, 'no_pkg', 'test', 'fixture'),
+      pkgDir,
+      join(pkgDir, 'example'),
+    ];
+    expect(await recursivePubPath([outDir]), expected);
+    expect(await iteratePubPathList([outDir]), expected);
+
+    // Only the sub folders are filtered, an explicit test folder is scanned
+    var testDir = join(pkgDir, 'test');
+    expect(await recursivePubPath([testDir]), [join(testDir, 'fixture')]);
+    expect(await iteratePubPathList([testDir]), [join(testDir, 'fixture')]);
+
+    var list = <String>[];
+    await recursiveActions([outDir], action: list.add);
+    expect(list, expected);
+  });
+
   test('check isPubPackageRoot', () async {
     // Check dart version boundaries
     var outDir = join('.dart_tool', 'dev_build', 'test', 'is_pub_package_root');

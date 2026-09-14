@@ -63,6 +63,15 @@ final List<String> _blackListedTargets = [
   'node_modules',
 ];
 
+/// Top level folders of a pub project that must not be scanned for projects
+/// (test fixtures can contain pubspec.yaml files).
+final List<String> _pubProjectTopDirsToBeIgnored = ['test'];
+
+/// True if [subDir] is a top level folder of a pub project that must not be
+/// scanned for projects, only valid if the parent is a pub project.
+bool _isPubProjectTopDirToBeIgnored(String subDir) =>
+    _pubProjectTopDirsToBeIgnored.contains(basename(subDir));
+
 /// Read config
 Future<bool> _checkProjectHasTransitiveDependencies(
   String dir, {
@@ -167,6 +176,10 @@ Future<List<String>> filterPubPath(
 ///
 /// if [dependencies] is specified, it will only list the project that contains
 /// such dependency, use either dependency like `path`, or 'direct:path', 'dev:path' or 'override:path'.
+///
+/// Hidden folders, `build`, `deploy`, `node_modules` and the `test` folder of
+/// a project are not scanned.
+///
 /// Returns the list of valid pub folder, including me
 Future<List<String>> recursivePubPath(
   List<String> dirs, {
@@ -186,30 +199,36 @@ Future<List<String>> recursivePubPath(
       // devPrint('testing: $dir');
       final sub = <String>[];
       final futures = <Future>[];
+      final isPubProject = isPubPackageRootSync(dir);
       await Directory(dir).list().listen((FileSystemEntity fse) {
         var subDir = fse.path;
         // Make sure it is not added even if it is a package root
-        if (!_isToBeIgnored(basename(subDir))) {
-          if (FileSystemEntity.isDirectorySync(subDir)) {
-            // Also handle the case where the directory linked is a dart project
-            futures.add(() async {
-              // follow links
-              var dir = subDir;
+        if (_isToBeIgnored(basename(subDir))) {
+          return;
+        }
+        // Don't look for projects in the test folder of a project
+        if (isPubProject && _isPubProjectTopDirToBeIgnored(subDir)) {
+          return;
+        }
+        if (FileSystemEntity.isDirectorySync(subDir)) {
+          // Also handle the case where the directory linked is a dart project
+          futures.add(() async {
+            // follow links
+            var dir = subDir;
 
-              var isLink = FileSystemEntity.isLinkSync(dir);
-              if (isLink) {
-                dir = _linkTargetSync(dir);
-              }
-              var subPubDirs = await filterPubPath(
-                [dir],
-                dependencies: dependencies,
-                readConfig: readConfig,
-                filterDartProjectOptions: filterDartProjectOptions,
-              );
-              sub.addAll(subPubDirs);
-              sub.addAll(await getSubDirs(dir));
-            }());
-          }
+            var isLink = FileSystemEntity.isLinkSync(dir);
+            if (isLink) {
+              dir = _linkTargetSync(dir);
+            }
+            var subPubDirs = await filterPubPath(
+              [dir],
+              dependencies: dependencies,
+              readConfig: readConfig,
+              filterDartProjectOptions: filterDartProjectOptions,
+            );
+            sub.addAll(subPubDirs);
+            sub.addAll(await getSubDirs(dir));
+          }());
         }
       }).asFuture<void>();
       await Future.wait(futures);
@@ -338,16 +357,21 @@ class IteratePubPathOptions {
 }
 
 /// List the sub directories of [dir], links resolved, ignoring hidden and
-/// black listed folders.
+/// black listed folders and the `test` folder if [dir] is a project.
 Future<List<String>> _listSubDirs(String dir) async {
   if (_isToBeIgnored(basename(dir))) {
     return const <String>[];
   }
   var subDirs = <String>[];
+  final isPubProject = isPubPackageRootSync(dir);
   await Directory(dir).list().listen((FileSystemEntity fse) {
     var subDir = fse.path;
     // Make sure it is not added even if it is a package root
     if (_isToBeIgnored(basename(subDir))) {
+      return;
+    }
+    // Don't look for projects in the test folder of a project
+    if (isPubProject && _isPubProjectTopDirToBeIgnored(subDir)) {
       return;
     }
     if (!FileSystemEntity.isDirectorySync(subDir)) {
@@ -375,6 +399,9 @@ Future<List<String>> _listSubDirs(String dir) async {
 /// A folder is never handled twice. Links are resolved and reported using
 /// their target path, which is reported where the link is found, so it can
 /// break the alphabetical order.
+///
+/// Hidden folders, `build`, `deploy`, `node_modules` and the `test` folder of
+/// a project are not scanned.
 Future<void> iteratePubPath(
   List<String> dirs, {
   IteratePubPathOptions? options,

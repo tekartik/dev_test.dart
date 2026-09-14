@@ -1,3 +1,7 @@
+## 1.1.10-1
+
+* Don't look for projects inside the `test` folder of a project (`run_ci --recursive`, `packageRunCi`, `recursivePubPath`, `iteratePubPath`)
+
 ## 1.1.9
 
 * Add `dev-build-menu`, `dev-build-package` and `dev-build-run-ci` agent skills in `skills/`, installable with `dart run skills@ get`
