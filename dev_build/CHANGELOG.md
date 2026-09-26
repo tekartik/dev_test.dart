@@ -1,3 +1,7 @@
+## 1.1.11-1
+
+* `run_ci --recursive` (and `packageRunCi`) reads `dev_build_run_ci_config.yaml` files to `include`/`exclude` folders
+
 ## 1.1.10
 
 * Don't look for projects inside the `test` folder of a project (`run_ci --recursive`, `packageRunCi`, `recursivePubPath`, `iteratePubPath`)

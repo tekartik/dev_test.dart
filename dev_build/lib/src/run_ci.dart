@@ -14,6 +14,7 @@ import 'mixin/package.dart';
 import 'node_support.dart';
 import 'package/recursive_pub_path.dart';
 import 'pub_global.dart';
+import 'run_ci_config.dart';
 
 /// Options for [packageRunCi]
 var skipRunCiFilePath = join('.local', '.skip_run_ci');
@@ -170,9 +171,8 @@ Future<void> packageRunCiImpl(
   int? poolSize,
 }) async {
   if (recursive) {
-    await recursiveActions(
-      [path],
-      verbose: options.verbose,
+    await pubPathsRunActions(
+      await runCiRecursivePubPath([path]),
       poolSize: poolSize,
       action: (dir) async {
         await shellStdioLinesGrouper.runZoned(() async {

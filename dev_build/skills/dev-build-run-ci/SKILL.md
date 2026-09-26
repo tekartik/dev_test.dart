@@ -4,12 +4,15 @@ description: >-
   Use when running or scripting CI checks (pub get, dart format check, dart
   analyze, dart/flutter test, web build) on a Dart or Flutter package or on a
   whole repository tree with package:dev_build: the run_ci executable
-  (dart run dev_build:run_ci, --recursive, --no-test, --analyze, --fix,
+  (dart run dev_build:run_ci, dart run dev_build:run_ci@, dart install
+  dev_build, dart pub global activate dev_build, --recursive, --no-test,
+  --analyze, --fix,
   --pub-downgrade, --offline, --prj-info, --ignore-errors, --vm-test), the
   packageRunCi / PackageRunCiOptions / recursivePackagesRun /
   SinglePackageCiRunner API, the tool/run_ci.dart and
-  tool/run_ci_override.dart conventions, .local/.skip_run_ci, dart_test.yaml
-  platforms and pub workspaces.
+  tool/run_ci_override.dart conventions, .local/.skip_run_ci,
+  dev_build_run_ci_config.yaml include/exclude, dart_test.yaml platforms and
+  pub workspaces.
 ---
 
 # dev_build run_ci: validate a package or a tree
@@ -41,9 +44,22 @@ dart run dev_build:run_ci            # same steps from the command line
   `package:dev_build/package.dart` for `packageRunCi`, `PackageRunCiOptions`,
   `recursivePackagesRun`, `recursivePubPath`, `SinglePackageCiRunner`.
 * Put the script in `tool/run_ci.dart` (repository convention) and run it
-  with `dart run tool/run_ci.dart`. For a one-off from the command line use
-  `dart run dev_build:run_ci [<path>] [<flags>]`, or activate it once with
-  `dart pub global activate dev_build` and run `run_ci`.
+  with `dart run tool/run_ci.dart`.
+* From the command line, all these ways are supported:
+  * `dart run dev_build:run_ci [<path>] [<flags>]` in a package that
+    depends on `dev_build`.
+  * `dart run dev_build:run_ci@ [<path>] [<flags>]` anywhere, no dependency
+    nor install: runs the latest stable `dev_build` from pub.dev
+    (`dart run dev_build:run_ci@^1.1.10` for a constraint), resolved again
+    on each run.
+  * `dart install dev_build` once (Dart 3.10+, run it again to upgrade)
+    installs a compiled `run_ci` in the `dart install` bin folder
+    (`~/.local/state/Dart/install/bin` on Linux, must be on the PATH), then
+    `run_ci [<path>] [<flags>]`. Best for repeated use. `dart installed`
+    lists the installed tools, `dart uninstall dev_build` removes it.
+  * Legacy: `dart pub global activate dev_build` once, then `run_ci` (with
+    `~/.pub-cache/bin` on the PATH) or
+    `dart pub global run dev_build:run_ci`.
 
 ### What a run does, in order
 
@@ -105,6 +121,11 @@ dart run dev_build:run_ci            # same steps from the command line
   the run recurses). Use it for a package that needs custom steps.
 * `.local/.skip_run_ci` (empty file) skips the package in recursive runs.
   Create it with `run_ci config --skip-run-ci [<path>]`; git-ignore `.local`.
+* `dev_build_run_ci_config.yaml` (committed) filters its folder and sub
+  folders in recursive runs: `include: [packages]` scans only these,
+  `exclude: [example]` skips these, `exclude: [.]` skips the folder itself,
+  paths relative to the file. Read in every visited folder, not above the
+  path passed to `run_ci`.
 * A package whose name starts with `_` only gets `pub get`.
 * A pub workspace root gets `pub get` once for the whole workspace, then is
   skipped for format/analyze/test; members are run individually.
@@ -244,6 +265,10 @@ Future<void> main() async {
 ### Command line
 
 ```bash
+dart run dev_build:run_ci@                     # from pub.dev, no dependency
+dart install dev_build                         # once, then run `run_ci`
+run_ci --version                               # check which one is on PATH
+dart pub global activate dev_build             # legacy install, then `run_ci`
 dart run dev_build:run_ci                      # this package and nested ones
 dart run dev_build:run_ci --no-test ../other   # skip tests, other folder
 dart run dev_build:run_ci --analyze --no-pub-get
@@ -267,6 +292,9 @@ dart run dev_build:run_ci menu                 # interactive console menu
   turns on `dart test --platform chrome` for every run.
 * Using `packageRunCi` from a web or Flutter app: it needs `dart:io` and
   the `dart`/`flutter` executables on the PATH.
+* Installing `run_ci` with both `dart install` and
+  `dart pub global activate`: the first bin folder on the PATH wins, check
+  with `run_ci --version` after upgrading one of them.
 
 ## More
 

@@ -1,8 +1,12 @@
 # run_ci executable reference
 
-`dart run dev_build:run_ci [<path>...] [<flags>]`
-(`bin/run_ci.dart`, also `dart pub global run dev_build:run_ci` or `run_ci`
-once activated with `dart pub global activate dev_build`).
+`run_ci [<path>...] [<flags>]` (`bin/run_ci.dart`), invoked as:
+
+* `dart run dev_build:run_ci` in a package depending on `dev_build`.
+* `dart run dev_build:run_ci@` from pub.dev, without dependency nor install.
+* `run_ci` once installed with `dart install dev_build` (compiled), or with
+  the legacy `dart pub global activate dev_build` (also
+  `dart pub global run dev_build:run_ci`).
 
 Without a path the current directory is used. Several paths can be given.
 
@@ -99,6 +103,10 @@ dart fix --apply
 * A pub workspace root gets a single `pub get`; its members are then run
   without repeating it.
 * `.local/.skip_run_ci` skips the package (unless `--no-override`).
+* `dev_build_run_ci_config.yaml` in any visited folder filters it and its
+  sub folders: `include:` (only these sub folders, default all) then
+  `exclude:` (not these, `.` for the folder itself), paths relative to the
+  file. The files above the paths given on the command line are not read.
 * A Flutter package is skipped with a message when `flutter` is not
   installed.
 * On macOS a `Timed out waiting for Chrome to connect` failure is retried

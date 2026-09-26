@@ -186,66 +186,81 @@ Future<List<String>> recursivePubPath(
   List<String>? dependencies,
   bool? readConfig,
   FilterDartProjectOptions? filterDartProjectOptions,
-}) async {
-  var pubDirs = await filterPubPath(
-    dirs,
+}) => scanPubPath(
+  dirs,
+  options: IteratePubPathOptions(
     dependencies: dependencies,
     readConfig: readConfig,
     filterDartProjectOptions: filterDartProjectOptions,
-  );
+  ),
+);
 
-  Future<List<String>> getSubDirs(String dir) async {
-    if (!_isToBeIgnored(basename(dir))) {
-      // devPrint('testing: $dir');
-      final sub = <String>[];
-      final futures = <Future>[];
-      final isPubProject = isPubPackageRootSync(dir);
-      await Directory(dir).list().listen((FileSystemEntity fse) {
-        var subDir = fse.path;
-        // Make sure it is not added even if it is a package root
-        if (_isToBeIgnored(basename(subDir))) {
-          return;
-        }
-        // Don't look for projects in the test folder of a project
-        if (isPubProject && _isPubProjectTopDirToBeIgnored(subDir)) {
-          return;
-        }
-        if (FileSystemEntity.isDirectorySync(subDir)) {
-          // Also handle the case where the directory linked is a dart project
-          futures.add(() async {
-            // follow links
-            var dir = subDir;
+/// Hook called for each folder scanned for pub packages, [scanPubPath] roots
+/// included, links resolved.
+///
+/// Returns null to skip the folder and its sub folders.
+typedef PubPathScanHook = FutureOr<PubPathScanDir?> Function(String dir);
 
-            var isLink = FileSystemEntity.isLinkSync(dir);
-            if (isLink) {
-              dir = _linkTargetSync(dir);
-            }
-            var subPubDirs = await filterPubPath(
-              [dir],
-              dependencies: dependencies,
-              readConfig: readConfig,
-              filterDartProjectOptions: filterDartProjectOptions,
-            );
-            sub.addAll(subPubDirs);
-            sub.addAll(await getSubDirs(dir));
-          }());
-        }
-      }).asFuture<void>();
-      await Future.wait(futures);
-      return sub;
-    }
-    return <String>[];
-  }
+/// How a folder is scanned, returned by a [PubPathScanHook].
+class PubPathScanDir {
+  /// Scan the folder.
+  const PubPathScanDir({this.list = true, this.hook});
 
+  /// False to not list the folder even if it is a pub package, its sub folders
+  /// are still scanned.
+  final bool list;
+
+  /// Hook for the sub folders, the current one if null.
+  final PubPathScanHook? hook;
+}
+
+/// [recursivePubPath] with [options], [hook] filters the scanned folders.
+Future<List<String>> scanPubPath(
+  List<String> dirs, {
+  IteratePubPathOptions? options,
+  PubPathScanHook? hook,
+}) async {
+  final scanOptions = options ?? const IteratePubPathOptions();
+  final recursive = scanOptions.recursive ?? true;
   for (final dir in dirs) {
-    if (FileSystemEntity.isDirectorySync(dir)) {
-      pubDirs.addAll(await getSubDirs(dir));
-    } else {
+    if (!FileSystemEntity.isDirectorySync(dir)) {
       throw ArgumentError('$dir not a directory');
     }
   }
+  // Roots first so that they win when removing duplicates.
+  var rootPubDirs = <String>[];
+  var subPubDirs = <String>[];
 
-  return removeDuplicates(pubDirs)..sort();
+  Future<void> scan(
+    String dir,
+    PubPathScanHook? hook,
+    List<String> pubDirs,
+  ) async {
+    var scanDir = hook == null ? const PubPathScanDir() : await hook(dir);
+    if (scanDir == null) {
+      return;
+    }
+    if (scanDir.list &&
+        await _checkProjectMatch(
+          dir,
+          dependencies: scanOptions.dependencies,
+          readConfig: scanOptions.readConfig,
+          filterDartProjectOptions: scanOptions.filterDartProjectOptions,
+        )) {
+      pubDirs.add(dir);
+    }
+    if (recursive) {
+      await Future.wait([
+        for (final subDir in await _listSubDirs(dir))
+          scan(subDir, scanDir.hook ?? hook, subPubDirs),
+      ]);
+    }
+  }
+
+  for (final dir in dirs) {
+    await scan(dir, hook, rootPubDirs);
+  }
+  return removeDuplicates([...rootPubDirs, ...subPubDirs])..sort();
 }
 
 /// Remove duplicates.
@@ -302,16 +317,23 @@ Future<void> recursiveActions(
     dirsOrFiles = [Directory.current.path];
   }
 
-  final packagePool = Pool(poolSize);
-
   var packages = await recursivePubPath(
     paths,
     dependencies: dependencies,
     filterDartProjectOptions: filterDartProjectOptions,
   );
+  await pubPathsRunActions(packages, action: action, poolSize: poolSize);
+}
 
+/// Run [action] on each of [pubPaths], [poolSize] (default to 4) at a time.
+Future<void> pubPathsRunActions(
+  List<String> pubPaths, {
+  required FutureOr<dynamic> Function(String package) action,
+  int? poolSize,
+}) async {
+  final packagePool = Pool(poolSize ?? 4);
   var futures = <Future>[];
-  for (final pkg in packages) {
+  for (final pkg in pubPaths) {
     futures.add(
       packagePool.withResource(() async {
         try {

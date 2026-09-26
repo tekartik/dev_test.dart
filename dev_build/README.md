@@ -23,7 +23,16 @@ dart run dev_build:run_ci@
 dart run dev_build:run_ci@ --fix --recursive
 ```
 
-## Activation:
+## Install
+
+```
+# Once (and to upgrade), installs a compiled `run_ci` on the PATH (Dart 3.10+)
+dart install dev_build
+
+run_ci --version
+```
+
+## Activation (legacy, still supported):
 
 ```
 # Once only
@@ -50,4 +59,16 @@ run_ci --fix --recursive
 - By default it also checks subfolder projects (i.e. you can run it at the top of your repo)
 - You can override the behavior by creating a 'tool/run_ci_override.dart' file
 - You can skip a folder by creating an empty placeholder file '.local/.skip_run_ci'
+- You can filter the folders scanned recursively with a `dev_build_run_ci_config.yaml` file, it applies to its
+  folder and sub folders (paths relative to the file, the files above the `<path>` argument are ignored):
+
+```yaml
+# Only look for packages in these sub folders (default to all)
+include:
+  - packages
+  - example
+# Don't look for packages in these folders, use `.` to skip this folder
+exclude:
+  - example/legacy
+```
 

@@ -7,7 +7,7 @@ import 'package:dev_build/package.dart';
 import 'package:dev_build/src/io/file_utils.dart';
 import 'package:dev_build/src/mixin/package.dart';
 import 'package:dev_build/src/package/recursive_pub_path.dart'
-    show posixNormalize, recursiveActions;
+    show posixNormalize, recursiveActions, scanPubPath, PubPathScanDir;
 import 'package:dev_build/src/run_ci.dart';
 import 'package:path/path.dart';
 import 'package:process_run/cmd_run.dart';
@@ -45,6 +45,36 @@ void main() {
     ]);
 
     expect(await recursivePubPath(['.']), ['.']);
+  });
+
+  test('scanPubPath hook', () async {
+    expect(
+      await scanPubPath(
+        ['..'],
+        hook: (dir) async =>
+            basename(dir) == 'dev_test' ? null : const PubPathScanDir(),
+      ),
+      [devBuildEntry, repoSupportEntry],
+    );
+    // Not listed, sub folders still scanned
+    expect(
+      await scanPubPath([
+        '.',
+        '..',
+      ], hook: (dir) => PubPathScanDir(list: dir != '.')),
+      [devBuildEntry, devTestEntry, repoSupportEntry],
+    );
+    // Other hook for the sub folders
+    expect(
+      await scanPubPath(
+        ['..'],
+        hook: (dir) => PubPathScanDir(
+          hook: (dir) =>
+              basename(dir) == 'repo_support' ? null : const PubPathScanDir(),
+        ),
+      ),
+      [devBuildEntry, devTestEntry],
+    );
   });
 
   test('recursivePubPath dependencies', () async {
