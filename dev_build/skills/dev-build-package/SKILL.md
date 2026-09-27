@@ -9,8 +9,10 @@ description: >-
   getPubPackageRoot, recursivePubPath, iteratePubPath, DartPackageIo,
   DartPackageReader, PubIoPackage, pathGetResolvedPackagePath,
   pathPubspecAddDependency, compiledExe, PubGlobalPackageService,
-  checkOrPubActivateHostedPackage, checkAndActivatePackage, and the
-  package:dev_build/shell.dart re-export of process_run.
+  checkOrPubActivateHostedPackage, checkAndActivatePackage,
+  checkAndInstallCliPackage, checkAndInstallCliWebdev, uninstallCliPackage
+  (dart install), and the package:dev_build/shell.dart re-export of
+  process_run.
 ---
 
 # dev_build package helpers
@@ -42,8 +44,10 @@ Future<void> main() async {
   `getPubPackageRootSync`), `VersionBoundaries`, pubspec editing
   (`pathPubspecAddDependency`, `pathPubspecRemoveDependency`,
   `pathPubspecGetDependencyLines`), project creation (`dartCreateProject`,
-  `flutterCreateProject`), `checkAndActivatePackage`,
-  `checkAndActivateWebdev`, `checkOrPubActivateDevBuild`,
+  `flutterCreateProject`), `checkAndInstallCliPackage`,
+  `checkAndInstallCliWebdev`, `uninstallCliPackage`,
+  `checkAndActivatePackage`, `checkAndActivateWebdev`,
+  `checkOrPubActivateDevBuild`,
   `isFlutterSupportedSync`, `isNodeSupportedSync`, `nodeSetupCheck`.
 * `package:dev_build/package.dart`: re-exports `package:pub_semver`
   (`Version`), `DartPackageReader`, `DartPackageIo`, `recursivePubPath`,
@@ -143,6 +147,22 @@ Future<void> main() async {
   wrap `dart create` / `flutter create` (templates: `dartTemplateConsole`,
   `dartTemplatePackage`, `dartTemplateWeb`, `flutterTemplateApp`,
   `flutterTemplatePackage`).
+
+### dart install (CLI tools)
+
+Preferred over `dart pub global activate`.
+
+* `await checkAndInstallCliPackage('my_tool')` runs `dart install my_tool`
+  when `dart installed` does not list it; returns true if installed during
+  the call. `await uninstallCliPackage('my_tool')` runs `dart uninstall`
+  only when installed; returns true if uninstalled.
+* `await checkAndInstallCliWebdev()` installs `webdev`, and reinstalls it
+  when its version cannot be read or is too old.
+* Executables go to `$DART_DATA_HOME/install/bin` (default
+  `~/Library/Application Support/Dart/install/bin` on macOS,
+  `~/.local/state/Dart/install/bin` on Linux,
+  `%LOCALAPPDATA%\Dart\install\bin` on Windows), which is often not on the
+  PATH on CI: there is no `dart pub global run` equivalent.
 
 ### pub global packages
 

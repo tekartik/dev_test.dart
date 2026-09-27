@@ -2,6 +2,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dev_build/build_support.dart';
 import 'package:dev_build/src/pub_global.dart'
@@ -12,6 +13,9 @@ import 'package:dev_build/src/pub_global.dart'
 import 'package:process_run/shell.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:test/test.dart';
+
+/// Prefer dart install (see dart_install_test.dart).
+var _runningOnGithub = Platform.environment['GITHUB_ACTIONS'] == 'true';
 
 Future<void> main() async {
   group('pub global', () {
@@ -50,5 +54,5 @@ Built webdev:webdev.
         Version(3, 2, 0),
       );
     });
-  });
+  }, skip: _runningOnGithub ? 'Skipped on github, prefer dart install' : false);
 }

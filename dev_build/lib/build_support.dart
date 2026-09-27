@@ -46,6 +46,11 @@ export 'src/build_support.dart'
         dartTemplatePackage,
         dartTemplateWeb,
         dartCreateProject;
+export 'src/dart_install.dart'
+    show
+        checkAndInstallCliWebdev,
+        checkAndInstallCliPackage,
+        uninstallCliPackage;
 export 'src/dev_build_support.dart' show checkOrPubActivateDevBuild;
 export 'src/package/package_io_impl.dart'
     show pathPackageConfigMapGetPackagePath, pathGetResolvedPackagePath;
