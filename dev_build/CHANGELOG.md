@@ -1,4 +1,4 @@
-## 1.1.12-1
+## 1.1.12
 
 * `checkAndActivateWebdev`, `checkAndActivatePackage` and `deactivatePackage` hold a lock file shared by isolates and
   processes (concurrent `dart pub global activate` of the same package fail with exit code 66)
