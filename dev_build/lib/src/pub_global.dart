@@ -1,16 +1,67 @@
+import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
 
 List<String>? _installedGlobalPackages;
 
+/// Older locks are considered stale (i.e. killed process).
+const _pubGlobalLockTimeout = Duration(minutes: 5);
+
+/// Run [action] holding a lock file shared by all isolates and processes.
+///
+/// Concurrent `dart pub global activate` of the same package fail (exit code
+/// 66) when building its executables snapshot at the same time, which happens
+/// with concurrent test files or run_ci packages on a fresh pub cache.
+Future<T> _pubGlobalLock<T>(Future<T> Function() action) async {
+  var lockFile = File(
+    join(Directory.systemTemp.path, 'dev_build_pub_global.lock'),
+  );
+  var sw = Stopwatch()..start();
+  var locked = false;
+  while (true) {
+    try {
+      await lockFile.create(exclusive: true);
+      locked = true;
+      break;
+    } on FileSystemException catch (_) {
+      if (sw.elapsed > _pubGlobalLockTimeout) {
+        // Proceed anyway
+        break;
+      }
+      try {
+        if (DateTime.now().difference(lockFile.lastModifiedSync()) >
+            _pubGlobalLockTimeout) {
+          await lockFile.delete();
+        }
+      } catch (_) {}
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+    }
+  }
+  try {
+    return await action();
+  } finally {
+    if (locked) {
+      try {
+        await lockFile.delete();
+      } catch (_) {}
+    }
+  }
+}
+
 /// Prefer PubGlobalPackageService
 /// Returns true if the package was activated during this call.
-Future<bool> checkAndActivatePackage(String package, {bool? verbose}) async {
-  var list = await getInstalledGlobalPackages(verbose: verbose);
-  if (!list.contains(package)) {
-    await _pubGlobalActivate(package, verbose: verbose);
-    return true;
+Future<bool> checkAndActivatePackage(String package, {bool? verbose}) =>
+    _pubGlobalLock(() => _checkAndActivatePackage(package, verbose: verbose));
+
+Future<bool> _checkAndActivatePackage(String package, {bool? verbose}) async {
+  if (!await isPackageActivated(package, verbose: verbose)) {
+    // Another isolate or process might have activated it meanwhile.
+    _installedGlobalPackages = null;
+    if (!await isPackageActivated(package, verbose: verbose)) {
+      await _pubGlobalActivate(package, verbose: verbose);
+      return true;
+    }
   }
   return false;
 }
@@ -42,11 +93,12 @@ Future<bool> isPackageActivated(String package, {bool? verbose}) async {
 }
 
 /// deactivate a package.
-Future<void> deactivatePackage(String package, {bool? verbose}) async {
-  var list = await getInstalledGlobalPackages(verbose: verbose);
-  await run('dart pub global deactivate $package', verbose: true);
-  list.remove(package);
-}
+Future<void> deactivatePackage(String package, {bool? verbose}) =>
+    _pubGlobalLock(() async {
+      var list = await getInstalledGlobalPackages(verbose: verbose);
+      await run('dart pub global deactivate $package', verbose: true);
+      list.remove(package);
+    });
 
 /// Typically the last line contains the version
 Version? extractWebdevVersionFromOutLines(List<String> lines) {
@@ -59,10 +111,16 @@ Version? extractWebdevVersionFromOutLines(List<String> lines) {
 }
 
 /// Check if webdev is activated.
-Future<void> checkAndActivateWebdev({bool? verbose}) async {
+///
+/// The version check runs under the lock too as `dart pub global run` builds
+/// the snapshot if missing.
+Future<void> checkAndActivateWebdev({bool? verbose}) =>
+    _pubGlobalLock(() => _checkAndActivateWebdev(verbose: verbose));
+
+Future<void> _checkAndActivateWebdev({bool? verbose}) async {
   var webdev = 'webdev';
   verbose ??= false;
-  await checkAndActivatePackage(webdev, verbose: verbose);
+  await _checkAndActivatePackage(webdev, verbose: verbose);
 
   var needUpdate = false;
   try {

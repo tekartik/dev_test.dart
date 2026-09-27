@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:dev_build/build_support.dart';
 import 'package:dev_build/src/pub_global.dart'
@@ -24,6 +25,27 @@ Future<void> main() async {
         await deactivatePackage('webdev', verbose: true);
       }
       await checkAndActivateWebdev(verbose: true);
+      await run('dart pub global run webdev --version');
+    }, timeout: const Timeout(Duration(minutes: 5)));
+    test('deactivate then concurrent checkAndActivateWebdev', () async {
+      if (await isPackageActivated('webdev', verbose: true)) {
+        await deactivatePackage('webdev', verbose: true);
+      }
+      // Isolates don't share the activated packages cache, like concurrent
+      // test files or run_ci packages.
+      var errors = await Future.wait([
+        for (var i = 0; i < 3; i++)
+          Isolate.run(() async {
+            try {
+              await checkAndActivateWebdev();
+              return null;
+            } catch (e) {
+              // Shell exceptions are not sendable
+              return '$e';
+            }
+          }),
+      ]);
+      expect(errors, [null, null, null]);
       await run('dart pub global run webdev --version');
     }, timeout: const Timeout(Duration(minutes: 5)));
     test('checkAndActivateWebdev verbose', () async {

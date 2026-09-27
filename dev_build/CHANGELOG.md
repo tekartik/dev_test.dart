@@ -1,3 +1,8 @@
+## 1.1.12-1
+
+* `checkAndActivateWebdev`, `checkAndActivatePackage` and `deactivatePackage` hold a lock file shared by isolates and
+  processes (concurrent `dart pub global activate` of the same package fail with exit code 66)
+
 ## 1.1.11
 
 * `run_ci --recursive` (and `packageRunCi`) reads `dev_build_run_ci_config.yaml` files to `include`/`exclude` folders
