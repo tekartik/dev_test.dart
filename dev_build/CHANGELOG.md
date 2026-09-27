@@ -1,4 +1,4 @@
-## 1.1.11-1
+## 1.1.11
 
 * `run_ci --recursive` (and `packageRunCi`) reads `dev_build_run_ci_config.yaml` files to `include`/`exclude` folders
 * Add `checkAndInstallCliWebdev`, `checkAndInstallCliPackage` and `uninstallCliPackage` using `dart install`
