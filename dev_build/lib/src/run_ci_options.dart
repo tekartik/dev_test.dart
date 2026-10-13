@@ -1,32 +1,4 @@
 import 'package:dev_build/package.dart';
-import 'package:path/path.dart';
-import 'package:process_run/stdio.dart';
-
-/// Get the top level directories.
-Future<List<String>> topLevelDir(String dir) async {
-  var list = <String>[];
-  await Directory(dir).list(recursive: false).listen((event) {
-    if (event is Directory) {
-      list.add(basename(event.path));
-    }
-  }).asFuture<void>();
-  return list;
-}
-
-List<String> _forbiddenDirs = ['node_modules', '.dart_tool', 'build'];
-
-/// Filter dart directories.
-List<String> filterDartDirs(List<String> dirs) => dirs
-    .where((element) {
-      if (element.startsWith('.')) {
-        return false;
-      }
-      if (_forbiddenDirs.contains(element)) {
-        return false;
-      }
-      return true;
-    })
-    .toList(growable: false);
 
 /// Package run options
 class PackageRunCiOptions {

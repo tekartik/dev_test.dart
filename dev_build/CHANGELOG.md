@@ -1,3 +1,10 @@
+## 1.1.14
+
+* `run_ci --chrome-js-test` only runs chrome dart2js tests (it also ran vm and dart2wasm tests)
+* `run_ci` skips node tests when node is not installed (`--no-node-test` and `--vm-test` were ignored for node then)
+* `packageRunCi` uses `options.poolSize` when `poolSize` is not set
+* `run_ci --dry-run` no longer runs `npm install` nor activates webdev, it displays them
+
 ## 1.1.13
 
 * `run_ci` ignores `dart test` exit code 79 (no tests ran) for a platform, i.e. no chrome test when all tests are

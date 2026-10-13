@@ -311,12 +311,6 @@ Future<void> recursiveActions(
 }) async {
   poolSize ??= 4;
   verbose ??= false;
-  // filter what could be packages in the paths list
-  var dirsOrFiles = paths;
-  if (dirsOrFiles.isEmpty) {
-    dirsOrFiles = [Directory.current.path];
-  }
-
   var packages = await recursivePubPath(
     paths,
     dependencies: dependencies,

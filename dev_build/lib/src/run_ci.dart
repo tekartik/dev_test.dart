@@ -157,7 +157,7 @@ Future<void> packageRunCi(
     path,
     options,
     recursive: recursive ?? options.recursive,
-    poolSize: poolSize,
+    poolSize: poolSize ?? options.poolSize,
   );
 }
 
@@ -316,8 +316,6 @@ Future<void> _zonedSinglePackageRunCiImpl(
   } else {
     stdout.writeln('# package: $path');
   }
-  var shell = Shell(workingDirectory: path);
-
   // Project info
   if (options.prjInfo) {
     try {
@@ -370,19 +368,7 @@ Future<void> _zonedSinglePackageRunCiImpl(
     options.noTest = true;
   }
 
-  Future<List<ProcessResult>> runScript(String script) async {
-    if (options.dryRun) {
-      shellScriptSplitLines(script).forEach((line) {
-        if (shellScriptLineIsComment(line)) {
-          stdout.writeln(line);
-        } else {
-          stdout.writeln('\$ $line');
-        }
-      });
-      return <ProcessResult>[];
-    }
-    return await shell.run(script);
-  }
+  var runScript = ciRunner.runScript;
 
   if (!options.noPubGetOrUpgrade) {
     var offline = options.offline;
@@ -477,7 +463,12 @@ Future<void> _zonedSinglePackageRunCiImpl(
         'build_runner',
       ])) {
         if (File(join(path, 'web', 'index.html')).existsSync()) {
-          await checkAndActivateWebdev();
+          if (options.dryRun) {
+            stdout.writeln('# Activate webdev if needed');
+            stdout.writeln('\$ $dofPub global activate webdev');
+          } else {
+            await checkAndActivateWebdev();
+          }
 
           // Work around for something that happens on windows
           // https://github.com/tekartikdev/service_worker/runs/4342612734?check_suite_focus=true
@@ -567,6 +558,17 @@ class SinglePackageCiRunner {
 
   /// Options
   final PackageRunCiOptions options;
+
+  /// [nodeSetupCheck], only displayed in dry run.
+  Future<void> _nodeSetupCheck() async {
+    if (options.dryRun) {
+      if (nodeSetupNeeded(path)) {
+        stdout.writeln('\$ npm install');
+      }
+      return;
+    }
+    await nodeSetupCheck(path);
+  }
 
   /// Run a script
   Future<List<ProcessResult>> runScript(String script) async {
@@ -676,17 +678,21 @@ class SinglePackageCiRunner {
           var isWeb = pubspecYamlSupportsWeb(_pubspecMap);
           var noVmTest = options.noVmTest || chromeJsTestOnly;
           var noBrowserTest = !isWeb || options.noBrowserTest || vmTestOnly;
+          // No node test when node is not installed.
           var noNodeTest =
-              isNodeSupportedSync &&
-              (options.noNodeTest || vmTestOnly || chromeJsTestOnly);
-          var platforms = <String>[if (!options.noVmTest) 'vm'];
+              !isNodeSupportedSync ||
+              options.noNodeTest ||
+              vmTestOnly ||
+              chromeJsTestOnly;
+          var platforms = <String>[if (!noVmTest) 'vm'];
           var supportedPlatforms = <String>[
             if (!noVmTest) 'vm',
             if (!noBrowserTest) 'chrome',
             if (!noNodeTest) 'node',
           ];
-          // Tmp don't compile as wasm on windows as it times out
-          var noWasm = Platform.isWindows;
+          // Tmp don't compile as wasm on windows as it times out, and only
+          // dart2js for chrome js tests.
+          var noWasm = Platform.isWindows || chromeJsTestOnly;
 
           if (!noBrowserTest) {
             platforms.add('chrome');
@@ -697,7 +703,7 @@ class SinglePackageCiRunner {
             platforms.add('node');
 
             if (!options.noNpmInstall) {
-              await nodeSetupCheck(path);
+              await _nodeSetupCheck();
               // Workaround issue about complaining old pubspec on node...
               // https://travis-ci.org/github/tekartik/aliyun.dart/jobs/724680004
             }
@@ -726,7 +732,7 @@ class SinglePackageCiRunner {
 
           if (testConfig.hasNode) {
             try {
-              await nodeSetupCheck(path);
+              await _nodeSetupCheck();
             } catch (e) {
               stderr.writeln('(ignored) Error setting up node: $e');
             }
