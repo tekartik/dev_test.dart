@@ -292,6 +292,11 @@ Future<void> singlePackageRunCiImpl(
 /// Special macos chrome timeout issue
 var _chromeTestTimeoutRetriedOnce = false;
 
+/// `dart test` exit code when no test ran (`noTestsRan` in package:test_core),
+/// i.e. "No tests were found." for a platform (all tests `@TestOn('vm')`
+/// on chrome for example).
+const _dartTestNoTestsRanExitCode = 79;
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> _zonedSinglePackageRunCiImpl(
@@ -737,6 +742,14 @@ class SinglePackageCiRunner {
               try {
                 await doRunTest();
               } catch (e) {
+                // No test for this platform, ok
+                if (e is ShellException &&
+                    e.result?.exitCode == _dartTestNoTestsRanExitCode) {
+                  stderr.writeln(
+                    '(ignored) No tests ran: dart test${line.toCommandLineArgument()}',
+                  );
+                  continue;
+                }
                 // Handle timeout at least once....
                 // happens on github actions
                 // Compiled nnnnnnnn input bytes (nnnn characters source) to nnnnnnnn characters JavaScript in nnn seconds

@@ -1,3 +1,8 @@
+## 1.1.13
+
+* `run_ci` ignores `dart test` exit code 79 (no tests ran) for a platform, i.e. no chrome test when all tests are
+  `@TestOn('vm')`
+
 ## 1.1.12
 
 * `checkAndActivateWebdev`, `checkAndActivatePackage` and `deactivatePackage` hold a lock file shared by isolates and
