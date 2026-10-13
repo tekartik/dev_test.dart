@@ -1,3 +1,9 @@
+## 1.1.15
+
+* Console menu: an error thrown by a `command()` handler is reported on stderr (it was silently ignored), the menu
+  keeps running
+* Console menu: the `-h` example uses the exit command (`dart test_menu.dart 0 .`), `-` was rejected
+
 ## 1.1.14
 
 * `run_ci --chrome-js-test` only runs chrome dart2js tests (it also ran vm and dart2wasm tests)

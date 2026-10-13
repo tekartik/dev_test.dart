@@ -36,7 +36,7 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
     if (results['help'] as bool) {
       stdout.writeln('Add arguments at the end separated by spaces');
       stdout.writeln('Example to run item 0 and exit');
-      stdout.writeln('  dart test_menu.dart 0 -');
+      stdout.writeln('  dart test_menu.dart 0 $_exitCommand');
       exit(0);
     }
 
@@ -142,7 +142,9 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
 
       try {
         await menuManager.runItem(item);
-      } catch (_) {}
+      } catch (_) {
+        // Already reported by the runner, the menu keeps running
+      }
       // return new Future.sync(item.run).then((_) {
       if (verbose) {
         stdout.writeln("$tag done '$item'");
@@ -154,7 +156,11 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
 
       try {
         await command.fn(line);
-      } catch (_) {}
+      } catch (e, st) {
+        // Reported, the menu keeps running
+        stderr.writeln('error: $e');
+        stderr.writeln('$st');
+      }
       // return new Future.sync(item.run).then((_) {
       if (verbose) {
         stdout.writeln("$tag done '$command'");
