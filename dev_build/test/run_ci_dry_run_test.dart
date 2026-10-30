@@ -104,7 +104,9 @@ compilers:
       var lines = LineSplitter.split(
         await _runCiDryRun(path, ''),
       ).where((line) => line.startsWith(r'$ ')).toList();
-      var setupIndex = lines.indexOf(r'$ dart run tool/dev_build_setup.dart');
+      // tool\dev_build_setup.dart on windows.
+      var setupLine = '\$ dart run ${join('tool', 'dev_build_setup.dart')}';
+      var setupIndex = lines.indexOf(setupLine);
       expect(setupIndex, isNot(-1));
       // After analyze, before the tests.
       expect(
@@ -116,10 +118,7 @@ compilers:
         greaterThan(setupIndex),
       );
       // Not for analyze only.
-      expect(
-        await _runCiDryRun(path, '--analyze'),
-        isNot(contains('dart run tool/dev_build_setup.dart')),
-      );
+      expect(await _runCiDryRun(path, '--analyze'), isNot(contains(setupLine)));
     }, timeout: timeout);
 
     group('node', () {
