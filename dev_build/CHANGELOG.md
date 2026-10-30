@@ -1,3 +1,8 @@
+## 1.1.16
+
+* `run_ci` runs `tool/dev_build_setup.dart` when found, after format and analyze, before the tests and the build
+  (i.e. to build a web worker script); its errors are reported and ignored
+
 ## 1.1.15
 
 * Console menu: an error thrown by a `command()` handler is reported on stderr (it was silently ignored), the menu

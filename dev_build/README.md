@@ -58,6 +58,8 @@ run_ci --fix --recursive
 
 - By default it also checks subfolder projects (i.e. you can run it at the top of your repo)
 - You can override the behavior by creating a 'tool/run_ci_override.dart' file
+- A 'tool/dev_build_setup.dart' file is run (`dart run tool/dev_build_setup.dart`) after format and analyze, before
+  the tests and the build, i.e. to build what they need (a web worker script). Its errors are reported and ignored.
 - You can skip a folder by creating an empty placeholder file '.local/.skip_run_ci'
 - You can filter the folders scanned recursively with a `dev_build_run_ci_config.yaml` file, it applies to its
   folder and sub folders (paths relative to the file, the files above the `<path>` argument are ignored):

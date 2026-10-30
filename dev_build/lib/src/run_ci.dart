@@ -163,6 +163,10 @@ Future<void> packageRunCi(
 
 final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 
+/// Setup script run before the tests and the build when found (relative to
+/// the package root), i.e. to build a web worker the tests or the app need.
+final devBuildSetupPath = join('tool', 'dev_build_setup.dart');
+
 /// Package run ci.
 Future<void> packageRunCiImpl(
   String path,
@@ -436,6 +440,9 @@ Future<void> _zonedSinglePackageRunCiImpl(
 
   await ciRunner.format();
   await ciRunner.analyze();
+  if (!options.noTest || !options.noBuild) {
+    await ciRunner.devBuildSetup();
+  }
   await ciRunner.runTest();
   if (isFlutterPackage) {
     if (!options.noBuild) {
@@ -644,6 +651,27 @@ class SinglePackageCiRunner {
         // but in general no!
         rethrow;
       }
+    }
+  }
+
+  /// Run `tool/dev_build_setup.dart` when found ([devBuildSetupPath]).
+  ///
+  /// Its errors are reported and ignored: the file could have been created
+  /// for another purpose.
+  Future<void> devBuildSetup() async {
+    if (isWorkspaceRoot) {
+      return;
+    }
+    if (!File(join(path, devBuildSetupPath)).existsSync()) {
+      return;
+    }
+    try {
+      await runScript('''
+        # Setup
+        dart run $devBuildSetupPath
+      ''');
+    } catch (e) {
+      stderr.writeln('(ignored) $devBuildSetupPath failed: $e');
     }
   }
 

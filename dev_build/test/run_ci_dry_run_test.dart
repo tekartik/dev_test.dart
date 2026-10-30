@@ -96,6 +96,32 @@ compilers:
       ]);
     }, timeout: timeout);
 
+    test('dev_build_setup', () async {
+      var path = await _createPackage(
+        'dev_build_setup',
+        files: {'tool/dev_build_setup.dart': 'void main() {}'},
+      );
+      var lines = LineSplitter.split(
+        await _runCiDryRun(path, ''),
+      ).where((line) => line.startsWith(r'$ ')).toList();
+      var setupIndex = lines.indexOf(r'$ dart run tool/dev_build_setup.dart');
+      expect(setupIndex, isNot(-1));
+      // After analyze, before the tests.
+      expect(
+        lines.indexWhere((line) => line.startsWith(r'$ dart analyze')),
+        lessThan(setupIndex),
+      );
+      expect(
+        lines.indexWhere((line) => line.startsWith(r'$ dart test')),
+        greaterThan(setupIndex),
+      );
+      // Not for analyze only.
+      expect(
+        await _runCiDryRun(path, '--analyze'),
+        isNot(contains('dart run tool/dev_build_setup.dart')),
+      );
+    }, timeout: timeout);
+
     group('node', () {
       late String path;
       setUpAll(() async {
