@@ -3,8 +3,13 @@ import 'package:process_run/shell_run.dart';
 import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
 
-/// Installed cli packages name and version (local cache).
-Map<String, Version>? _installedCliPackages;
+import 'dart_installed_cli_package.dart';
+
+/// `dart installed` (key false) and `dart installed --all` (key true) parsed
+/// output, local cache per isolate.
+///
+/// Futures so that concurrent callers share the same run.
+final _dartInstalledPackages = <bool, Future<List<DartInstalledCliPackage>>>{};
 
 /// Parse `dart installed` output lines.
 ///
@@ -14,30 +19,66 @@ Map<String, Version>? _installedCliPackages;
 ///
 /// Non package lines (i.e. `No Dart CLI tools installed.`) and non active
 /// packages are ignored.
-Map<String, Version> parseDartInstalledOutLines(Iterable<String> lines) {
-  var packages = <String, Version>{};
-  for (var line in lines) {
-    if (line.contains('(not active)')) {
-      continue;
-    }
-    var parts = line.trim().split(RegExp(r'\s+'));
-    if (parts.length < 2) {
-      continue;
-    }
-    try {
-      packages[parts[0]] = Version.parse(parts[1]);
-    } catch (_) {}
+///
+/// See [parseDartInstalledCliPackages] for the full information.
+Map<String, Version> parseDartInstalledOutLines(Iterable<String> lines) => {
+  for (var package in parseDartInstalledCliPackages(lines))
+    if (package.active) package.name: package.version,
+};
+
+/// Get the packages installed with `dart install` (with a local cache, per
+/// isolate).
+///
+/// [all] includes the non active ones (`dart installed --all`), a package
+/// can then be listed more than once (one per version).
+///
+/// [force] lists them again and refreshes the cache, i.e. when another process
+/// might have installed or uninstalled a package.
+///
+/// Requires Dart 3.10+.
+Future<List<DartInstalledCliPackage>> getDartInstalledPackages({
+  bool? all,
+  bool? force,
+  bool? verbose,
+}) async {
+  all ??= false;
+  if (force ?? false) {
+    _dartInstalledPackages.clear();
   }
-  return packages;
+  var future = _dartInstalledPackages.putIfAbsent(
+    all,
+    () => _listDartInstalledPackages(all: all!, verbose: verbose ?? false),
+  );
+  try {
+    // A copy, the cache is not modified by callers.
+    return (await future).toList();
+  } catch (_) {
+    // Don't cache a failure.
+    if (identical(_dartInstalledPackages[all], future)) {
+      // Already awaited, its error is rethrown.
+      _dartInstalledPackages.remove(all)?.ignore();
+    }
+    rethrow;
+  }
+}
+
+Future<List<DartInstalledCliPackage>> _listDartInstalledPackages({
+  required bool all,
+  required bool verbose,
+}) async {
+  var lines = (await run(
+    'dart installed${all ? ' --all' : ''}',
+    verbose: verbose,
+  )).outLines;
+  return parseDartInstalledCliPackages(lines);
 }
 
 /// Get the installed cli packages with their version (with a local cache).
-Future<Map<String, Version>> _getInstalledCliPackages({bool? verbose}) async {
-  verbose ??= false;
-  return _installedCliPackages ??= parseDartInstalledOutLines(
-    (await run('dart installed', verbose: verbose)).outLines,
-  );
-}
+Future<Map<String, Version>> _getInstalledCliPackages({bool? verbose}) async =>
+    {
+      for (var package in await getDartInstalledPackages(verbose: verbose))
+        package.name: package.version,
+    };
 
 /// Get the list of cli packages installed with `dart install` (with a local
 /// cache).
@@ -66,12 +107,13 @@ Future<void> _dartInstall(String package, {bool? verbose}) async {
   verbose ??= false;
   await run('dart install $package', verbose: verbose);
   // Clear the cache to read the installed version on next access.
-  _installedCliPackages = null;
+  _dartInstalledPackages.clear();
 }
 
 /// Install a package executables with `dart install` if not installed yet.
 ///
-/// Preferred over `checkAndActivatePackage` (`dart pub global activate`).
+/// Preferred over `checkAndPubGlobalActivatePackage` (`dart pub global
+/// activate`).
 ///
 /// Returns true if the package was installed during this call.
 Future<bool> checkAndInstallCliPackage(String package, {bool? verbose}) async {
@@ -91,7 +133,7 @@ Future<bool> uninstallCliPackage(String package, {bool? verbose}) async {
     return false;
   }
   await run('dart uninstall $package', verbose: verbose);
-  _installedCliPackages?.remove(package);
+  _dartInstalledPackages.clear();
   return true;
 }
 

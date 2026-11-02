@@ -1,3 +1,11 @@
+## 1.1.17
+
+* Add `getPubGlobalInstalledPackages` and `checkAndPubGlobalActivatePackage` (`force` option), preferred names for
+  `getInstalledGlobalPackages` and `checkAndActivatePackage` (kept); concurrent calls share a single
+  `dart pub global list`
+* Add `getDartInstalledPackages` (`all` and `force` options) and `DartInstalledCliPackage`, the `dart installed` lines
+  parser (hosted, git, path, not active)
+
 ## 1.1.16
 
 * `run_ci` runs `tool/dev_build_setup.dart` when found, after format and analyze, before the tests and the build

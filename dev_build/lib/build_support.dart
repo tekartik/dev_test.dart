@@ -50,12 +50,19 @@ export 'src/dart_install.dart'
     show
         checkAndInstallCliWebdev,
         checkAndInstallCliPackage,
+        getDartInstalledPackages,
         uninstallCliPackage;
+export 'src/dart_installed_cli_package.dart'
+    show DartInstalledCliPackage, parseDartInstalledCliPackages;
 export 'src/dev_build_support.dart' show checkOrPubActivateDevBuild;
 export 'src/package/package_io_impl.dart'
     show pathPackageConfigMapGetPackagePath, pathGetResolvedPackagePath;
 export 'src/pub_global.dart'
-    show checkAndActivateWebdev, checkAndActivatePackage;
+    show
+        checkAndActivateWebdev,
+        checkAndActivatePackage,
+        checkAndPubGlobalActivatePackage,
+        getPubGlobalInstalledPackages;
 export 'src/pub_io.dart'
     show
         isPubPackageRootSync,

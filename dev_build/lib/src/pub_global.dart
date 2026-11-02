@@ -2,8 +2,15 @@ import 'package:path/path.dart';
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:synchronized/synchronized.dart';
 
-List<String>? _installedGlobalPackages;
+/// The activated packages, listed once per isolate.
+///
+/// A future so that concurrent callers share the same `dart pub global list`.
+Future<List<String>>? _installedGlobalPackages;
+
+/// Serializes the callers of this isolate before the lock file, which polls.
+final _pubGlobalIsolateLock = Lock();
 
 /// Older locks are considered stale (i.e. killed process).
 const _pubGlobalLockTimeout = Duration(minutes: 5);
@@ -13,7 +20,14 @@ const _pubGlobalLockTimeout = Duration(minutes: 5);
 /// Concurrent `dart pub global activate` of the same package fail (exit code
 /// 66) when building its executables snapshot at the same time, which happens
 /// with concurrent test files or run_ci packages on a fresh pub cache.
-Future<T> _pubGlobalLock<T>(Future<T> Function() action) async {
+///
+/// Not reentrant: [action] must not call it again.
+Future<T> _pubGlobalLock<T>(Future<T> Function() action) =>
+    _pubGlobalIsolateLock.synchronized(() => _pubGlobalFileLock(action));
+
+/// The lock file part of [_pubGlobalLock], shared with other isolates and
+/// processes.
+Future<T> _pubGlobalFileLock<T>(Future<T> Function() action) async {
   var lockFile = File(
     join(Directory.systemTemp.path, 'dev_build_pub_global.lock'),
   );
@@ -49,53 +63,112 @@ Future<T> _pubGlobalLock<T>(Future<T> Function() action) async {
   }
 }
 
-/// Prefer PubGlobalPackageService
+/// Prefer [checkAndPubGlobalActivatePackage] (or `PubGlobalPackageService`
+/// for version boundaries).
+///
 /// Returns true if the package was activated during this call.
 Future<bool> checkAndActivatePackage(String package, {bool? verbose}) =>
-    _pubGlobalLock(() => _checkAndActivatePackage(package, verbose: verbose));
+    checkAndPubGlobalActivatePackage(package, verbose: verbose);
 
-Future<bool> _checkAndActivatePackage(String package, {bool? verbose}) async {
-  if (!await isPackageActivated(package, verbose: verbose)) {
+/// Activate a package with `dart pub global activate` if not activated yet.
+///
+/// [force] activates it even if already activated (i.e. updates it to its
+/// latest version).
+///
+/// `checkAndInstallCliPackage` (`dart install`) is preferred for executables.
+///
+/// Returns true if the package was activated during this call.
+Future<bool> checkAndPubGlobalActivatePackage(
+  String package, {
+  bool? force,
+  bool? verbose,
+}) => _pubGlobalLock(
+  () => _checkAndActivatePackage(package, force: force, verbose: verbose),
+);
+
+Future<bool> _checkAndActivatePackage(
+  String package, {
+  bool? force,
+  bool? verbose,
+}) async {
+  if (!(force ?? false)) {
+    if (await isPackageActivated(package, verbose: verbose)) {
+      return false;
+    }
     // Another isolate or process might have activated it meanwhile.
-    _installedGlobalPackages = null;
-    if (!await isPackageActivated(package, verbose: verbose)) {
-      await _pubGlobalActivate(package, verbose: verbose);
-      return true;
+    var list = await getPubGlobalInstalledPackages(
+      force: true,
+      verbose: verbose,
+    );
+    if (list.contains(package)) {
+      return false;
     }
   }
-  return false;
+  await _pubGlobalActivate(package, verbose: verbose);
+  return true;
 }
 
-/// Returns true if the package was activated during this call.
+/// Activate (or update) a package.
 Future<void> _pubGlobalActivate(String package, {bool? verbose}) async {
   verbose ??= false;
-  var list = await getInstalledGlobalPackages(verbose: verbose);
+  var list = await getPubGlobalInstalledPackages(verbose: verbose);
   await run('dart pub global activate $package', verbose: verbose);
-  list.add(package);
+  // Already there when updating (webdev), a duplicate would survive a
+  // deactivate.
+  if (!list.contains(package)) {
+    list.add(package);
+  }
 }
 
 /// Get the list of activated packages (with a local cache).
-Future<List<String>> getInstalledGlobalPackages({bool? verbose}) async {
-  verbose ??= false;
-  if (_installedGlobalPackages == null) {
-    var lines = (await run('dart pub global list', verbose: verbose)).outLines;
-    _installedGlobalPackages = lines
-        .map((line) => line.split(' ')[0])
-        .toList(growable: true);
+///
+/// Prefer [getPubGlobalInstalledPackages].
+Future<List<String>> getInstalledGlobalPackages({bool? verbose}) =>
+    getPubGlobalInstalledPackages(verbose: verbose);
+
+/// Get the list of packages activated with `dart pub global activate` (with a
+/// local cache, per isolate).
+///
+/// [force] lists them again (`dart pub global list`) and refreshes the cache,
+/// i.e. when another process might have activated or deactivated a package.
+Future<List<String>> getPubGlobalInstalledPackages({
+  bool? force,
+  bool? verbose,
+}) async {
+  if (force ?? false) {
+    _installedGlobalPackages = null;
   }
-  return _installedGlobalPackages!;
+  var future = _installedGlobalPackages ??= _listInstalledGlobalPackages(
+    verbose: verbose ?? false,
+  );
+  try {
+    return await future;
+  } catch (_) {
+    // Don't cache a failure.
+    if (identical(_installedGlobalPackages, future)) {
+      _installedGlobalPackages = null;
+    }
+    rethrow;
+  }
+}
+
+Future<List<String>> _listInstalledGlobalPackages({
+  required bool verbose,
+}) async {
+  var lines = (await run('dart pub global list', verbose: verbose)).outLines;
+  return lines.map((line) => line.split(' ')[0]).toList(growable: true);
 }
 
 /// Check if a package is activated (with a local cache).
 Future<bool> isPackageActivated(String package, {bool? verbose}) async {
-  var list = await getInstalledGlobalPackages(verbose: verbose);
+  var list = await getPubGlobalInstalledPackages(verbose: verbose);
   return list.contains(package);
 }
 
 /// deactivate a package.
 Future<void> deactivatePackage(String package, {bool? verbose}) =>
     _pubGlobalLock(() async {
-      var list = await getInstalledGlobalPackages(verbose: verbose);
+      var list = await getPubGlobalInstalledPackages(verbose: verbose);
       await run('dart pub global deactivate $package', verbose: true);
       list.remove(package);
     });

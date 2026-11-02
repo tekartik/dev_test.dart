@@ -7,6 +7,7 @@ import 'package:dev_build/build_support.dart';
 import 'package:dev_build/src/dart_install.dart'
     show
         getDartInstallBinDir,
+        getInstalledCliPackages,
         getInstalledCliPackageVersion,
         isCliPackageInstalled,
         parseDartInstalledOutLines;
@@ -68,6 +69,24 @@ Future<void> main() async {
         }
       }
     }, timeout: const Timeout(Duration(minutes: 5)));
+    test('getDartInstalledPackages', () async {
+      var active = await getDartInstalledPackages();
+      expect(active.every((package) => package.active), isTrue);
+      expect(
+        active.map((package) => package.name).toSet(),
+        (await getInstalledCliPackages()).toSet(),
+      );
+      var all = await getDartInstalledPackages(all: true);
+      expect(
+        all.where((package) => package.active).map((package) => '$package'),
+        active.map((package) => '$package'),
+      );
+      var forced = await getDartInstalledPackages(force: true);
+      expect(
+        forced.map((package) => '$package'),
+        active.map((package) => '$package'),
+      );
+    });
     test('parseDartInstalledOutLines', () {
       expect(
         parseDartInstalledOutLines(['No Dart CLI tools installed.']),

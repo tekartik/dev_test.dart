@@ -10,6 +10,7 @@ import 'package:dev_build/src/pub_global.dart'
     show
         deactivatePackage,
         extractWebdevVersionFromOutLines,
+        getInstalledGlobalPackages,
         isPackageActivated;
 import 'package:process_run/shell.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -57,6 +58,43 @@ Future<void> main() async {
     });
     test('checkAndActivatePackage', () async {
       await checkAndActivatePackage('process_run');
+    });
+    test('concurrent checkAndActivatePackage', () async {
+      await Future.wait([
+        for (var i = 0; i < 3; i++) checkAndActivatePackage('process_run'),
+      ]);
+    });
+    test('checkAndPubGlobalActivatePackage', () async {
+      await checkAndPubGlobalActivatePackage('process_run');
+      expect(await checkAndPubGlobalActivatePackage('process_run'), isFalse);
+      // Updates it.
+      expect(
+        await checkAndPubGlobalActivatePackage('process_run', force: true),
+        isTrue,
+      );
+      expect(await getPubGlobalInstalledPackages(), contains('process_run'));
+    }, timeout: const Timeout(Duration(minutes: 2)));
+    test('getPubGlobalInstalledPackages', () async {
+      var list = await getPubGlobalInstalledPackages();
+      expect(await getPubGlobalInstalledPackages(), same(list));
+      // The old name shares the cache.
+      expect(await getInstalledGlobalPackages(), same(list));
+      var forced = await getPubGlobalInstalledPackages(force: true);
+      expect(forced, isNot(same(list)));
+      expect(forced, unorderedEquals(list));
+      expect(await getPubGlobalInstalledPackages(), same(forced));
+    });
+    test('concurrent getInstalledGlobalPackages', () async {
+      // A fresh isolate has no cache yet, a single list is shared.
+      expect(
+        await Isolate.run(() async {
+          var lists = await Future.wait([
+            for (var i = 0; i < 3; i++) getInstalledGlobalPackages(),
+          ]);
+          return identical(lists[0], lists[1]) && identical(lists[1], lists[2]);
+        }),
+        isTrue,
+      );
     });
     test('extract', () {
       var lines = LineSplitter.split('''
