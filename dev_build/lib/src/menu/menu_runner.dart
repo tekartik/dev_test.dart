@@ -1,8 +1,7 @@
 import 'package:dev_build/menu/menu.dart';
 import 'package:dev_build/src/import.dart';
-import 'package:dev_build/src/menu/menu_presenter.dart';
-
 import 'dev_menu.dart';
+import 'menu_agent.dart';
 import 'menu_manager.dart';
 
 /// Test menu runner.
@@ -54,7 +53,7 @@ class MenuRunner {
         await result;
       }
     } catch (e, st) {
-      menuPresenter.writeln('ERROR CAUGHT $e $st');
+      menuWritelnImpl('ERROR CAUGHT $e $st');
 
       rethrow;
     } finally {

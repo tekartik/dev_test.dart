@@ -3,6 +3,7 @@ import 'package:dev_build/src/menu/menu_presenter.dart';
 import 'package:synchronized/synchronized.dart';
 import 'dev_flag.dart';
 import 'dev_menu.dart';
+import 'menu_agent.dart';
 import 'menu_runner.dart';
 
 /// Test menu manager.
@@ -239,22 +240,38 @@ class MenuManager {
     return runner!;
   }
 
+  /// Items running, entering a sub menu included.
+  int get runningCount => _runningCount;
+  var _runningCount = 0;
+
+  /// Whether the last item run failed.
+  bool get lastRunFailed => _lastRunFailed;
+  var _lastRunFailed = false;
+
   /// make sure the menu is entered first
   Future runItem(DevMenuItem item) async {
-    // await _enterMenu(item.parent);
-    final runner = getRunner(item);
-    //await runner.enter();
-    if (item is MenuMenuItem) {
-      await pushMenu(item.menu);
-    } else {
-      // Update hash in browser for example
-      await menuPresenter.preProcessItem(item);
-      await runner.runItemEnters();
-      try {
-        await runner.run(item);
-      } finally {
-        await runner.runItemLeaves();
+    _runningCount++;
+    _lastRunFailed = false;
+    try {
+      final runner = getRunner(item);
+      if (item is MenuMenuItem) {
+        await pushMenu(item.menu);
+      } else {
+        // Update hash in browser for example
+        await menuPresenter.preProcessItem(item);
+        await runner.runItemEnters();
+        try {
+          await runner.run(item);
+        } finally {
+          await runner.runItemLeaves();
+        }
       }
+    } catch (_) {
+      _lastRunFailed = true;
+      rethrow;
+    } finally {
+      _runningCount--;
+      menuAgentRunEnded();
     }
   }
 

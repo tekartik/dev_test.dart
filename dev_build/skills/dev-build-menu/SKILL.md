@@ -6,7 +6,9 @@ description: >-
   menu_run_ci.dart): mainMenuConsole, initMenuConsole, menu, item, enter,
   leave, enterItem, leaveItem, command, write, writeln, prompt, showMenu,
   popMenu, solo_item, solo_menu, menuRun, runCiMenu, numbered items, cmd
-  shortcuts, initial commands from the command line.
+  shortcuts, initial commands from the command line; or when an LLM agent
+  must run a menu (--agent, menu_agent.dart, app-agent MCP, menu and
+  menu_line commands, VM service).
 ---
 
 # dev_build console menu
@@ -82,6 +84,35 @@ void main(List<String> arguments) {
   `pub downgrade`, `dump dependencies`, `run_ci`, `analyze`, `format` and
   a `cd (prompt)` for the package at `path`. Wrap it in `mainMenuConsole`
   or nest it in your own menu.
+
+### Driven by an LLM agent
+
+* `dart run tool/menu.dart --agent` starts the VM service, prints
+  `agent: VM service http://127.0.0.1:<port>/<token>=/` and keeps running
+  once stdin is closed (so it can run in the background). `dart run
+  --enable-vm-service tool/menu.dart` works too (the uri is the one the VM
+  prints). In a compiled executable there is no VM service.
+* The `app-agent` MCP server (tekartik_app_agent_mcp): `app_connect
+  {vmService: <uri>}` lists two commands, also as tools:
+  * `menu`: path, items (`key` to type, `name`, `menu: true` for a sub
+    menu), canBack, status (`ready`, `running`, `input`, `error`), the
+    pending `prompt`, the last `output` lines (or those from the `since`
+    cursor; `next` is the next cursor).
+  * `menu_line {line, timeout}`: typed as a user would (item key or
+    `cmd`, `-` back, a prompt answer, a line for `command`). It returns
+    when the run is done or a prompt waits (status `input`: answer with
+    another `menu_line`), or after `timeout` seconds (default 30, then
+    poll with `menu {since}`). The output holds the writes, the errors
+    with their stack trace, `PROMPT`/`ANSWER` lines and the item prints.
+    The console echoes the line on stdout as if typed.
+* Going back from the top menu is refused (the console would exit), an
+  unknown key is an error, a line while an item runs is `busy`.
+* Same VM service extensions as tekartik_app_agent
+  (`ext.tekartik.agent.commands`/`run`); another presenter can register
+  them with `menuAgentVmRegister()`, or serve `menuAgent.describe()` /
+  `menuAgent.run(name, args)` over another channel
+  (`package:dev_build/menu/menu_agent.dart`). A presenter implementing
+  `MenuLineProcessor` gets the lines, so its display follows.
 
 ### Platform
 

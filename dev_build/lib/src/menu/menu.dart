@@ -5,9 +5,9 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 
 import 'declarer.dart';
+import 'menu_agent.dart';
 import 'menu_controller.dart';
 import 'menu_manager.dart';
-import 'menu_presenter.dart';
 
 export 'menu_manager.dart' show MenuManager;
 
@@ -134,7 +134,7 @@ void write(Object? message) {
 
 /// Write a line on the presenter
 void writeln(Object? message) {
-  menuPresenter.writeln(message ?? '<null>');
+  menuWritelnImpl(message ?? '<null>');
 }
 
 /// Show a new menu.
@@ -160,8 +160,7 @@ void devWrite(Object? message) {
 
 /// Prompt for a string.
 Future<String> prompt([Object? message]) {
-  //return menuManager.prompt(message);
-  return menuPresenter.prompt(message);
+  return menuPromptImpl(message);
 }
 
 /// run the last declared menu/items

@@ -1,3 +1,14 @@
+## 1.2.0
+
+* Menus can be driven by an LLM agent (`package:dev_build/menu/menu_agent.dart`): the `menu` (state and output) and
+  `menu_line` (a line typed by a user, prompts answered by the next line) commands, over the VM service extensions
+  `ext.tekartik.agent.commands` and `ext.tekartik.agent.run` (the ones of tekartik_app_agent, so its `app-agent` MCP
+  server connects to a menu), registered by the io console
+* io console `--agent`: starts the VM service, prints its uri and keeps running once stdin is closed (a background run);
+  agent lines are echoed as if typed
+* `MenuLineProcessor`, an optional presenter interface (implemented by the io console); `MenuManager.runningCount` and
+  `MenuManager.lastRunFailed`
+
 ## 1.1.17+3
 
 * `run_ci --no-fatal-warnings`: analyze fails on errors only, the warnings and the infos are reported (for the analyze

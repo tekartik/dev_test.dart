@@ -24,6 +24,19 @@ abstract class MenuPresenter {
   Future preProcessMenu(DevMenu menu);
 }
 
+/// A presenter that processes a line as if typed by the user: an item key
+/// or shortcut, the answer of a pending prompt, a line for the menu
+/// `command` handler.
+///
+/// Optional, the menu agent (`package:dev_build/menu/menu_agent.dart`) goes
+/// through it so that the presenter display follows (the agent handles the
+/// back and help lines itself).
+abstract interface class MenuLineProcessor {
+  /// Process [line], completed when its run is done (an item can prompt
+  /// meanwhile: the next line answers it).
+  Future<void> processLine(String line);
+}
+
 /// Test menu presenter mixin.
 abstract mixin class MenuPresenterMixin implements MenuPresenter {
   @override

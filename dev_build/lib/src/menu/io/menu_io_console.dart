@@ -1,11 +1,14 @@
 library;
 
 import 'dart:convert';
+import 'dart:developer';
+import 'dart:isolate';
 
 import 'package:args/args.dart';
 import 'package:dev_build/src/import.dart';
 //import 'package:dev_build/src/menu/dev_menu.dart';
 //import 'package:dev_build/src/menu/menu_manager.dart';
+import 'package:dev_build/src/menu/menu_agent.dart';
 import 'package:dev_build/src/menu/presenter_mixin.dart';
 import 'package:process_run/shell.dart';
 import 'package:process_run/stdio.dart' hide stdin;
@@ -22,11 +25,14 @@ bool menuConsoleDebug = false; //devWarning(true); // false;
 String _exitCommand = '.';
 String _helpCommand = '?';
 
-class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
+class _MenuManagerConsole extends MenuPresenter
+    with MenuPresenterMixin
+    implements MenuLineProcessor {
   _MenuManagerConsole(this.arguments) {
     var parser = ArgParser();
     parser.addFlag('help', abbr: 'h');
     parser.addFlag('verbose', abbr: 'v');
+    parser.addFlag('agent');
 
     var results = parser.parse(arguments);
     verbose = (results['verbose'] as bool) || menuConsoleDebug;
@@ -37,11 +43,48 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
       stdout.writeln('Add arguments at the end separated by spaces');
       stdout.writeln('Example to run item 0 and exit');
       stdout.writeln('  dart test_menu.dart 0 $_exitCommand');
+      stdout.writeln(
+        'Add --agent to let an LLM agent drive the menu: starts the VM '
+        'service and prints its uri (app-agent MCP app_connect)',
+      );
       exit(0);
     }
 
     initialCommands = results.rest;
+    // Harmless without a VM service, used by `dart run --enable-vm-service`.
+    menuAgentVmRegister();
+    if (results['agent'] as bool) {
+      unawaited(_startAgent());
+    }
   }
+
+  /// Keeps the console alive once stdin is closed (a background run).
+  ReceivePort? _agentKeepAlive;
+
+  Future<void> _startAgent() async {
+    _agentKeepAlive ??= ReceivePort();
+    final info = await Service.controlWebServer(
+      enable: true,
+      silenceOutput: true,
+    );
+    final uri = info.serverUri;
+    if (uri == null) {
+      stderr.writeln(
+        'agent: no VM service (not available in a compiled executable)',
+      );
+    } else {
+      final menu = displayedMenu;
+      if (menu != null) {
+        // After the pending menu prompt, written again below.
+        stdout.writeln();
+      }
+      stdout.writeln('agent: VM service $uri');
+      if (menu != null) {
+        stdout.write('${menu.name} > ');
+      }
+    }
+  }
+
   static const String tag = '[test_menu_console]';
 
   List<String> arguments;
@@ -90,12 +133,20 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
   }
 
   void handleLine(String line) {
-    processLine(line).then((_) {
+    _processInputLine(line).then((_) {
       stdout.write('> ');
     });
   }
 
-  Future processLine(String line) async {
+  /// A line from the agent, echoed as if typed.
+  @override
+  Future<void> processLine(String line) async {
+    stdout.writeln(line);
+    await _processInputLine(line);
+    stdout.write('> ');
+  }
+
+  Future<void> _processInputLine(String line) async {
     if (menuConsoleDebug) {
       stdout.writeln('$tag Line: $line');
     }
@@ -160,6 +211,7 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
         // Reported, the menu keeps running
         stderr.writeln('error: $e');
         stderr.writeln('$st');
+        menuAgentOutput('ERROR $e\n$st');
       }
       // return new Future.sync(item.run).then((_) {
       if (verbose) {
@@ -185,7 +237,7 @@ class _MenuManagerConsole extends MenuPresenter with MenuPresenterMixin {
     if (initialCommands != null) {
       if (initialCommandIndex < initialCommands!.length) {
         final commandLine = initialCommands![initialCommandIndex++];
-        return processLine(commandLine).then(_nextLine);
+        return _processInputLine(commandLine).then(_nextLine);
       }
     }
     return Future.value();
