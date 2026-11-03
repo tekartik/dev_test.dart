@@ -71,6 +71,10 @@ void main() {
       'flutter test is the vm test',
       () async {
         var path = join(_topDir, 'flutter_app');
+        // Recreated: the test files change below.
+        if (Directory(path).existsSync()) {
+          await Directory(path).delete(recursive: true);
+        }
         await Directory(path).create(recursive: true);
         await File(join(path, 'pubspec.yaml')).writeAsString('''
 name: flutter_app
@@ -97,6 +101,19 @@ dependencies:
           flutterLines(await _runCiDryRun(path, '--chrome-js-test')),
           isEmpty,
         );
+        // A test folder without any _test.dart file: no flutter test.
+        await File(join(path, 'test', 'a_test.dart')).delete();
+        await File(
+          join(path, 'test', 'src', 'helper.dart'),
+        ).create(recursive: true);
+        expect(flutterLines(await _runCiDryRun(path, '--vm-test')), isEmpty);
+        // In a sub folder, it counts.
+        await File(
+          join(path, 'test', 'src', 'b_test.dart'),
+        ).create(recursive: true);
+        expect(flutterLines(await _runCiDryRun(path, '--vm-test')), [
+          r'$ flutter test --no-pub',
+        ]);
       },
       timeout: timeout,
       // run_ci skips the flutter packages without flutter.

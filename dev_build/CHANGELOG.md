@@ -1,7 +1,9 @@
-## 1.1.17+1
+## 1.1.17+2
 
 * `run_ci --no-vm-test` (and `--chrome-js-test`) no longer runs `flutter test` in a flutter package (it is the host
   test)
+* `run_ci` skips the tests of a package whose `test` folder has no `_test.dart` file (`flutter test` failed on an
+  empty folder left by git)
 * Add `getPubGlobalInstalledPackages` and `checkAndPubGlobalActivatePackage` (`force` option), preferred names for
   `getInstalledGlobalPackages` and `checkAndActivatePackage` (kept); concurrent calls share a single
   `dart pub global list`

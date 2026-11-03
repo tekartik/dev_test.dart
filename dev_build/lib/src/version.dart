@@ -4,7 +4,7 @@ library;
 import 'package:pub_semver/pub_semver.dart';
 
 /// Package version text
-const packageVersionText = '1.1.17+1';
+const packageVersionText = '1.1.17+2';
 
 /// Package version
 final packageVersion = Version.parse(packageVersionText);

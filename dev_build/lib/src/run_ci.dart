@@ -301,6 +301,23 @@ var _chromeTestTimeoutRetriedOnce = false;
 /// on chrome for example).
 const _dartTestNoTestsRanExitCode = 79;
 
+/// True when the `test` folder of the package in [path] holds a
+/// `_test.dart` file (in a sub folder too).
+Future<bool> _hasTestFile(String path) async {
+  var testDir = Directory(join(path, 'test'));
+  if (!testDir.existsSync()) {
+    return false;
+  }
+  try {
+    return await testDir
+        .list(recursive: true, followLinks: false)
+        .any((entity) => entity is File && entity.path.endsWith('_test.dart'));
+  } catch (_) {
+    // Unreadable: let the test command tell.
+    return true;
+  }
+}
+
 /// Run basic tests on dart/flutter package
 ///
 Future<void> _zonedSinglePackageRunCiImpl(
@@ -367,8 +384,9 @@ Future<void> _zonedSinglePackageRunCiImpl(
     }
   }
 
-  // ensure test exists
-  if (!Directory(join(path, 'test')).existsSync()) {
+  // ensure test exists, with a test file (`flutter test` fails on a test
+  // folder without any, an empty folder left by git for example).
+  if (!await _hasTestFile(path)) {
     options.noTest = true;
   }
 
