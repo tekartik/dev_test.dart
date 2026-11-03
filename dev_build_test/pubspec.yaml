@@ -1,0 +1,23 @@
+name: tekartik_dev_build_test
+description: Tests of dev_build needing more than dev_build itself, i.e. the menu agent on the VM and in Chrome
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+dependencies:
+  dev_build: '>=1.2.0'
+  path: '>=1.9.0'
+  # Used by the test helpers of lib.
+  test: '>=1.24.0'
+
+dev_dependencies:
+  lints: '>=2.1.1'
+  # Marks a web package for run_ci: the tests also run in Chrome (js, wasm).
+  build_web_compilers: '>=4.4.19'
+
+# Always the dev_build of this repo.
+dependency_overrides:
+  dev_build:
+    path: ../dev_build
