@@ -27,19 +27,23 @@ void main() {
   var repoSupportEntry = join('..', 'repo_support');
   var devTestEntry = join('..', 'dev_test');
   var devBuildEntry = join('..', 'dev_build');
+  var devBuildTestEntry = join('..', 'dev_build_test');
   test('recursivePubPath', () async {
     expect(await recursivePubPath(['.', '..']), [
       '.',
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
     expect(await recursivePubPath(['..', '.']), [
       '.',
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
     expect(await recursivePubPath(['..']), [
       devBuildEntry,
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
@@ -54,7 +58,7 @@ void main() {
         hook: (dir) async =>
             basename(dir) == 'dev_test' ? null : const PubPathScanDir(),
       ),
-      [devBuildEntry, repoSupportEntry],
+      [devBuildEntry, devBuildTestEntry, repoSupportEntry],
     );
     // Not listed, sub folders still scanned
     expect(
@@ -62,7 +66,7 @@ void main() {
         '.',
         '..',
       ], hook: (dir) => PubPathScanDir(list: dir != '.')),
-      [devBuildEntry, devTestEntry, repoSupportEntry],
+      [devBuildEntry, devBuildTestEntry, devTestEntry, repoSupportEntry],
     );
     // Other hook for the sub folders
     expect(
@@ -73,12 +77,13 @@ void main() {
               basename(dir) == 'repo_support' ? null : const PubPathScanDir(),
         ),
       ),
-      [devBuildEntry, devTestEntry],
+      [devBuildEntry, devBuildTestEntry, devTestEntry],
     );
   });
 
   test('recursivePubPath dependencies', () async {
     expect(await recursivePubPath(['..'], dependencies: ['dev_build']), [
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
@@ -87,9 +92,10 @@ void main() {
     ]);
     expect(
       await recursivePubPath(['..'], dependencies: ['dev_test', 'dev_build']),
-      [devTestEntry, repoSupportEntry],
+      [devBuildTestEntry, devTestEntry, repoSupportEntry],
     );
     expect(await recursivePubPath(['..'], dependencies: ['direct:dev_build']), [
+      devBuildTestEntry,
       devTestEntry,
     ]);
   });
@@ -122,16 +128,19 @@ void main() {
   test('iteratePubPath', () async {
     expect(await iteratePubPathList(['.', '..']), [
       '.',
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
     expect(await iteratePubPathList(['..', '.']), [
       '.',
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
     expect(await iteratePubPathList(['..']), [
       devBuildEntry,
+      devBuildTestEntry,
       devTestEntry,
       repoSupportEntry,
     ]);
@@ -142,7 +151,7 @@ void main() {
     expect(await iteratePubPathList(['..'], limit: 1), [devBuildEntry]);
     expect(await iteratePubPathList(['..'], limit: 2), [
       devBuildEntry,
-      devTestEntry,
+      devBuildTestEntry,
     ]);
   });
 
@@ -167,7 +176,7 @@ void main() {
       await iteratePubPathList([
         '..',
       ], options: const IteratePubPathOptions(dependencies: ['dev_build'])),
-      [devTestEntry, repoSupportEntry],
+      [devBuildTestEntry, devTestEntry, repoSupportEntry],
     );
     expect(
       await iteratePubPathList(
@@ -176,7 +185,7 @@ void main() {
           dependencies: ['direct:dev_build'],
         ),
       ),
-      [devTestEntry],
+      [devBuildTestEntry, devTestEntry],
     );
   });
 
@@ -351,6 +360,7 @@ void main() {
     );
     expect(list, [
       join('..', 'dev_build'),
+      join('..', 'dev_build_test'),
       join('..', 'dev_test'),
       join('..', 'repo_support'),
     ]);
@@ -361,7 +371,12 @@ void main() {
         list.add(src);
       },
     );
-    expect(list, ['.', join('..', 'dev_test'), join('..', 'repo_support')]);
+    expect(list, [
+      '.',
+      join('..', 'dev_build_test'),
+      join('..', 'dev_test'),
+      join('..', 'repo_support'),
+    ]);
   });
 
   test('packageRunCi', () async {
