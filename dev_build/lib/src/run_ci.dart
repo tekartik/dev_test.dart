@@ -688,7 +688,8 @@ class SinglePackageCiRunner {
       extraArgs = ' ${testOptions.join(' ')}';
     }
     if (isFlutterPackage) {
-      if (!options.noTest) {
+      // flutter test runs on the host (the vm tests).
+      if (!options.noTest && !options.noVmTest && !options.chromeJsTestOnly) {
         // 'test', '--no-pub'
         // Flutter way
         await runScript('''
