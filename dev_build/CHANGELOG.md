@@ -8,6 +8,8 @@
   agent lines are echoed as if typed
 * `MenuLineProcessor`, an optional presenter interface (implemented by the io console); `MenuManager.runningCount` and
   `MenuManager.lastRunFailed`
+* `run_ci --build`: when `webdev build` refuses a `build/` folder with other contents (no `.build.manifest`, such as the
+  output of `webdev build -o web:build/web`), the folder is deleted and the build run again, once
 
 ## 1.1.17+3
 
