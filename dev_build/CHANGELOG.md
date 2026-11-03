@@ -1,5 +1,7 @@
-## 1.1.17+2
+## 1.1.17+3
 
+* `run_ci --no-fatal-warnings`: analyze fails on errors only, the warnings and the infos are reported (for the analyze
+  on the lowest versions, after `--pub-downgrade`); `PackageRunCiOptions.noFatalWarnings`
 * `run_ci --no-vm-test` (and `--chrome-js-test`) no longer runs `flutter test` in a flutter package (it is the host
   test)
 * `run_ci` skips the tests of a package whose `test` folder has no `_test.dart` file (`flutter test` failed on an

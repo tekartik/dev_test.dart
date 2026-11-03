@@ -70,6 +70,12 @@ Future<void> runCiMain(List<String> arguments) async {
     ..addFlag('no-format', help: 'No format test', negatable: false)
     ..addFlag('no-test', help: 'No test ran', negatable: false)
     ..addFlag('no-analyze', help: 'No analyze performed', negatable: false)
+    ..addFlag(
+      'no-fatal-warnings',
+      help:
+          'Analyze fails on errors only, warnings and infos are reported (i.e. after a pub downgrade)',
+      negatable: false,
+    )
     ..addFlag('no-build', help: 'No build performed', negatable: false)
     ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
     ..addFlag('vm-test', help: 'VM test only', negatable: false)
@@ -200,6 +206,7 @@ Future<void> runCiMain(List<String> arguments) async {
   var noFormat = result['no-format'] as bool;
   var noTest = result['no-test'] as bool;
   var noAnalyze = result['no-analyze'] as bool;
+  var noFatalWarnings = result.flag('no-fatal-warnings');
   var noBuild = result['no-build'] as bool;
   var noPubGet = result['no-pub-get'] as bool;
   var vmTestOnly = result.flag('vm-test');
@@ -255,6 +262,7 @@ Future<void> runCiMain(List<String> arguments) async {
     noFormat: noFormat,
     noTest: noTest,
     noAnalyze: noAnalyze,
+    noFatalWarnings: noFatalWarnings,
     noBuild: noBuild,
     noPubGet: noPubGet,
     noVmTest: noVmTest,

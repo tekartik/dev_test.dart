@@ -616,15 +616,23 @@ class SinglePackageCiRunner {
       return;
     }
     if (!options.noAnalyze) {
+      // Errors only: the warnings and the infos are reported, not fatal.
+      var noFatalWarnings = options.noFatalWarnings;
       if (isFlutterPackage) {
+        var fatalArgs = noFatalWarnings
+            ? ' --no-fatal-infos --no-fatal-warnings'
+            : '';
         await runScript('''
       # Analyze code
-      flutter analyze --no-pub .
+      flutter analyze --no-pub$fatalArgs .
     ''');
       } else {
+        var fatalArgs = noFatalWarnings
+            ? '--no-fatal-warnings'
+            : '--fatal-warnings --fatal-infos';
         await runScript('''
       # Analyze code
-      dart analyze --fatal-warnings --fatal-infos .
+      dart analyze $fatalArgs .
   ''');
       }
     }

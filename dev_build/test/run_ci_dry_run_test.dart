@@ -101,6 +101,16 @@ dependencies:
           flutterLines(await _runCiDryRun(path, '--chrome-js-test')),
           isEmpty,
         );
+        expect(flutterLines(await _runCiDryRun(path, '--analyze')), [
+          r'$ flutter analyze --no-pub .',
+        ]);
+        // Errors only.
+        expect(
+          flutterLines(
+            await _runCiDryRun(path, '--analyze --no-fatal-warnings'),
+          ),
+          [r'$ flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings .'],
+        );
         // A test folder without any _test.dart file: no flutter test.
         await File(join(path, 'test', 'a_test.dart')).delete();
         await File(
@@ -172,6 +182,21 @@ compilers:
       );
       // Not for analyze only.
       expect(await _runCiDryRun(path, '--analyze'), isNot(contains(setupLine)));
+    }, timeout: timeout);
+
+    test('no-fatal-warnings', () async {
+      var path = await _createPackage('no_fatal_warnings');
+      List<String> analyzeLines(String out) => LineSplitter.split(
+        out,
+      ).where((line) => line.startsWith(r'$ dart analyze')).toList();
+      expect(analyzeLines(await _runCiDryRun(path, '--analyze')), [
+        r'$ dart analyze --fatal-warnings --fatal-infos .',
+      ]);
+      // Errors only.
+      expect(
+        analyzeLines(await _runCiDryRun(path, '--analyze --no-fatal-warnings')),
+        [r'$ dart analyze --no-fatal-warnings .'],
+      );
     }, timeout: timeout);
 
     group('node', () {

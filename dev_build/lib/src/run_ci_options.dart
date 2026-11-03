@@ -21,6 +21,7 @@ class PackageRunCiOptions {
     this.chromeJsTestOnly = false,
     this.noTest = false,
     this.noAnalyze = false,
+    this.noFatalWarnings = false,
     this.noFormat = false,
     this.noPubGet = false,
     this.noBuild = false,
@@ -80,6 +81,11 @@ class PackageRunCiOptions {
 
   /// Do not run analyze.
   late bool noAnalyze;
+
+  /// Analyze fails on errors only, the warnings and the infos are reported
+  /// (`dart analyze --no-fatal-warnings`, `flutter analyze --no-fatal-infos
+  /// --no-fatal-warnings`), i.e. on the lowest versions after a pub downgrade.
+  final bool noFatalWarnings;
 
   /// Do not run npm install.
   final bool noNpmInstall;
@@ -163,6 +169,7 @@ class PackageRunCiOptions {
     chromeJsTestOnly: chromeJsTestOnly,
     noTest: noTest,
     noAnalyze: noAnalyze,
+    noFatalWarnings: noFatalWarnings,
     noFormat: noFormat,
     noPubGet: noPubGet,
     noBuild: noBuild,
