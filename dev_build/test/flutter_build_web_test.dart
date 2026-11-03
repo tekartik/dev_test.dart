@@ -4,6 +4,8 @@ library;
 import 'dart:io';
 
 import 'package:dev_build/build_support.dart';
+import 'package:dev_build/src/run_ci.dart'
+    show webdevBuildMergedDirectoryConflict;
 import 'package:path/path.dart';
 import 'package:process_run/shell.dart';
 import 'package:test/test.dart';
@@ -66,4 +68,20 @@ void main() {}
       expect(out, contains(r'$ flutter build web --no-pub'));
     }, timeout: const Timeout(Duration(minutes: 2)));
   }, skip: !isFlutterSupported ? 'skipped - flutter not supported' : false);
+
+  test('webdevBuildMergedDirectoryConflict', () {
+    expect(
+      webdevBuildMergedDirectoryConflict(
+        '[INFO] About to build [web]...\n'
+        '[SEVERE] Unable to create merged directory /home/a b/app/build. '
+        'Choose a different directory or delete the contents of that '
+        'directory.\n',
+      ),
+      '/home/a b/app/build',
+    );
+    expect(
+      webdevBuildMergedDirectoryConflict('[SEVERE] FailureType: 73'),
+      isNull,
+    );
+  });
 }

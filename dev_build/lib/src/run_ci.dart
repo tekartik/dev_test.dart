@@ -503,12 +503,46 @@ Future<void> _zonedSinglePackageRunCiImpl(
           if (Platform.isWindows) {
             await runScript('$dofPub get');
           }
-          await runScript('$dofPub global run webdev build');
+          var webdevBuild = '$dofPub global run webdev build';
+          try {
+            await runScript(webdevBuild);
+          } on ShellException catch (e) {
+            // build/ holding other contents (no .build.manifest, such as the
+            // output of a `webdev build -o web:build/web`): build_runner
+            // cannot ask to delete it (not interactive), delete it and build
+            // again, once.
+            var result = e.result;
+            var conflict = result == null
+                ? null
+                : webdevBuildMergedDirectoryConflict(
+                    '${result.outText}\n${result.errText}',
+                  );
+            var buildDir = normalize(absolute(join(path, 'build')));
+            if (conflict == null ||
+                !equals(normalize(absolute(conflict)), buildDir) ||
+                !Directory(buildDir).existsSync()) {
+              rethrow;
+            }
+            stdout.writeln(
+              '# $buildDir holds other contents: deleted, building again',
+            );
+            await Directory(buildDir).delete(recursive: true);
+            await runScript(webdevBuild);
+          }
         }
       }
     }
   }
 }
+
+/// The merged output directory `webdev build` (build_runner) refused to
+/// overwrite according to its [output] (`Unable to create merged directory
+/// /path/build. Choose a different directory or delete the contents of that
+/// directory.`: the directory exists with other contents, no
+/// `.build.manifest`), null for another failure.
+String? webdevBuildMergedDirectoryConflict(String output) => RegExp(
+  r'Unable to create merged directory (.+?)\. Choose a different directory',
+).firstMatch(output)?.group(1);
 
 /// Flutter web default entry point (relative to the package root).
 ///
