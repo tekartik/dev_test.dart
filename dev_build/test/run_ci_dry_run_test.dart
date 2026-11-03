@@ -67,10 +67,12 @@ List<String> _dartTestLines(String out) => LineSplitter.split(
 void main() {
   var timeout = const Timeout(Duration(minutes: 2));
   group('run_ci dry run', () {
-    test('flutter test is the vm test', () async {
-      var path = join(_topDir, 'flutter_app');
-      await Directory(path).create(recursive: true);
-      await File(join(path, 'pubspec.yaml')).writeAsString('''
+    test(
+      'flutter test is the vm test',
+      () async {
+        var path = join(_topDir, 'flutter_app');
+        await Directory(path).create(recursive: true);
+        await File(join(path, 'pubspec.yaml')).writeAsString('''
 name: flutter_app
 environment:
   sdk: ^3.12.0
@@ -78,24 +80,28 @@ dependencies:
   flutter:
     sdk: flutter
 ''');
-      await File(join(path, 'lib', 'main.dart')).create(recursive: true);
-      await File(join(path, 'test', 'a_test.dart')).create(recursive: true);
-      List<String> flutterLines(String out) => LineSplitter.split(
-        out,
-      ).where((line) => line.startsWith(r'$ flutter')).toList();
-      // flutter test is the host (vm) test.
-      expect(flutterLines(await _runCiDryRun(path, '--vm-test')), [
-        r'$ flutter test --no-pub',
-      ]);
-      expect(
-        flutterLines(await _runCiDryRun(path, '--test --no-vm-test')),
-        isEmpty,
-      );
-      expect(
-        flutterLines(await _runCiDryRun(path, '--chrome-js-test')),
-        isEmpty,
-      );
-    }, timeout: timeout);
+        await File(join(path, 'lib', 'main.dart')).create(recursive: true);
+        await File(join(path, 'test', 'a_test.dart')).create(recursive: true);
+        List<String> flutterLines(String out) => LineSplitter.split(
+          out,
+        ).where((line) => line.startsWith(r'$ flutter')).toList();
+        // flutter test is the host (vm) test.
+        expect(flutterLines(await _runCiDryRun(path, '--vm-test')), [
+          r'$ flutter test --no-pub',
+        ]);
+        expect(
+          flutterLines(await _runCiDryRun(path, '--test --no-vm-test')),
+          isEmpty,
+        );
+        expect(
+          flutterLines(await _runCiDryRun(path, '--chrome-js-test')),
+          isEmpty,
+        );
+      },
+      timeout: timeout,
+      // run_ci skips the flutter packages without flutter.
+      skip: !isFlutterSupportedSync ? 'flutter not supported' : false,
+    );
 
     test('chrome-js-test', () async {
       var path = await _createPackage(
