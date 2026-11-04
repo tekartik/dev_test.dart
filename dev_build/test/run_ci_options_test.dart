@@ -17,5 +17,17 @@ void main() {
       expect(PackageRunCiOptions().noCleanup, isFalse);
       expect(PackageRunCiOptions(noCleanup: true).clone().noCleanup, isTrue);
     });
+    test('web build', () async {
+      // Web build only: the build step only.
+      var options = PackageRunCiOptions(webBuildOnly: true).clone();
+      expect(options.webBuildOnly, isTrue);
+      expect(options.noBuild, isFalse);
+      expect(options.noTest, isTrue);
+      expect(options.noAnalyze, isTrue);
+      expect(options.noFormat, isTrue);
+      options = PackageRunCiOptions(buildOnly: true, noWebBuild: true).clone();
+      expect(options.noWebBuild, isTrue);
+      expect(options.noBuild, isFalse);
+    });
   });
 }

@@ -1,8 +1,12 @@
-## 1.3.0
+## 1.2.1
 
 * `run_ci` cleans up after the tests and the build (on failure too), i.e. to free space on a CI running several
   packages: it runs `tool/dev_build_cleanup.dart` when found, then deletes the `build/` folder they created (an existing
   one is kept). `--no-cleanup` (`PackageRunCiOptions.noCleanup`) skips both
+* `run_ci --no-web-build` (`PackageRunCiOptions.noWebBuild`): no `flutter build web` nor `webdev build` (and no webdev
+  activation), the other builds run, i.e. `--build --no-web-build` on windows and macos when the web build is done on
+  linux. `--web-build` (`webBuildOnly`) only runs the web build. `--build` runs all the builds available, only the web
+  one for now
 
 ## 1.2.0
 

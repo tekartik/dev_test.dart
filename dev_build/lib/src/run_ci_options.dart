@@ -36,11 +36,14 @@ class PackageRunCiOptions {
     this.filterDartProjectOptions,
     this.printPath = false,
     this.noCleanup = false,
+    this.webBuildOnly = false,
+    this.noWebBuild = false,
   }) {
     var isTestOnlyAction = testOnly || vmTestOnly || chromeJsTestOnly;
+    var isBuildOnlyAction = buildOnly || webBuildOnly;
     var isOnlyAction =
         (formatOnly ||
-        buildOnly ||
+        isBuildOnlyAction ||
         isTestOnlyAction ||
         analyzeOnly ||
         pubDowngradeOnly ||
@@ -50,7 +53,7 @@ class PackageRunCiOptions {
     if (isOnlyAction) {
       noTest = !isTestOnlyAction;
 
-      noBuild = !buildOnly;
+      noBuild = !isBuildOnlyAction;
       noAnalyze = !analyzeOnly;
       noFormat = !formatOnly;
     }
@@ -155,6 +158,14 @@ class PackageRunCiOptions {
   /// not run and the `build/` folder they created is kept.
   final bool noCleanup;
 
+  /// Only run the web build (`flutter build web`, `webdev build`), not the
+  /// other builds.
+  final bool webBuildOnly;
+
+  /// No web build (`flutter build web`, `webdev build`), the other builds
+  /// run, i.e. on windows and macos when the web build is done on linux.
+  final bool noWebBuild;
+
   /// Clone the options
   PackageRunCiOptions clone() => PackageRunCiOptions(
     formatOnly: formatOnly,
@@ -189,6 +200,8 @@ class PackageRunCiOptions {
     filterDartProjectOptions: filterDartProjectOptions,
     printPath: printPath,
     noCleanup: noCleanup,
+    webBuildOnly: webBuildOnly,
+    noWebBuild: noWebBuild,
   );
 
   /// True if no pub get or upgrade

@@ -20,7 +20,8 @@ Without a path the current directory is used. Several paths can be given.
 | `--no-format` | `noFormat` | skip the format check |
 | `--no-analyze` | `noAnalyze` | skip analyze |
 | `--no-test` | `noTest` | skip tests |
-| `--no-build` | `noBuild` | skip web builds |
+| `--no-build` | `noBuild` | skip the builds |
+| `--no-web-build` | `noWebBuild` | skip the web build (`flutter build web`, `webdev build` and its activation), the other builds run |
 | `--no-cleanup` | `noCleanup` | after the tests and the build, do not run `tool/dev_build_cleanup.dart` nor delete the `build/` folder they created |
 | `--pub-get` | `pubGetOnly` | only `pub get` |
 | `--pub-upgrade` | `pubUpgradeOnly` | only `pub upgrade` |
@@ -28,7 +29,8 @@ Without a path the current directory is used. Several paths can be given.
 | `--format` | `formatOnly` | only the format check |
 | `--analyze` | `analyzeOnly` | only analyze |
 | `--test` | `testOnly` | only tests |
-| `--build` | `buildOnly` | only builds |
+| `--build` | `buildOnly` | only the builds (all the available ones, only web for now) |
+| `--web-build` | `webBuildOnly` | only the web build |
 | `--fix` | `fixOnly` | `dart format` then `dart fix --apply` |
 | `--vm-test` | `vmTestOnly` | tests on the VM only |
 | `--no-vm-test` | `noVmTest` | no VM tests |

@@ -111,6 +111,17 @@ dependencies:
           ),
           [r'$ flutter analyze --no-pub --no-fatal-infos --no-fatal-warnings .'],
         );
+        // The web build (the only build for now).
+        await File(join(path, 'web', 'index.html')).create(recursive: true);
+        for (var args in ['--build', '--web-build']) {
+          expect(flutterLines(await _runCiDryRun(path, args)), [
+            r'$ flutter build web --no-pub',
+          ], reason: args);
+        }
+        expect(
+          flutterLines(await _runCiDryRun(path, '--build --no-web-build')),
+          isEmpty,
+        );
         // A test folder without any _test.dart file: no flutter test.
         await File(join(path, 'test', 'a_test.dart')).delete();
         await File(
@@ -302,6 +313,14 @@ platforms:
       expect(out, contains('# Activate webdev if needed'));
       expect(out, contains(r'$ dart pub global activate webdev'));
       expect(out, contains(r'$ dart pub global run webdev build'));
+      // Web build only, same for now.
+      out = await _runCiDryRun(path, '--web-build');
+      expect(out, contains(r'$ dart pub global run webdev build'));
+      expect(out, isNot(contains(r'$ dart test')));
+      // No web build: no webdev activation either.
+      out = await _runCiDryRun(path, '--build --no-web-build');
+      expect(out, isNot(contains('# Activate webdev')));
+      expect(out, isNot(contains(r'$ dart pub global')));
     }, timeout: timeout);
   });
 }

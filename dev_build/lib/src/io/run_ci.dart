@@ -78,6 +78,12 @@ Future<void> runCiMain(List<String> arguments) async {
     )
     ..addFlag('no-build', help: 'No build performed', negatable: false)
     ..addFlag(
+      'no-web-build',
+      help:
+          'No web build (flutter build web, webdev build), the other builds run',
+      negatable: false,
+    )
+    ..addFlag(
       'no-cleanup',
       help:
           'No cleanup after the tests and the build (\'tool/dev_build_cleanup.dart\' not run, the build/ folder they created is kept)',
@@ -110,7 +116,16 @@ Future<void> runCiMain(List<String> arguments) async {
       help: 'Fix basic issues (run dart format and dart fix)',
       negatable: false,
     )
-    ..addFlag('build', help: 'Build only', negatable: false)
+    ..addFlag(
+      'build',
+      help: 'Build only (all the builds available, only web for now)',
+      negatable: false,
+    )
+    ..addFlag(
+      'web-build',
+      help: 'Web build only (flutter build web, webdev build)',
+      negatable: false,
+    )
     ..addFlag('pub-get', help: 'Get only', negatable: false)
     ..addFlag('pub-upgrade', help: 'Run pub upgrade only', negatable: false)
     ..addFlag('pub-downgrade', help: 'Run pub downgrade only', negatable: false)
@@ -215,6 +230,8 @@ Future<void> runCiMain(List<String> arguments) async {
   var noFatalWarnings = result.flag('no-fatal-warnings');
   var noBuild = result['no-build'] as bool;
   var noCleanup = result.flag('no-cleanup');
+  var noWebBuild = result.flag('no-web-build');
+  var webBuildOnly = result.flag('web-build');
   var noPubGet = result['no-pub-get'] as bool;
   var vmTestOnly = result.flag('vm-test');
   var noVmTest = result['no-vm-test'] as bool;
@@ -272,6 +289,8 @@ Future<void> runCiMain(List<String> arguments) async {
     noFatalWarnings: noFatalWarnings,
     noBuild: noBuild,
     noCleanup: noCleanup,
+    noWebBuild: noWebBuild,
+    webBuildOnly: webBuildOnly,
     noPubGet: noPubGet,
     noVmTest: noVmTest,
     vmTestOnly: vmTestOnly,

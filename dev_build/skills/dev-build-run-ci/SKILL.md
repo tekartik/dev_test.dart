@@ -82,7 +82,10 @@ dart run dev_build:run_ci            # same steps from the command line
 * Build: `flutter build web --no-pub` when `web/index.html` and
   `lib/main.dart` exist; `dart pub global run webdev build` for a Dart
   package that depends on `build_web_compilers` + `build_runner` and has
-  `web/index.html`.
+  `web/index.html`. The web build is the only build for now: `noWebBuild`
+  (`--no-web-build`) skips it (and the webdev activation), i.e.
+  `--build --no-web-build` on windows and macos when the web build is done on
+  linux; `webBuildOnly` (`--web-build`) only runs it.
 * Cleanup, after the tests and the build (on failure too), to free space on
   CI: `dart run tool/dev_build_cleanup.dart` when found (errors reported and
   ignored), then the `build/` folder is deleted when they created it (one

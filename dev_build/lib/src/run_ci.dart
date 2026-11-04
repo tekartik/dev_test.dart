@@ -493,8 +493,10 @@ Future<void> _build(
   var path = ciRunner.path;
   var dofPub = ciRunner._pubIoPackage.dofPub;
   var runScript = ciRunner.runScript;
+  // The web build is the only one for now.
+  var webBuild = !options.noBuild && !options.noWebBuild;
   if (isFlutterPackage) {
-    if (!options.noBuild) {
+    if (webBuild) {
       /// Try building web if possible
 
       /// requires at least beta
@@ -512,7 +514,7 @@ Future<void> _build(
       }
     }
   } else {
-    if (!options.noBuild) {
+    if (webBuild) {
       /// Try web dev if possible
       if (pubspecYamlHasAllDependencies(pubspecMap, [
         'build_web_compilers',
