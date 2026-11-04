@@ -10,7 +10,8 @@ description: >-
   --pub-downgrade, --offline, --prj-info, --ignore-errors, --vm-test), the
   packageRunCi / PackageRunCiOptions / recursivePackagesRun /
   SinglePackageCiRunner API, the tool/run_ci.dart and
-  tool/run_ci_override.dart conventions, .local/.skip_run_ci,
+  tool/run_ci_override.dart, tool/dev_build_setup.dart and
+  tool/dev_build_cleanup.dart conventions, --no-cleanup, .local/.skip_run_ci,
   dev_build_run_ci_config.yaml include/exclude, dart_test.yaml platforms and
   pub workspaces.
 ---
@@ -71,6 +72,9 @@ dart run dev_build:run_ci            # same steps from the command line
 * Analyze: `dart analyze --fatal-warnings --fatal-infos .` for Dart,
   `flutter analyze --no-pub .` for Flutter. Infos fail the build: keep
   `analysis_options.yaml` clean.
+* Setup, when the tests or the build run: `dart run
+  tool/dev_build_setup.dart` when found (i.e. to build a web worker script
+  they need), errors reported and ignored.
 * Test: `flutter test --no-pub` for Flutter. For Dart, `dart test` is run
   once per platform: `vm` always, `chrome` when `build_web_compilers` is a
   dependency, `node` when `build_node_compilers` is a dependency and `node`
@@ -79,14 +83,19 @@ dart run dev_build:run_ci            # same steps from the command line
   `lib/main.dart` exist; `dart pub global run webdev build` for a Dart
   package that depends on `build_web_compilers` + `build_runner` and has
   `web/index.html`.
+* Cleanup, after the tests and the build (on failure too), to free space on
+  CI: `dart run tool/dev_build_cleanup.dart` when found (errors reported and
+  ignored), then the `build/` folder is deleted when they created it (one
+  existing before the setup is kept). `noCleanup` (`--no-cleanup`) skips
+  both.
 * A `dart_test.yaml` `platforms:` list restricts the platforms above,
   `compilers:` (`dart2js`, `dart2wasm`) adds `--compiler` for browser runs.
 
 ### Options (`PackageRunCiOptions` / flags)
 
-* Skip a step: `noPubGet`, `noFormat`, `noAnalyze`, `noTest`, `noBuild`
-  (`--no-pub-get`, `--no-format`, `--no-analyze`, `--no-test`,
-  `--no-build`).
+* Skip a step: `noPubGet`, `noFormat`, `noAnalyze`, `noTest`, `noBuild`,
+  `noCleanup` (`--no-pub-get`, `--no-format`, `--no-analyze`, `--no-test`,
+  `--no-build`, `--no-cleanup`).
 * Run only one step: `formatOnly`, `analyzeOnly`, `testOnly`, `buildOnly`,
   `pubGetOnly`, `pubUpgradeOnly`, `pubDowngradeOnly`, `fixOnly` (`--format`,
   `--analyze`, `--test`, `--build`, `--pub-get`, `--pub-upgrade`,

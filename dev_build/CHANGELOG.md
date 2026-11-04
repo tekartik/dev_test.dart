@@ -1,3 +1,9 @@
+## 1.3.0
+
+* `run_ci` cleans up after the tests and the build (on failure too), i.e. to free space on a CI running several
+  packages: it runs `tool/dev_build_cleanup.dart` when found, then deletes the `build/` folder they created (an existing
+  one is kept). `--no-cleanup` (`PackageRunCiOptions.noCleanup`) skips both
+
 ## 1.2.0
 
 * Menus can be driven by an LLM agent (`package:dev_build/menu/menu_agent.dart`): the `menu` (state and output) and

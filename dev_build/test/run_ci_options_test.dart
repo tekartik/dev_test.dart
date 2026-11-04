@@ -13,5 +13,9 @@ void main() {
       options = PackageRunCiOptions(noPubGet: true, pubUpgradeOnly: true);
       expect(options.noPubGetOrUpgrade, isFalse);
     });
+    test('noCleanup', () async {
+      expect(PackageRunCiOptions().noCleanup, isFalse);
+      expect(PackageRunCiOptions(noCleanup: true).clone().noCleanup, isTrue);
+    });
   });
 }

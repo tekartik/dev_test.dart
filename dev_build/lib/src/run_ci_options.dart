@@ -35,6 +35,7 @@ class PackageRunCiOptions {
     this.ignoreErrors = false,
     this.filterDartProjectOptions,
     this.printPath = false,
+    this.noCleanup = false,
   }) {
     var isTestOnlyAction = testOnly || vmTestOnly || chromeJsTestOnly;
     var isOnlyAction =
@@ -150,6 +151,10 @@ class PackageRunCiOptions {
   /// Just print the path
   final bool printPath;
 
+  /// No cleanup after the tests and the build: `tool/dev_build_cleanup.dart` is
+  /// not run and the `build/` folder they created is kept.
+  final bool noCleanup;
+
   /// Clone the options
   PackageRunCiOptions clone() => PackageRunCiOptions(
     formatOnly: formatOnly,
@@ -183,6 +188,7 @@ class PackageRunCiOptions {
     ignoreErrors: ignoreErrors,
     filterDartProjectOptions: filterDartProjectOptions,
     printPath: printPath,
+    noCleanup: noCleanup,
   );
 
   /// True if no pub get or upgrade

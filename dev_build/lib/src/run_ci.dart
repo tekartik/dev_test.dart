@@ -167,6 +167,16 @@ final _runCiOverridePath = join('tool', 'run_ci_override.dart');
 /// the package root), i.e. to build a web worker the tests or the app need.
 final devBuildSetupPath = join('tool', 'dev_build_setup.dart');
 
+/// Cleanup script run after the tests and the build when found (relative to
+/// the package root), unless [PackageRunCiOptions.noCleanup], i.e. to free
+/// space on a CI running several packages.
+final devBuildCleanupPath = join('tool', 'dev_build_cleanup.dart');
+
+/// Top level folders of a package deleted after the tests and the build when
+/// they created them (missing before [devBuildSetupPath] is looked for),
+/// unless [PackageRunCiOptions.noCleanup].
+const runCiCleanupTopDirs = ['build'];
+
 /// Package run ci.
 Future<void> packageRunCiImpl(
   String path,
@@ -458,10 +468,31 @@ Future<void> _zonedSinglePackageRunCiImpl(
 
   await ciRunner.format();
   await ciRunner.analyze();
-  if (!options.noTest || !options.noBuild) {
-    await ciRunner.devBuildSetup();
+  var testOrBuild = !options.noTest || !options.noBuild;
+  if (!testOrBuild) {
+    return;
   }
-  await ciRunner.runTest();
+  ciRunner.prepareCleanup();
+  try {
+    await ciRunner.devBuildSetup();
+    await ciRunner.runTest();
+    await _build(ciRunner, pubspecMap, isFlutterPackage);
+  } finally {
+    // On failure too: the next packages run with --ignore-errors.
+    await ciRunner.cleanup();
+  }
+}
+
+/// Build step of [_zonedSinglePackageRunCiImpl].
+Future<void> _build(
+  SinglePackageCiRunner ciRunner,
+  Map pubspecMap,
+  bool isFlutterPackage,
+) async {
+  var options = ciRunner.options;
+  var path = ciRunner.path;
+  var dofPub = ciRunner._pubIoPackage.dofPub;
+  var runScript = ciRunner.runScript;
   if (isFlutterPackage) {
     if (!options.noBuild) {
       /// Try building web if possible
@@ -732,6 +763,66 @@ class SinglePackageCiRunner {
       ''');
     } catch (e) {
       stderr.writeln('(ignored) $devBuildSetupPath failed: $e');
+    }
+  }
+
+  /// The [runCiCleanupTopDirs] missing when [prepareCleanup] was called.
+  List<String>? _cleanupMissingTopDirs;
+
+  /// Record which [runCiCleanupTopDirs] are missing before the tests and the
+  /// build (and [devBuildSetup]), the ones then created are deleted by
+  /// [cleanup].
+  void prepareCleanup() {
+    if (isWorkspaceRoot || options.noCleanup) {
+      return;
+    }
+    _cleanupMissingTopDirs = runCiCleanupTopDirs
+        .where(
+          (dir) =>
+              FileSystemEntity.typeSync(join(path, dir), followLinks: false) ==
+              FileSystemEntityType.notFound,
+        )
+        .toList();
+  }
+
+  /// Run `tool/dev_build_cleanup.dart` when found ([devBuildCleanupPath]), then
+  /// delete the [runCiCleanupTopDirs] created since [prepareCleanup], unless
+  /// [PackageRunCiOptions.noCleanup].
+  ///
+  /// Its errors are reported and ignored.
+  Future<void> cleanup() async {
+    if (isWorkspaceRoot || options.noCleanup) {
+      return;
+    }
+    if (File(join(path, devBuildCleanupPath)).existsSync()) {
+      try {
+        await runScript('''
+          # Cleanup
+          dart run $devBuildCleanupPath
+        ''');
+      } catch (e) {
+        stderr.writeln('(ignored) $devBuildCleanupPath failed: $e');
+      }
+    }
+    var missingTopDirs = _cleanupMissingTopDirs;
+    _cleanupMissingTopDirs = null;
+    if (missingTopDirs == null) {
+      return;
+    }
+    for (var dir in missingTopDirs) {
+      if (options.dryRun) {
+        stdout.writeln('# Delete $dir/ if created');
+        continue;
+      }
+      var dirPath = join(path, dir);
+      if (isDirectoryNotLinkSynk(dirPath)) {
+        stdout.writeln('# Cleanup: delete $dir/ (created)');
+        try {
+          await Directory(dirPath).delete(recursive: true);
+        } catch (e) {
+          stderr.writeln('(ignored) deleting $dirPath failed: $e');
+        }
+      }
     }
   }
 

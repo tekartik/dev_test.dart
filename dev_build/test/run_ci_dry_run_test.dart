@@ -184,6 +184,44 @@ compilers:
       expect(await _runCiDryRun(path, '--analyze'), isNot(contains(setupLine)));
     }, timeout: timeout);
 
+    test('cleanup', () async {
+      var path = await _createPackage(
+        'dev_build_cleanup',
+        files: {'tool/dev_build_cleanup.dart': 'void main() {}'},
+      );
+      var buildDir = Directory(join(path, 'build'));
+      if (buildDir.existsSync()) {
+        await buildDir.delete(recursive: true);
+      }
+      // tool\dev_build_cleanup.dart on windows.
+      var cleanupLine = '\$ dart run ${join('tool', 'dev_build_cleanup.dart')}';
+      var deleteLine = '# Delete build/ if created';
+      var lines = LineSplitter.split(await _runCiDryRun(path, '')).toList();
+      var cleanupIndex = lines.indexOf(cleanupLine);
+      expect(cleanupIndex, isNot(-1));
+      // After the tests, then the build/ folder.
+      expect(
+        lines.lastIndexWhere((line) => line.startsWith(r'$ dart test')),
+        lessThan(cleanupIndex),
+      );
+      expect(lines.indexOf(deleteLine), greaterThan(cleanupIndex));
+      // Not for analyze only nor with --no-cleanup.
+      for (var args in ['--analyze', '--no-cleanup']) {
+        var out = await _runCiDryRun(path, args);
+        expect(out, isNot(contains(cleanupLine)), reason: args);
+        expect(out, isNot(contains(deleteLine)), reason: args);
+      }
+      // An existing build/ folder is kept.
+      await buildDir.create();
+      try {
+        var out = await _runCiDryRun(path, '');
+        expect(out, contains(cleanupLine));
+        expect(out, isNot(contains(deleteLine)));
+      } finally {
+        await buildDir.delete(recursive: true);
+      }
+    }, timeout: timeout);
+
     test('no-fatal-warnings', () async {
       var path = await _createPackage('no_fatal_warnings');
       List<String> analyzeLines(String out) => LineSplitter.split(

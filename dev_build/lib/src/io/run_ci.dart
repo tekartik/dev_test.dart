@@ -77,6 +77,12 @@ Future<void> runCiMain(List<String> arguments) async {
       negatable: false,
     )
     ..addFlag('no-build', help: 'No build performed', negatable: false)
+    ..addFlag(
+      'no-cleanup',
+      help:
+          'No cleanup after the tests and the build (\'tool/dev_build_cleanup.dart\' not run, the build/ folder they created is kept)',
+      negatable: false,
+    )
     ..addFlag('no-pub-get', help: 'No pub get first', negatable: false)
     ..addFlag('vm-test', help: 'VM test only', negatable: false)
     ..addFlag('no-vm-test', help: 'No VM test', negatable: false)
@@ -208,6 +214,7 @@ Future<void> runCiMain(List<String> arguments) async {
   var noAnalyze = result['no-analyze'] as bool;
   var noFatalWarnings = result.flag('no-fatal-warnings');
   var noBuild = result['no-build'] as bool;
+  var noCleanup = result.flag('no-cleanup');
   var noPubGet = result['no-pub-get'] as bool;
   var vmTestOnly = result.flag('vm-test');
   var noVmTest = result['no-vm-test'] as bool;
@@ -264,6 +271,7 @@ Future<void> runCiMain(List<String> arguments) async {
     noAnalyze: noAnalyze,
     noFatalWarnings: noFatalWarnings,
     noBuild: noBuild,
+    noCleanup: noCleanup,
     noPubGet: noPubGet,
     noVmTest: noVmTest,
     vmTestOnly: vmTestOnly,
