@@ -22,7 +22,7 @@ Without a path the current directory is used. Several paths can be given.
 | `--no-test` | `noTest` | skip tests |
 | `--no-build` | `noBuild` | skip the builds |
 | `--no-web-build` | `noWebBuild` | skip the web build (`flutter build web`, `webdev build` and its activation), the other builds run |
-| `--no-cleanup` | `noCleanup` | after the tests and the build, do not run `tool/dev_build_cleanup.dart` nor delete the `build/` folder they created |
+| `--no-cleanup` | `noCleanup` | after the tests and the build, do not run `tool/dev_build_cleanup.dart` nor delete the `build/` and `.dart_tool/flutter_build/` folders they created |
 | `--pub-get` | `pubGetOnly` | only `pub get` |
 | `--pub-upgrade` | `pubUpgradeOnly` | only `pub upgrade` |
 | `--pub-downgrade` | `pubDowngradeOnly` | only `pub downgrade` |
@@ -74,7 +74,7 @@ dart test --platform chrome [--compiler dart2js --compiler dart2wasm]   # build_
 dart test --platform node --compiler dart2js                            # build_node_compilers
 dart pub global run webdev build   # build_web_compilers + build_runner + web/index.html
 dart run tool/dev_build_cleanup.dart # when found, tests or build on, unless --no-cleanup
-# then build/ is deleted when created by the steps above, unless --no-cleanup
+# then build/ and .dart_tool/flutter_build/ are deleted when created by the steps above, unless --no-cleanup
 ```
 
 Flutter package:
@@ -87,7 +87,7 @@ dart run tool/dev_build_setup.dart # when found, tests or build on
 flutter test --no-pub [<testOptions>]
 flutter build web --no-pub         # web/index.html + lib/main.dart present
 dart run tool/dev_build_cleanup.dart # when found, tests or build on, unless --no-cleanup
-# then build/ is deleted when created by the steps above, unless --no-cleanup
+# then build/ and .dart_tool/flutter_build/ are deleted when created by the steps above, unless --no-cleanup
 ```
 
 `--fix`:

@@ -21,8 +21,8 @@ Future<void> _runCi(String path, String args) async {
 void main() {
   test('run_ci cleanup', () async {
     // No dependencies (an offline pub get) and no tests, the build step is
-    // on: the setup creates build/, the cleanup script tells if it still
-    // exists.
+    // on: the setup creates build/ and .dart_tool/flutter_build/ (as a
+    // flutter build), the cleanup script tells if build/ still exists.
     var path = join(_topDir, 'package');
     if (Directory(path).existsSync()) {
       await Directory(path).delete(recursive: true);
@@ -37,9 +37,11 @@ environment:
 import 'dart:io';
 
 void main() {
-  File('build/output.txt')
-    ..createSync(recursive: true)
-    ..writeAsStringSync('built');
+  for (var dir in ['build', '.dart_tool/flutter_build']) {
+    File('\$dir/output.txt')
+      ..createSync(recursive: true)
+      ..writeAsStringSync('built');
+  }
 }
 ''');
     await File(join(path, 'tool', 'dev_build_cleanup.dart')).writeAsString('''
@@ -50,22 +52,32 @@ void main() {
 }
 ''');
     var buildDir = Directory(join(path, 'build'));
+    var flutterBuildDir = Directory(join(path, '.dart_tool', 'flutter_build'));
     var cleanupFile = File(join(path, 'cleanup.txt'));
 
-    // build/ created by the run: deleted after the cleanup script.
+    // build/ and .dart_tool/flutter_build/ created by the run: deleted after
+    // the cleanup script, not the rest of .dart_tool/.
     await _runCi(path, '');
     expect(cleanupFile.readAsStringSync(), 'build: true');
     expect(buildDir.existsSync(), isFalse);
+    expect(flutterBuildDir.existsSync(), isFalse);
+    expect(
+      File(join(path, '.dart_tool', 'package_config.json')).existsSync(),
+      isTrue,
+    );
 
-    // --no-cleanup: no cleanup script, build/ kept.
+    // --no-cleanup: no cleanup script, build/ and .dart_tool/flutter_build/
+    // kept.
     await cleanupFile.delete();
     await _runCi(path, '--no-cleanup');
     expect(cleanupFile.existsSync(), isFalse);
     expect(File(join(buildDir.path, 'output.txt')).existsSync(), isTrue);
+    expect(File(join(flutterBuildDir.path, 'output.txt')).existsSync(), isTrue);
 
-    // build/ existing before the run: kept.
+    // build/ and .dart_tool/flutter_build/ existing before the run: kept.
     await _runCi(path, '');
     expect(cleanupFile.readAsStringSync(), 'build: true');
     expect(File(join(buildDir.path, 'output.txt')).existsSync(), isTrue);
+    expect(File(join(flutterBuildDir.path, 'output.txt')).existsSync(), isTrue);
   }, timeout: const Timeout(Duration(minutes: 4)));
 }

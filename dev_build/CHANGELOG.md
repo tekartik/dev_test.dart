@@ -10,6 +10,9 @@
 * The `dart pub global` lock (concurrent activations) is a `GlobalLock` of synchronized 3.6.0, its lock file taken over
   10 seconds after its holder died (heartbeat), instead of a temp lock file only considered stale 5 minutes after a crash
 * Requires synchronized 3.6.0
+* `run_ci` cleanup also deletes the `.dart_tool/flutter_build/` folder the tests and the build created (flutter build
+  cache): deleting `build/` alone made the next `flutter build` of the same app fail (`build/native_assets/<platform>`
+  not found), i.e. a package building another one's app on CI
 
 ## 1.2.0
 

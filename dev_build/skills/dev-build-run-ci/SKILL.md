@@ -88,9 +88,10 @@ dart run dev_build:run_ci            # same steps from the command line
   linux; `webBuildOnly` (`--web-build`) only runs it.
 * Cleanup, after the tests and the build (on failure too), to free space on
   CI: `dart run tool/dev_build_cleanup.dart` when found (errors reported and
-  ignored), then the `build/` folder is deleted when they created it (one
-  existing before the setup is kept). `noCleanup` (`--no-cleanup`) skips
-  both.
+  ignored), then the `build/` and `.dart_tool/flutter_build/` (flutter build
+  cache, the next `flutter build` fails without `build/`) folders are deleted
+  when they created them (one existing before the setup is kept).
+  `noCleanup` (`--no-cleanup`) skips both.
 * A `dart_test.yaml` `platforms:` list restricts the platforms above,
   `compilers:` (`dart2js`, `dart2wasm`) adds `--compiler` for browser runs.
 

@@ -172,10 +172,14 @@ final devBuildSetupPath = join('tool', 'dev_build_setup.dart');
 /// space on a CI running several packages.
 final devBuildCleanupPath = join('tool', 'dev_build_cleanup.dart');
 
-/// Top level folders of a package deleted after the tests and the build when
-/// they created them (missing before [devBuildSetupPath] is looked for),
-/// unless [PackageRunCiOptions.noCleanup].
-const runCiCleanupTopDirs = ['build'];
+/// Folders of a package (posix paths relative to its root) deleted after the
+/// tests and the build when they created them (missing before
+/// [devBuildSetupPath] is looked for), unless [PackageRunCiOptions.noCleanup].
+///
+/// `.dart_tool/flutter_build` (the flutter build cache) goes with `build/`:
+/// kept alone, the next `flutter build` of the app fails
+/// (`build/native_assets/<platform>` not found).
+const runCiCleanupDirs = ['build', '.dart_tool/flutter_build'];
 
 /// Package run ci.
 Future<void> packageRunCiImpl(
@@ -768,27 +772,33 @@ class SinglePackageCiRunner {
     }
   }
 
-  /// The [runCiCleanupTopDirs] missing when [prepareCleanup] was called.
-  List<String>? _cleanupMissingTopDirs;
+  /// The [runCiCleanupDirs] missing when [prepareCleanup] was called.
+  List<String>? _cleanupMissingDirs;
 
-  /// Record which [runCiCleanupTopDirs] are missing before the tests and the
+  /// The native path of [dir], one of [runCiCleanupDirs].
+  String _cleanupDirPath(String dir) => joinAll([path, ...dir.split('/')]);
+
+  /// Record which [runCiCleanupDirs] are missing before the tests and the
   /// build (and [devBuildSetup]), the ones then created are deleted by
   /// [cleanup].
   void prepareCleanup() {
     if (isWorkspaceRoot || options.noCleanup) {
       return;
     }
-    _cleanupMissingTopDirs = runCiCleanupTopDirs
+    _cleanupMissingDirs = runCiCleanupDirs
         .where(
           (dir) =>
-              FileSystemEntity.typeSync(join(path, dir), followLinks: false) ==
+              FileSystemEntity.typeSync(
+                _cleanupDirPath(dir),
+                followLinks: false,
+              ) ==
               FileSystemEntityType.notFound,
         )
         .toList();
   }
 
   /// Run `tool/dev_build_cleanup.dart` when found ([devBuildCleanupPath]), then
-  /// delete the [runCiCleanupTopDirs] created since [prepareCleanup], unless
+  /// delete the [runCiCleanupDirs] created since [prepareCleanup], unless
   /// [PackageRunCiOptions.noCleanup].
   ///
   /// Its errors are reported and ignored.
@@ -806,17 +816,17 @@ class SinglePackageCiRunner {
         stderr.writeln('(ignored) $devBuildCleanupPath failed: $e');
       }
     }
-    var missingTopDirs = _cleanupMissingTopDirs;
-    _cleanupMissingTopDirs = null;
-    if (missingTopDirs == null) {
+    var missingDirs = _cleanupMissingDirs;
+    _cleanupMissingDirs = null;
+    if (missingDirs == null) {
       return;
     }
-    for (var dir in missingTopDirs) {
+    for (var dir in missingDirs) {
       if (options.dryRun) {
         stdout.writeln('# Delete $dir/ if created');
         continue;
       }
-      var dirPath = join(path, dir);
+      var dirPath = _cleanupDirPath(dir);
       if (isDirectoryNotLinkSynk(dirPath)) {
         stdout.writeln('# Cleanup: delete $dir/ (created)');
         try {

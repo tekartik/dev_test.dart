@@ -207,6 +207,8 @@ compilers:
       // tool\dev_build_cleanup.dart on windows.
       var cleanupLine = '\$ dart run ${join('tool', 'dev_build_cleanup.dart')}';
       var deleteLine = '# Delete build/ if created';
+      var deleteFlutterBuildLine =
+          '# Delete .dart_tool/flutter_build/ if created';
       var lines = LineSplitter.split(await _runCiDryRun(path, '')).toList();
       var cleanupIndex = lines.indexOf(cleanupLine);
       expect(cleanupIndex, isNot(-1));
@@ -216,11 +218,16 @@ compilers:
         lessThan(cleanupIndex),
       );
       expect(lines.indexOf(deleteLine), greaterThan(cleanupIndex));
+      expect(
+        lines.indexOf(deleteFlutterBuildLine),
+        greaterThan(lines.indexOf(deleteLine)),
+      );
       // Not for analyze only nor with --no-cleanup.
       for (var args in ['--analyze', '--no-cleanup']) {
         var out = await _runCiDryRun(path, args);
         expect(out, isNot(contains(cleanupLine)), reason: args);
         expect(out, isNot(contains(deleteLine)), reason: args);
+        expect(out, isNot(contains(deleteFlutterBuildLine)), reason: args);
       }
       // An existing build/ folder is kept.
       await buildDir.create();
