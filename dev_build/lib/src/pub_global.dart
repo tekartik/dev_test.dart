@@ -1,7 +1,9 @@
-import 'package:path/path.dart';
+import 'dart:async';
+
 import 'package:process_run/shell_run.dart';
 import 'package:process_run/stdio.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:synchronized/global_lock.dart';
 import 'package:synchronized/synchronized.dart';
 
 /// The activated packages, listed once per isolate.
@@ -9,13 +11,17 @@ import 'package:synchronized/synchronized.dart';
 /// A future so that concurrent callers share the same `dart pub global list`.
 Future<List<String>>? _installedGlobalPackages;
 
-/// Serializes the callers of this isolate before the lock file, which polls.
+/// Serializes the callers of this isolate before the global lock, which
+/// polls.
 final _pubGlobalIsolateLock = Lock();
 
-/// Older locks are considered stale (i.e. killed process).
+/// The [GlobalLock] shared by the isolates and processes of the machine.
+const _pubGlobalLockName = 'dev_build_pub_global';
+
+/// After this wait for the global lock, [action] runs anyway.
 const _pubGlobalLockTimeout = Duration(minutes: 5);
 
-/// Run [action] holding a lock file shared by all isolates and processes.
+/// Run [action] holding a lock shared by all isolates and processes.
 ///
 /// Concurrent `dart pub global activate` of the same package fail (exit code
 /// 66) when building its executables snapshot at the same time, which happens
@@ -23,43 +29,23 @@ const _pubGlobalLockTimeout = Duration(minutes: 5);
 ///
 /// Not reentrant: [action] must not call it again.
 Future<T> _pubGlobalLock<T>(Future<T> Function() action) =>
-    _pubGlobalIsolateLock.synchronized(() => _pubGlobalFileLock(action));
+    _pubGlobalIsolateLock.synchronized(() => _pubGlobalSharedLock(action));
 
-/// The lock file part of [_pubGlobalLock], shared with other isolates and
-/// processes.
-Future<T> _pubGlobalFileLock<T>(Future<T> Function() action) async {
-  var lockFile = File(
-    join(Directory.systemTemp.path, 'dev_build_pub_global.lock'),
-  );
-  var sw = Stopwatch()..start();
-  var locked = false;
-  while (true) {
-    try {
-      await lockFile.create(exclusive: true);
-      locked = true;
-      break;
-    } on FileSystemException catch (_) {
-      if (sw.elapsed > _pubGlobalLockTimeout) {
-        // Proceed anyway
-        break;
-      }
-      try {
-        if (DateTime.now().difference(lockFile.lastModifiedSync()) >
-            _pubGlobalLockTimeout) {
-          await lockFile.delete();
-        }
-      } catch (_) {}
-      await Future<void>.delayed(const Duration(milliseconds: 250));
-    }
+/// The machine part of [_pubGlobalLock], shared with other isolates and
+/// processes (released by the system when a holder dies).
+Future<T> _pubGlobalSharedLock<T>(Future<T> Function() action) async {
+  GlobalLockHandle? handle;
+  try {
+    handle = await GlobalLock(
+      _pubGlobalLockName,
+    ).acquire(timeout: _pubGlobalLockTimeout);
+  } on TimeoutException catch (_) {
+    // Proceed anyway
   }
   try {
     return await action();
   } finally {
-    if (locked) {
-      try {
-        await lockFile.delete();
-      } catch (_) {}
-    }
+    await handle?.release();
   }
 }
 

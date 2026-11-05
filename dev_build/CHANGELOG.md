@@ -1,4 +1,4 @@
-## 1.2.1
+## 1.2.1+1
 
 * `run_ci` cleans up after the tests and the build (on failure too), i.e. to free space on a CI running several
   packages: it runs `tool/dev_build_cleanup.dart` when found, then deletes the `build/` folder they created (an existing
@@ -7,6 +7,9 @@
   activation), the other builds run, i.e. `--build --no-web-build` on windows and macos when the web build is done on
   linux. `--web-build` (`webBuildOnly`) only runs the web build. `--build` runs all the builds available, only the web
   one for now
+* The `dart pub global` lock (concurrent activations) is a `GlobalLock` of synchronized 3.6.0, its lock file taken over
+  10 seconds after its holder died (heartbeat), instead of a temp lock file only considered stale 5 minutes after a crash
+* Requires synchronized 3.6.0
 
 ## 1.2.0
 
