@@ -4,6 +4,7 @@
   the `package:test` order (tearDowns inner first and in reverse order, even after a failure)
 * Documentation: README getting started (the test dependency), platforms, the console menu and its limits, common
   mistakes; doc/ and example/main_menu.dart (passes the arguments) up to date; skill updated
+* Requires `dev_build` 1.2.2
 
 ## 1.0.4
 
