@@ -64,7 +64,7 @@ Future<List<String>?> pathPubspecGetDependencyLines(
           break;
         }
       } else if (line.startsWith('  $dependency:')) {
-        headerLine = line..trim();
+        headerLine = line.trim();
         foundHeader = true;
       }
     }

@@ -56,7 +56,9 @@ void main(List<String> arguments) {
   listed as `N menu name` and has to be entered first (`N`), so a script
   with a single `menu('main', ...)` starts with `0` to reach its items.
 * Extra command line arguments are executed as if typed:
-  `dart run tool/menu.dart 0 2 .` runs item 0, then item 2, then `.`.
+  `dart run tool/menu.dart 0 2 .` runs item 0, then item 2, then `.`. A
+  `prompt` takes the next argument as its answer first
+  (`dart run tool/menu.dart 1 Alice .`).
   `-h` prints the console help, `-v` echoes each command.
 * `write(message)` / `writeln(message)` print through the active presenter;
   use them instead of `print` inside menu bodies. `await prompt('Name')`
@@ -262,6 +264,12 @@ void main() {
 * Using `print` instead of `write` inside items: it bypasses the presenter
   (works in a console, lost elsewhere).
 * Forgetting `.` in scripted invocations (`dart run tool/menu.dart 0`): the
-  process keeps waiting for input after running item 0.
+  process keeps waiting for input after running item 0 (it exits once
+  stdin is closed).
+* Piping the answers (`printf '0\nAlice\n' | dart run tool/menu.dart`):
+  lines arriving together are all read as menu lines before the item
+  prompts (`errorValue: Alice`), and a `prompt` still waiting when the
+  input ends never completes: the script exits with code 0 in the middle
+  of the item. Pass the answers as arguments instead.
 * Committing `solo_item`/`solo_menu`/`devWrite`: they are meant for a
   temporary debug session.

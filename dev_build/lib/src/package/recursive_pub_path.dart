@@ -88,11 +88,11 @@ Future<bool> _checkProjectHasTransitiveDependencies(
     try {
       await Shell(workingDirectory: dir).run('$dartOrFlutter pub get');
 
-      packageConfigMap = await pathGetPubspecYamlMap(dir);
+      packageConfigMap = await pathGetPackageConfigMap(dir);
     } catch (e) {
       stderr.writeln('Error: $e failed to get package-config.yaml');
+      return false;
     }
-    return false;
   }
   if (packageConfigGetPackages(
     packageConfigMap,
@@ -139,8 +139,9 @@ Future<bool> _checkProjectMatch(
   return false;
 }
 
-/// if [forceRecursive] is true, we folder going deeper even if the current
-/// path is a dart project
+/// The folders of [dirs] that are pub packages matching [dependencies] and
+/// [filterDartProjectOptions] (see [recursivePubPath]), sub folders are not
+/// scanned.
 ///
 /// If [readConfig] is true, it will read the config file to get the dependencies
 Future<List<String>> filterPubPath(
@@ -169,18 +170,27 @@ Future<List<String>> filterPubPath(
   return list;
 }
 
-/// if [forceRecursive] is true, we folder going deeper even if the current
-/// path is a dart project
+/// The pub packages found in [dirs] and below them ([dirs] included), sorted,
+/// without duplicates.
 ///
-/// if [ignoreSdkConstraints] is true, it lists the project even if not compatible.
+/// A folder is a package when its `pubspec.yaml` has an `environment: sdk:`
+/// constraint matching the running dart, or [filterDartProjectOptions]
+/// (`ignoreSdkConstraints`, `minSdk`, `maxSdk`).
 ///
 /// if [dependencies] is specified, it will only list the project that contains
 /// such dependency, use either dependency like `path`, or 'direct:path', 'dev:path' or 'override:path'.
+/// [readConfig] also matches the transitive dependencies (read in the package
+/// config, after running `pub get` when needed).
 ///
 /// Hidden folders, `build`, `deploy`, `node_modules` and the `test` folder of
-/// a project are not scanned.
+/// a project are not scanned. Links are followed (reported by their target
+/// path), a link to a folder being scanned or above it is not.
 ///
-/// Returns the list of valid pub folder, including me
+/// ```dart
+/// for (var path in await recursivePubPath(['.'])) {
+///   print(path);
+/// }
+/// ```
 Future<List<String>> recursivePubPath(
   List<String> dirs, {
   List<String>? dependencies,
@@ -231,10 +241,13 @@ Future<List<String>> scanPubPath(
   var rootPubDirs = <String>[];
   var subPubDirs = <String>[];
 
+  /// [parents] are the absolute normalized paths of the folders being
+  /// scanned above [dir], [dir] included.
   Future<void> scan(
     String dir,
     PubPathScanHook? hook,
     List<String> pubDirs,
+    List<String> parents,
   ) async {
     var scanDir = hook == null ? const PubPathScanDir() : await hook(dir);
     if (scanDir == null) {
@@ -252,13 +265,22 @@ Future<List<String>> scanPubPath(
     if (recursive) {
       await Future.wait([
         for (final subDir in await _listSubDirs(dir))
-          scan(subDir, scanDir.hook ?? hook, subPubDirs),
+          if (normalize(absolute(subDir)) case var subPath
+              // A link to a folder being scanned or above: a loop.
+              when !parents.any(
+                (parent) =>
+                    equals(subPath, parent) || isWithin(subPath, parent),
+              ))
+            scan(subDir, scanDir.hook ?? hook, subPubDirs, [
+              ...parents,
+              subPath,
+            ]),
       ]);
     }
   }
 
   for (final dir in dirs) {
-    await scan(dir, hook, rootPubDirs);
+    await scan(dir, hook, rootPubDirs, [normalize(absolute(dir))]);
   }
   return removeDuplicates([...rootPubDirs, ...subPubDirs])..sort();
 }

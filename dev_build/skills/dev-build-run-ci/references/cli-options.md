@@ -33,7 +33,7 @@ Without a path the current directory is used. Several paths can be given.
 | `--web-build` | `webBuildOnly` | only the web build |
 | `--fix` | `fixOnly` | `dart format` then `dart fix --apply` |
 | `--vm-test` | `vmTestOnly` | tests on the VM only |
-| `--no-vm-test` | `noVmTest` | no VM tests |
+| `--no-vm-test` | `noVmTest` | no VM tests (nothing for a Dart package without web nor node support) |
 | `--no-browser-test` | `noBrowserTest` | no chrome tests |
 | `--chrome-js-test` | `chromeJsTestOnly` | chrome with dart2js only |
 | `--no-node-test` | `noNodeTest` | no node tests |
@@ -43,7 +43,7 @@ Without a path the current directory is used. Several paths can be given.
 | `-i`, `--ignore-errors` | `ignoreErrors` | continue with the next package on failure |
 | `--recursive` / `--no-recursive` | `recursive` | default on in the CLI |
 | `-j`, `--concurrency <n>` | `poolSize` | packages run in parallel (default 1) |
-| `--ignore-sdk-constraints` | `FilterDartProjectOptions(ignoreSdkConstraints: true)` | include packages whose sdk constraint does not match |
+| `--ignore-sdk-constraints` | `FilterDartProjectOptions(ignoreSdkConstraints: true)` | include packages whose sdk constraint does not match (listed by `--print-path`/`--prj-info`, not run) |
 | `--min-sdk '<constraint>'` | `FilterDartProjectOptions(minSdk:)` | only packages whose `sdk` lower bound matches |
 | `--max-sdk '<constraint>'` | `FilterDartProjectOptions(maxSdk:)` | only packages whose `sdk` upper bound matches |
 | `--prj-info` | `prjInfo` | print absolute path, sdk constraint, `flutter` tag |
@@ -106,8 +106,9 @@ dart fix --apply
 * A folder is a package when it has a `pubspec.yaml` with an
   `environment: sdk:` constraint matching the running `dart` (or the
   `--min-sdk`/`--max-sdk`/`--ignore-sdk-constraints` filter).
-* Hidden folders, `build`, `deploy`, `node_modules` are not visited.
-  Symbolic links are followed.
+* Hidden folders, `build`, `deploy`, `node_modules` and the `test` folder
+  of a package are not visited. Symbolic links are followed, except a link
+  to a folder being scanned or above it.
 * Packages named `_something` only get `pub get`.
 * A pub workspace root gets a single `pub get`; its members are then run
   without repeating it.

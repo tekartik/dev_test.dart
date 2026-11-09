@@ -22,7 +22,7 @@ extension DartPackageIoCompileExeExt on DartPackageIo {
   Future<Version?> _getVersion(String exe) async {
     try {
       var version = parseFirstVersion(
-        (await run('$exe --version')).outText.trim(),
+        (await run('${shellArgument(exe)} --version')).outText.trim(),
       );
       return version;
     } catch (_) {}

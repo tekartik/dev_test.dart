@@ -89,7 +89,11 @@ Future<void> main() async {
 * `DartPackageReader.pubspecString(content)` /
   `DartPackageReader.pubspecYaml(map)` wrap a map with `getVersion()` and
   `getDependencyObject(dependency: 'path')` (returns `{'path': <spec>}` or
-  null). Use it for in-memory or test content.
+  null; `kind: PubDependencyKind.dev` for `dev_dependencies`). Use it for
+  in-memory or test content.
+* `VersionBoundaries.parse` reads `>=`, `>`, `<=`, `<`, `^` and a pinned
+  version, spaces allowed around the operators (`>= 3.0.0 < 4.0.0`); what
+  it cannot read is ignored (`any` gives no bound).
 
 ### Locating packages
 
@@ -103,9 +107,11 @@ Future<void> main() async {
 * `await recursivePubPath(['.'])` lists every package folder under the
   given folders, including the folders themselves, sorted and without
   duplicates. Hidden folders, `build`, `deploy`, `node_modules` are not
-  visited; links are followed. `dependencies: ['direct:sembast']` keeps
-  only packages depending on it; `readConfig: true` also matches
-  transitive dependencies through `package_config.json`.
+  visited; links are followed (reported by their target path; a link to a
+  folder being scanned or above it is skipped). `dependencies:
+  ['direct:sembast']` keeps only packages depending on it; `readConfig:
+  true` also matches transitive dependencies through `package_config.json`
+  (it runs `pub get` in a package that has none).
 * `iteratePubPath(['.'], onPubPath: (path) => true, options:
   IteratePubPathOptions(recursive:, dependencies:, readConfig:,
   filterDartProjectOptions:))` scans lazily; return `false` from the
@@ -135,7 +141,9 @@ Future<void> main() async {
 * `await pathPubspecAddDependency(dir, 'sembast', dependencyLines:
   ['path: ../sembast'])` inserts under `dependencies:` when absent (true
   when added); `pathPubspecRemoveDependency(dir, name)` removes it;
-  `pathPubspecGetDependencyLines(dir, name)` returns the lines or null.
+  `pathPubspecGetDependencyLines(dir, name)` returns the lines or null
+  (`['name: ^1.0.0']` for a one line dependency, the lines below `name:`
+  without their indentation otherwise).
   Text based: it does not reorder or reformat the file.
 * `DartPackageIo(dir).compiledExe(script: 'bin/main.dart', minVersion:
   Version(1, 2, 0))` runs `dart compile exe` into
@@ -180,6 +188,11 @@ Preferred over `dart pub global activate`.
 * `checkAndActivatePackage('webdev')` is the older helper (activate if
   not listed, no version check); `checkAndActivateWebdev()` also upgrades
   an old webdev.
+* `checkAndPubGlobalActivatePackage`, `checkAndActivateWebdev` and
+  `deactivatePackage` hold a lock shared by the isolates and processes of
+  the machine (concurrent activations of one package fail with exit code
+  66 on a fresh pub cache); `PubGlobalPackageService` and
+  `checkOrPubActivateHostedPackage` do not: do not run them concurrently.
 
 ### Platform
 

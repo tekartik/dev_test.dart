@@ -16,7 +16,8 @@ import 'package/recursive_pub_path.dart';
 import 'pub_global.dart';
 import 'run_ci_config.dart';
 
-/// Options for [packageRunCi]
+/// An empty file at this path (relative to a package) makes [packageRunCi]
+/// skip the package, unless [PackageRunCiOptions.noOverride].
 var skipRunCiFilePath = join('.local', '.skip_run_ci');
 
 Future main(List<String> arguments) async {
@@ -108,13 +109,21 @@ Future<List<String>> filterTopLevelDartDirs(String path) async {
 /// use [packageRunCi] instead
 Future<void> ioPackageRunCi(String path) => packageRunCi(path);
 
-/// Run basic tests on dart/flutter package
+/// Runs the CI steps (pub get, format check, analyze, tests, web build) of
+/// the dart or flutter package in [path], as the `run_ci` executable does.
 ///
-/// if [recursive] is true, it also find dart/flutter package recursively
-/// [poolSite] allow concurrent testing (default to 4)
+/// [options] selects the steps (`analyzeOnly`, `noTest`, `vmTestOnly`...),
+/// the `no...`, [verbose] and [pubUpgrade] parameters are shortcuts used when
+/// [options] is null.
 ///
+/// if [recursive] (or [PackageRunCiOptions.recursive]) is true, it also runs
+/// the packages found below [path] (false by default, unlike the
+/// executable), [poolSize] at a time (default to 4).
 ///
-/// ```
+/// Throws a `ShellException` when a step fails, unless
+/// [PackageRunCiOptions.ignoreErrors].
+///
+/// ```dart
 /// // run CI (format, analyze, test) on the current folder
 /// await packageRunCi('.');
 /// ```
@@ -190,7 +199,12 @@ Future<void> packageRunCiImpl(
 }) async {
   if (recursive) {
     await pubPathsRunActions(
-      await runCiRecursivePubPath([path]),
+      await runCiRecursivePubPath(
+        [path],
+        options: IteratePubPathOptions(
+          filterDartProjectOptions: options.filterDartProjectOptions,
+        ),
+      ),
       poolSize: poolSize,
       action: (dir) async {
         await shellStdioLinesGrouper.runZoned(() async {
@@ -914,6 +928,12 @@ class SinglePackageCiRunner {
               dartTestMap =
                   (loadYaml(await dartTestFile.readAsString()) as Map);
             } catch (_) {}
+          }
+          // Every platform excluded (--no-vm-test or --chrome-js-test on a
+          // package without web nor node support): nothing to run, the
+          // config would fall back to a plain `dart test`, the vm tests.
+          if (platforms.isEmpty && dartTestMap == null) {
+            return;
           }
           var testConfig = buildTestConfig(
             platforms: platforms,

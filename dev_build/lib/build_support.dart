@@ -1,3 +1,12 @@
+/// Helpers for build and CI scripts: read `pubspec.yaml` and the package
+/// config (`pathGetPubspecYamlMap`, `pubspecYamlSupportsFlutter`,
+/// `pathGetResolvedPackagePath`), sdk constraints (`VersionBoundaries`), find
+/// a package root (`isPubPackageRoot`), install pub tools
+/// (`checkAndInstallCliPackage` with `dart install`,
+/// `checkAndPubGlobalActivatePackage`) and create projects
+/// (`dartCreateProject`, `flutterCreateProject`). io only.
+library;
+
 export 'package:dev_build/src/mixin/package.dart'
     show
         pubspecYamlHasAnyDependencies,

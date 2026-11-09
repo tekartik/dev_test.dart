@@ -1,3 +1,20 @@
+## 1.2.2
+
+* `run_ci --recursive` (the default) applies `--ignore-sdk-constraints`, `--min-sdk` and `--max-sdk`
+  (`PackageRunCiOptions.filterDartProjectOptions`) when selecting the packages, as `--no-recursive` did
+* `run_ci --no-vm-test` and `--chrome-js-test` no longer run the vm tests of a Dart package without web nor node
+  support (and without `dart_test.yaml`)
+* `recursivePubPath` and `run_ci --recursive` no longer loop forever on a link to a parent folder
+* `recursivePubPath(readConfig: true)` finds the transitive dependencies of a package that had no `pub get` yet
+* `VersionBoundaries`: `>=0.5.0 <1.0.0` is no longer written `^0.5.0` (`toString`, `toYamlString`, the
+  `dart pub global activate` constraint of `PubGlobalHostedPackageInstall`); `parse` accepts spaces around the
+  operators (`>= 3.0.0 < 4.0.0`), such a pubspec is no longer skipped by `run_ci`
+* `getDependencyObject` and `pubspecYamlGetDependencyObject` honour `kind`
+* `pathPubspecGetDependencyLines` returns a single dependency line without its indentation
+* `compiledExe` works in a path with spaces (the version was never read, the exe compiled on every call)
+* Documentation: README getting started, libraries, platforms and common mistakes, example/example.md and doc/ up
+  to date, dartdoc of the main libraries, packageRunCi, PackageRunCiOptions and recursivePubPath, skills updated
+
 ## 1.2.1+1
 
 * `run_ci` cleans up after the tests and the build (on failure too), i.e. to free space on a CI running several

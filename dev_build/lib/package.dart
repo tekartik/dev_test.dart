@@ -1,3 +1,17 @@
+/// Run the CI steps of a package or of a tree (`packageRunCi`,
+/// `PackageRunCiOptions`), find the packages of a folder tree
+/// (`recursivePubPath`, `iteratePubPath`, `recursivePackagesRun`) and read or
+/// bump a package version (`DartPackageIo`). io only.
+///
+/// ```dart
+/// import 'package:dev_build/package.dart';
+///
+/// Future<void> main() async {
+///   await packageRunCi('.');
+/// }
+/// ```
+library;
+
 export 'package:pub_semver/pub_semver.dart';
 
 export 'src/mixin/package.dart'

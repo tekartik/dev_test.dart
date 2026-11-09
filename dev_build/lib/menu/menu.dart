@@ -1,3 +1,8 @@
+/// Declare a developer menu: `menu`, `item`, `enter`, `leave`, `write`,
+/// `prompt`. No `dart:io` dependency; in a console script import
+/// `package:dev_build/menu/menu_io.dart` and call `mainMenuConsole`.
+library;
+
 export 'package:dev_build/src/menu/menu.dart'
     show
         command,

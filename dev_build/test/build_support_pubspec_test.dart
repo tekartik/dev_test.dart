@@ -4,6 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:dev_build/build_support.dart';
+import 'package:dev_build/package.dart' show PubGlobalHostedPackageInstall;
 import 'package:dev_build/src/mixin/package.dart'
     show analysisOptionsSupportsNnbdExperiment;
 //import 'package:dev_build/src/package/package.dart';
@@ -177,6 +178,43 @@ environment:
         ).toString(),
         '^1.1.2',
       );
+      // ^0.x.y has its own upper bound.
+      for (var text in ['>=0.5.0 <1.0.0', '>=0.0.3 <1.0.0', '>=0.0.3 <0.1.0']) {
+        var boundaries = VersionBoundaries.parse(text);
+        expect(boundaries.toString(), text);
+        expect(boundaries.toShortString(), text);
+        expect(boundaries.toYamlString(), "'$text'");
+        expect(VersionBoundaries.parse(boundaries.toString()), boundaries);
+      }
+      expect(
+        PubGlobalHostedPackageInstall(
+          'dummy',
+          versionBoundaries: VersionBoundaries.parse('>=0.5.0 <1.0.0'),
+        ).activateArgs,
+        ['dummy', '>=0.5.0 <1.0.0'],
+      );
+      expect(VersionBoundaries.parse('>=0.5.0 <0.6.0').toString(), '^0.5.0');
+      // Spaces around the operators, as pub reads them.
+      for (var text in [
+        '>= 3.0.0 < 4.0.0',
+        '>=3.0.0<4.0.0',
+        '  >=3.0.0   <4.0.0 ',
+        '>=\t3.0.0 <4.0.0',
+      ]) {
+        expect(
+          VersionBoundaries.parse(text),
+          VersionBoundaries.parse('>=3.0.0 <4.0.0'),
+          reason: text,
+        );
+      }
+      expect(
+        VersionBoundaries.parse('>= 3.0.0'),
+        VersionBoundaries.parse('>=3.0.0'),
+      );
+      expect(
+        VersionBoundaries.parse('^ 1.2.3'),
+        VersionBoundaries.parse('^1.2.3'),
+      );
       expect(
         VersionBoundaries.versions(Version(1, 1, 2), null).toString(),
         '>=1.1.2',
@@ -323,6 +361,28 @@ environment:
         ),
         isEmpty,
       );
+    });
+
+    test('pathPubspecGetDependencyLines', () async {
+      var dir = join('.dart_tool', 'dev_build', 'test', 'dependency_lines');
+      await Directory(dir).create(recursive: true);
+      await File(join(dir, 'pubspec.yaml')).writeAsString('''
+name: dependency_lines
+environment:
+  sdk: ^3.12.0
+dependencies:
+  path: ^1.8.0
+  meta:
+    path: ../meta
+''');
+      // On a single line, with the dependency prefix.
+      expect(await pathPubspecGetDependencyLines(dir, 'path'), [
+        'path: ^1.8.0',
+      ]);
+      expect(await pathPubspecGetDependencyLines(dir, 'meta'), [
+        'path: ../meta',
+      ]);
+      expect(await pathPubspecGetDependencyLines(dir, 'test'), isNull);
     });
 
     group('package_config.json', () {

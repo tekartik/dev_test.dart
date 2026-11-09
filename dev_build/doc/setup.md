@@ -1,19 +1,18 @@
 ## Setup
 
 ### Stable
-```yaml
-dev_dependencies:
-  dev_build:
+
+```sh
+dart pub add --dev dev_build
 ```
 
-### Edge
+### Edge (git)
 
 ```yaml
 dev_dependencies:
   dev_build:
     git:
-      url: https://github.com/tekartik/dev_build.dart
+      url: https://github.com/tekartik/dev_test.dart
       path: dev_build
-      ref: develop
-    version: '>=0.13.3+1'
+    version: '>=1.2.0'
 ```

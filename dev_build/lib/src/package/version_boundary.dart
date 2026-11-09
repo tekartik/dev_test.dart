@@ -116,9 +116,7 @@ class VersionBoundaries {
     if (!min.include || max.include) {
       return false;
     }
-    if (Version(min.value.major + 1, 0, 0) == max.value) {
-      return true;
-    }
+    // ^0.x.y has its own upper bound (<0.(x+1).0 or <0.0.(y+1))
     if (min.value.major == 0) {
       if (min.value.minor == 0) {
         if (Version(min.value.major, min.value.minor, min.value.patch + 1) ==
@@ -192,9 +190,17 @@ class VersionBoundaries {
     }
   }
 
+  static final _operatorRegExp = RegExp(r'\s*([<>]=?|\^)\s*');
+  static final _spacesRegExp = RegExp(r'\s+');
+
   /// Parse
   static VersionBoundaries parse(String text) {
-    var parts = text.trim().split(' ');
+    // One part per operator, spaces allowed around it as pub does
+    // ('>= 3.0.0 < 4.0.0', '>=3.0.0<4.0.0').
+    var parts = text
+        .replaceAllMapped(_operatorRegExp, (match) => ' ${match[1]}')
+        .trim()
+        .split(_spacesRegExp);
     VersionBoundary? min;
     VersionBoundary? max;
     for (var part in parts) {

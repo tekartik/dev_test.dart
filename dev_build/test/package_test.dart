@@ -1,6 +1,7 @@
 @TestOn('vm')
 library;
 
+import 'package:dev_build/build_support.dart' show PubDependencyKind;
 import 'package:dev_build/package.dart';
 import 'package:test/test.dart';
 
@@ -27,5 +28,32 @@ dependencies:
         'git': {'url': 'git://github.com/dart-lang/git.git', 'ref': '1.0.0'},
       },
     });
+  });
+  test('getDependencyObject kind', () async {
+    var package = DartPackageReader.pubspecString('''
+name: dart_package_io
+dependencies:
+  path: any
+dev_dependencies:
+  test: any
+dependency_overrides:
+  path: ^1.8.0
+''');
+    expect(
+      package.getDependencyObject(
+        dependency: 'test',
+        kind: PubDependencyKind.dev,
+      ),
+      {'test': 'any'},
+    );
+    expect(package.getDependencyObject(dependency: 'test'), isNull);
+    expect(
+      package.getDependencyObject(
+        dependency: 'path',
+        kind: PubDependencyKind.override,
+      ),
+      {'path': '^1.8.0'},
+    );
+    expect(package.getDependencyObject(dependency: 'path'), {'path': 'any'});
   });
 }

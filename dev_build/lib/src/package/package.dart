@@ -62,7 +62,7 @@ extension DartPackageReaderExt on DartPackageReader {
     required String dependency,
     PubDependencyKind? kind,
   }) {
-    return pubspecYamlGetDependencyObject(pubspecYaml, dependency);
+    return pubspecYamlGetDependencyObject(pubspecYaml, dependency, kind: kind);
   }
 }
 
@@ -148,7 +148,7 @@ Model? pubspecYamlGetDependencyObject(
   String dependency, {
   PubDependencyKind? kind,
 }) {
-  var dependencies = pubspecYamlGetDependenciesMap(yaml);
+  var dependencies = pubspecYamlGetDependenciesMap(yaml, kind: kind);
   if (dependencies != null) {
     if (dependencies.containsKey(dependency)) {
       return Model.from({dependency: dependencies[dependency]});

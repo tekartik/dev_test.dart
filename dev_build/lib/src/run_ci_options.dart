@@ -1,6 +1,20 @@
 import 'package:dev_build/package.dart';
 
-/// Package run options
+/// The steps and settings of `packageRunCi`, one field per `run_ci` flag
+/// (`noTest` is `--no-test`, `analyzeOnly` is `--analyze`).
+///
+/// An "only" option (`formatOnly`, `analyzeOnly`, `testOnly`, `vmTestOnly`,
+/// `chromeJsTestOnly`, `buildOnly`, `webBuildOnly`, `pubGetOnly`,
+/// `pubUpgradeOnly`, `pubDowngradeOnly`, `fixOnly`) turns the other format,
+/// analyze, test and build steps off; `pub get` still runs unless
+/// [noPubGet].
+///
+/// ```dart
+/// await packageRunCi(
+///   '.',
+///   options: PackageRunCiOptions(recursive: true, analyzeOnly: true),
+/// );
+/// ```
 class PackageRunCiOptions {
   /// Package run ci options.
   PackageRunCiOptions({

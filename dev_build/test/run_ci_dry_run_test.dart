@@ -152,6 +152,58 @@ dependencies:
       ]);
     }, timeout: timeout);
 
+    test('no vm test, no other platform', () async {
+      // Neither web nor node, no dart_test.yaml: nothing left to run (not
+      // the vm tests).
+      var path = await _createPackage('no_vm_test');
+      expect(
+        _dartTestLines(await _runCiDryRun(path, '--test --no-vm-test')),
+        isEmpty,
+      );
+      expect(
+        _dartTestLines(await _runCiDryRun(path, '--chrome-js-test')),
+        isEmpty,
+      );
+      expect(_dartTestLines(await _runCiDryRun(path, '--test')), [
+        r'$ dart test --platform vm',
+      ]);
+    }, timeout: timeout);
+
+    test('sdk filter in recursive mode', () async {
+      var root = join(_topDir, 'sdk_filter');
+      var oldSdkPath = join(root, 'old_sdk');
+      await Directory(oldSdkPath).create(recursive: true);
+      await File(join(oldSdkPath, 'pubspec.yaml')).writeAsString('''
+name: old_sdk
+environment:
+  sdk: '>=2.0.0 <3.0.0'
+''');
+      await _createPackage(join('sdk_filter', 'new_sdk'));
+
+      /// The package paths printed by a recursive run (the default).
+      Future<String> printPaths(String args) async =>
+          (await Shell(verbose: false).run(
+            '${shellArgument(Platform.resolvedExecutable)} run'
+            ' ${shellArgument(join('bin', 'run_ci.dart'))}'
+            ' --print-path $args ${shellArgument(root)}',
+          )).outText;
+
+      var out = await printPaths('');
+      expect(out, contains('new_sdk'));
+      expect(out, isNot(contains('old_sdk')));
+      expect(
+        await printPaths('--ignore-sdk-constraints'),
+        allOf(contains('new_sdk'), contains('old_sdk')),
+      );
+      out = await printPaths('--min-sdk ${shellArgument('>=3.13.0')}');
+      expect(out, isNot(contains('new_sdk')));
+      expect(out, isNot(contains('old_sdk')));
+      expect(
+        await printPaths('--max-sdk ${shellArgument('<=3.0.0')}'),
+        allOf(contains('old_sdk'), isNot(contains('new_sdk'))),
+      );
+    }, timeout: timeout);
+
     test('chrome-js-test dart2js only', () async {
       var path = await _createPackage(
         'chrome_js_compilers',

@@ -76,9 +76,11 @@ dart run dev_build:run_ci            # same steps from the command line
   tool/dev_build_setup.dart` when found (i.e. to build a web worker script
   they need), errors reported and ignored.
 * Test: `flutter test --no-pub` for Flutter. For Dart, `dart test` is run
-  once per platform: `vm` always, `chrome` when `build_web_compilers` is a
-  dependency, `node` when `build_node_compilers` is a dependency and `node`
-  is installed. Skipped entirely when there is no `test/` folder.
+  once per platform: `vm` (unless `noVmTest`/`chromeJsTestOnly`), `chrome`
+  when `build_web_compilers` is a dependency, `node` when
+  `build_node_compilers` is a dependency and `node` is installed; nothing
+  when no platform is left. Skipped entirely when `test/` holds no
+  `_test.dart` file (in a sub folder too).
 * Build: `flutter build web --no-pub` when `web/index.html` and
   `lib/main.dart` exist; `dart pub global run webdev build` for a Dart
   package that depends on `build_web_compilers` + `build_runner` and has
@@ -110,7 +112,8 @@ dart run dev_build:run_ci            # same steps from the command line
   `noNpmInstall`.
 * `fixOnly` runs `dart format <dirs>` then `dart fix --apply` and stops.
 * `recursive: true` (`--recursive`, the CLI default; API default is
-  `false`) finds every package below `path`, links followed, and runs them
+  `false`) finds every package below `path`, links followed (not a link to
+  a folder being scanned or above it), and runs them
   through a pool of `poolSize` (default 4 in the API, `-j`/`--concurrency`
   default 1 in the CLI).
 * `ignoreErrors` (`--ignore-errors`, `-i`): a failing package is reported
@@ -121,9 +124,11 @@ dart run dev_build:run_ci            # same steps from the command line
   only prints the package path. `verbose` (`-v`).
 * `filterDartProjectOptions: FilterDartProjectOptions(minSdk:, maxSdk:,
   ignoreSdkConstraints:)` (`--min-sdk '>=3.0.0'`, `--max-sdk`,
-  `--ignore-sdk-constraints`) selects which packages are considered. By
-  default a package whose `environment: sdk:` does not match the running
-  `dart` is skipped.
+  `--ignore-sdk-constraints`) selects which packages are considered, in
+  recursive mode too. By default a package whose `environment: sdk:` does
+  not match the running `dart` is skipped; with the filter it is listed
+  (`printPath`, `prjInfo`) but still not run (`Unsupported sdk
+  boundaries`).
 * `noOverride` (`--no-override`) ignores `tool/run_ci_override.dart` and
   `.local/.skip_run_ci`.
 
@@ -132,7 +137,8 @@ dart run dev_build:run_ci            # same steps from the command line
 * `tool/run_ci_override.dart` in a package: run with `dart run` instead of
   the standard steps (use `noOverride`/`--no-override` from inside it or
   the run recurses). Use it for a package that needs custom steps.
-* `.local/.skip_run_ci` (empty file) skips the package in recursive runs.
+* `.local/.skip_run_ci` (empty file) skips the package (unless
+  `--no-override`).
   Create it with `run_ci config --skip-run-ci [<path>]`; git-ignore `.local`.
 * `dev_build_run_ci_config.yaml` (committed) filters its folder and sub
   folders in recursive runs: `include: [packages]` scans only these,

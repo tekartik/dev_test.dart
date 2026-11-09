@@ -254,6 +254,46 @@ void main() {
     ]);
   });
 
+  test('recursivePubPath link loop', () async {
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'link_loop_test');
+    await Directory(outDir).prepare();
+    for (var dir in ['a', 'b']) {
+      var file = File(join(outDir, dir, 'pkg_$dir', 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString(minPubspecYamlContent);
+    }
+    // a/sub/up -> a, a/to_b -> b, b/to_a -> a: each folder scanned once.
+    await Link(join(outDir, 'a', 'sub', 'up')).create('..', recursive: true);
+    await Link(join(outDir, 'a', 'to_b')).create(join('..', 'b'));
+    await Link(join(outDir, 'b', 'to_a')).create(join('..', 'a'));
+
+    expect(
+      await recursivePubPath([
+        join(outDir, 'a'),
+      ]).timeout(const Duration(seconds: 30)),
+      [join(absolute(outDir), 'b', 'pkg_b'), join(outDir, 'a', 'pkg_a')]
+        ..sort(),
+    );
+  });
+
+  test('recursivePubPath readConfig without pub get', () async {
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'read_config_test');
+    await Directory(outDir).prepare();
+    await Directory(outDir).create(recursive: true);
+    await File(
+      join(outDir, 'pubspec.yaml'),
+    ).writeAsString('$minPubspecYamlContent\ndependencies:\n  yaml: any\n');
+    // string_scanner is a dependency of yaml: found once pub get ran.
+    expect(
+      await recursivePubPath(
+        [outDir],
+        dependencies: ['string_scanner'],
+        readConfig: true,
+      ),
+      [outDir],
+    );
+  }, timeout: const Timeout(Duration(minutes: 2)));
+
   test('recursivePubPath ignore build', () async {
     // Somehow on node, build contains pubspec.yaml at its root and should be ignored
     // try to reproduce here
