@@ -17,7 +17,26 @@ void initDevTestMenu() {
   testImplementation = WithDescriptionsTest(DevTestMenu());
 }
 
-/// Run a dev test menu.
+/// Shows the tests declared by [body] as a console menu (`dart run`, not
+/// `dart test`): each `group` is a menu, each `test` an item.
+///
+/// [arguments] (the `main` arguments) are the first lines typed (`0 0 .`),
+/// then stdin is read. `setUp`/`tearDown` run around each test (those of
+/// the parent groups too), `setUpAll`/`tearDownAll` when a group menu is
+/// entered and left; a failing `expect` is printed and the menu goes on.
+/// `skip`, `testOn`, `timeout` and `onPlatform` are ignored, the async
+/// matchers and `expectLater` do not work in a menu. [showConsole] is
+/// ignored.
+///
+/// ```dart
+/// import 'package:dev_test/dev_test_menu.dart';
+///
+/// void main(List<String> arguments) {
+///   mainDevTestMenu(() {
+///     test('add', () => expect(1 + 1, 2));
+///   }, arguments: arguments);
+/// }
+/// ```
 void mainDevTestMenu(
   void Function() body, {
   List<String>? arguments,
@@ -27,8 +46,63 @@ void mainDevTestMenu(
   mainMenuConsole(arguments ?? <String>[], body);
 }
 
+/// The `setUp` and `tearDown` callbacks of a group (or of the root).
+class _DevTestMenuScope {
+  final setUps = <Object? Function()>[];
+  final tearDowns = <Object? Function()>[];
+}
+
+/// Calls [callback], awaiting it when it returns a future.
+Future<void> _call(Object? Function() callback) async {
+  var result = callback();
+  if (result is Future) {
+    await result;
+  }
+}
+
+/// Runs [body] the way package:test runs a test: the `setUp` callbacks of
+/// [scopes] (the root first), the body, then the `tearDown` callbacks, the
+/// inner group first and each group in reverse order, even after a failure.
+/// The first error is thrown.
+Future<void> _runTest(
+  List<_DevTestMenuScope> scopes,
+  Object? Function() body,
+) async {
+  Object? error;
+  StackTrace? stackTrace;
+  try {
+    for (var scope in scopes) {
+      for (var setUp in List.of(scope.setUps)) {
+        await _call(setUp);
+      }
+    }
+    await _call(body);
+  } catch (e, st) {
+    error = e;
+    stackTrace = st;
+  }
+  for (var scope in scopes.reversed) {
+    for (var tearDown in scope.tearDowns.reversed.toList()) {
+      try {
+        await _call(tearDown);
+      } catch (e, st) {
+        if (error == null) {
+          error = e;
+          stackTrace = st;
+        }
+      }
+    }
+  }
+  if (error != null) {
+    Error.throwWithStackTrace(error, stackTrace!);
+  }
+}
+
 /// Dev test menu implementation.
 class DevTestMenu with DevTestMixin implements Test {
+  /// The scopes of the groups being declared, the root first.
+  final _scopes = <_DevTestMenuScope>[_DevTestMenuScope()];
+
   @override
   void test(
     String description,
@@ -39,9 +113,11 @@ class DevTestMenu with DevTestMixin implements Test {
     @doNotSubmit bool solo = false,
     Map<String, Object?>? onPlatform,
   }) {
+    // The scopes themselves: a setUp declared after the test applies too.
+    var scopes = List.of(_scopes);
     tmf.item(
       description,
-      body,
+      () => _runTest(scopes, body),
       // ignore: invalid_use_of_do_not_submit_member
       solo: solo,
     );
@@ -59,20 +135,30 @@ class DevTestMenu with DevTestMixin implements Test {
   }) {
     tmf.menu(
       description,
-      body,
+      () {
+        _scopes.add(_DevTestMenuScope());
+        try {
+          body();
+        } finally {
+          _scopes.removeLast();
+        }
+      },
       // ignore: invalid_use_of_do_not_submit_member
       solo: solo,
     );
   }
 
+  /// Runs before each test of the current group and of its sub groups (not
+  /// a menu `enterItem`, which only covers the items of its own menu).
   @override
   void setUp(Object? Function() callback) {
-    tmf.enterItem(callback);
+    _scopes.last.setUps.add(callback);
   }
 
+  /// Runs after each test of the current group and of its sub groups.
   @override
   void tearDown(Object? Function() callback) {
-    tmf.leaveItem(callback);
+    _scopes.last.tearDowns.add(callback);
   }
 
   @override

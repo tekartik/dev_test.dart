@@ -6,7 +6,10 @@ import 'package:matcher/expect.dart' as xp;
 /// default implementation is a regular dart test
 Test testImplementation = WithDescriptionsTest(DartTest());
 
-/// Test descriptions.
+/// The names of the enclosing groups and of the running test:
+/// `[...groups, test]` in a test body, `[...groups]` in a `setUp`,
+/// `tearDown`, `setUpAll`, `tearDownAll` or group body, `[]` at the top
+/// level and in an `addTearDown` callback.
 List<String> get testDescriptions =>
     (testImplementation is WithTestDescriptions)
     ? (testImplementation as WithTestDescriptions).testDescriptions

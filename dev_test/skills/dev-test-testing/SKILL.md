@@ -36,7 +36,9 @@ void main() {
 
 ### Setup
 
-* Add both to `dev_dependencies`: `test` (the runner) and `dev_test`.
+* Add both to `dev_dependencies`: `test` (the runner, `dart test` fails
+  with "Could not find package `test`" without it) and `dev_test`:
+  `dart pub add --dev test dev_test`.
 * In `test/*_test.dart` replace `import 'package:test/test.dart';` with
   `import 'package:dev_test/test.dart';`. Never import both in one file:
   `test`, `group`, `expect`... are defined by each and conflict.
@@ -54,7 +56,9 @@ void main() {
 * Annotations and parameters: `TestOn`, `Timeout`, `Skip`, `Tags`,
   `OnPlatform`, `Retry`; `test(..., testOn: 'vm', timeout:
   const Timeout(Duration(minutes: 2)), skip: 'reason', onPlatform: {...})`
-  behave exactly as in `package:test`.
+  behave exactly as in `package:test`. `test` and `group` have no `tags`
+  nor `retry` parameter: use the `@Tags([...])` / `@Retry(n)` library
+  annotations.
 * Expectations: `expect`, `expectLater`, `expectAsync0..6`,
   `expectAsyncUntil0..6`, `fail`, `TestFailure`, `neverCalled`, `prints`,
   `throwsA`, `throwsArgumentError`..., `completes`, `completion`,
@@ -86,8 +90,9 @@ void main() {
   the current test. Inside a test body it is `[...groups, test]`. Inside
   `setUp`, `tearDown`, `setUpAll`, `tearDownAll` and while a group body is
   being declared it is the group path only (`[...groups]`), the test name
-  is not known there. Async tests that run concurrently each see their
-  own value.
+  is not known there. In an `addTearDown` callback it is `[]`. The tests
+  of a file run one at a time, so the value is the one of the running
+  test.
 * Use it to derive unique resources per test (a database name, a temp
   folder, a document path) instead of repeating the test name:
   `testDescriptions.join('_')` from the test body.
@@ -98,11 +103,21 @@ void main() {
 * `import 'package:dev_test/dev_test_menu.dart'` (exports `test.dart` too)
   and wrap the declarations in `mainDevTestMenu(() { ... }, arguments:
   args)`: each group becomes a menu, each test an item, `setUp`/`tearDown`
-  run around each item, `setUpAll`/`tearDownAll` on menu enter/leave, and
+  run around each item (those of the parent groups too, in the
+  `package:test` order), `setUpAll`/`tearDownAll` on menu enter/leave, and
   `expect` failures are printed instead of aborting. Run it with
   `dart run test/my_menu.dart` (name the file so `dart test` ignores it,
   or keep it in `example/`/`tool/`). See the `dev-build-menu` skill for
-  the console commands (`0`, `1`..., `.`, `?`).
+  the console commands (`0`, `1`..., `.`, `?`); the arguments are the
+  first lines typed (`dart run tool/my_menu.dart 0 0 . .`).
+* Menu limits: only the `dev_test` calls are seen (a file importing
+  `package:test` directly is not captured); `skip`, `testOn`, `timeout`,
+  `onPlatform` are ignored (a skipped test is listed and runs when picked);
+  the async matchers (`throwsA`, `throwsStateError`..., `completion`,
+  `emits`, `prints`) and `expectLater` need a running `package:test` test
+  and fail in the menu; the exit code is 0 even after failures, and piped
+  input that ends while a test prompts ends the program (dev_build
+  console).
 
 ## Examples
 
@@ -234,3 +249,6 @@ void main(List<String> args) {
   known there).
 * Expecting `mainDevTestMenu` files to run under `dart test`: they are
   scripts started with `dart run`.
+* `throwsA(...)` or `expectLater` in a test meant for the menu: they only
+  work under `dart test`.
+* Only `dev_test` in `dev_dependencies`: `dart test` needs `test` too.

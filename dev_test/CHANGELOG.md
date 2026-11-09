@@ -1,3 +1,10 @@
+## 1.0.5
+
+* `mainDevTestMenu`: the `setUp`/`tearDown` of the parent groups also run around the tests of a nested group, in
+  the `package:test` order (tearDowns inner first and in reverse order, even after a failure)
+* Documentation: README getting started (the test dependency), platforms, the console menu and its limits, common
+  mistakes; doc/ and example/main_menu.dart (passes the arguments) up to date; skill updated
+
 ## 1.0.4
 
 * Add `dev-test-testing` agent skill in `skills/`, installable with `dart run skills@ get`

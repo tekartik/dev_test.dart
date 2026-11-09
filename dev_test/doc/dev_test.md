@@ -1,34 +1,57 @@
-# dev_test.dart
+# dev_test details
 
-`dev_test` brings (back) the solo and skip features on top of the `test` package
+## solo and skip
 
-[![Build Status](https://travis-ci.org/tekartik/dev_test.dart.svg?branch=master)](https://travis-ci.org/tekartik/dev_test.dart)
+* `solo_test(name, body)` and `solo_group(name, body)` are `test` and
+  `group` with `solo: true`: when a file has a solo test or group, only
+  those run, the others are reported as skipped. Use it from the IDE to
+  iterate on one test without `dart test -n <name>`.
+* `skip_test(name, body)` and `skip_group(name, body)` are `test` and
+  `group` with `skip: true`, without touching the body.
+* The four are `@Deprecated('Dev only')`: the analyzer reports each use.
+  Remove them before committing (do not silence them with `// ignore`).
+* They take the other parameters of `test` and `group` (`testOn`,
+  `timeout`, `skip`, `onPlatform`).
 
-It is a layer on top of the `test` package that adds (back) the solo and skip feature so that you can run/debug a filtered set of tests from the IDE without having to use `pub run test -n xxx`.
-It remains however compatible the existing `test` package and tests can be run using `pub run test`. Make sure you have both `dev_test` and `test` as dependencies in your pubspec.yaml
+## testDescriptions
 
-`solo_test`, `solo_group`, `skip_test`, `skip_group` are marked as deprecated so that you don't commit code (check the dart analysis result) that
-might skip many needed tests. Also running tests will report if any tests were skipped.
+`testDescriptions` (a `List<String>`) names the enclosing groups and the
+running test:
 
-## Usage
+| Where it is read | Value |
+|---|---|
+| test body | `[...groups, test]` |
+| `setUp`, `tearDown`, `setUpAll`, `tearDownAll`, group body | `[...groups]` |
+| top level of `main`, `addTearDown` callback | `[]` |
 
-Your `pubspec.yaml` should contain the following dev_depencencies:
+The tests of a file run one at a time, so the value is the one of the test
+running.
 
-    dev_dependencies:
-      test: any
-      dev_test: any
+## Mixing with package:test
 
-In your `xxxx_test.dart` files replace
+`package:dev_test/test.dart` exports the whole `package:test` API (through
+`test_core`), with its own `test`, `group`, `setUp`, `tearDown`,
+`setUpAll`, `tearDownAll` and `expect`. A file imports one or the other
+(both only with a prefix). Helpers written with `package:test` can be called from a
+`dev_test` file: they share the same runner. `testDescriptions` only knows
+the groups and tests declared through `dev_test`.
 
-    import 'package:test/test.dart';
+## Console menu
 
-with
+`package:dev_test/dev_test_menu.dart` exports the same API and
+`mainDevTestMenu(body, {arguments})`. `body` declares the tests (call the
+`main` of a test file), and each group becomes a menu of the `dev_build`
+console, each test an item:
 
-    import 'package:dev_test/test.dart';
+* `setUp`/`tearDown` run around each test, those of the parent groups
+  included, in the `package:test` order (setUps outer first, tearDowns
+  inner first and in reverse order, even after a failure);
+* `setUpAll`/`tearDownAll` run when a group menu is entered and left;
+* a failing `expect` is printed and the menu goes on;
+* the arguments are the first lines typed (`0 0 .`), then the console reads
+  stdin: `.` goes back (exits at the top), `?` shows the menu again.
 
-`solo_test`, `solo_group`, `skip_test`, `skip_group` are marked as deprecated so that you don't commit code that
-might skip many needed tests.
-
-`testDescriptions` add information about the current running test (list of String naming the current group and test)
-
-`devTestRun` will be optionally needed if you have a mix of `test` and `dev_test` to make sure the declared tests or groups belongs to the correct group they are declared in
+Not supported in the menu: `skip`, `testOn`, `timeout`, `onPlatform`
+(ignored), the async matchers and `expectLater` (they need a running
+`package:test` test), tests declared with `package:test` directly. The
+program exits with 0, failures included.
