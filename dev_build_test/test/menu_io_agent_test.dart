@@ -4,10 +4,11 @@ library;
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' show Process, Platform;
 
 import 'package:dev_build/menu/menu_agent.dart';
 import 'package:path/path.dart';
+import 'package:process_run/shell.dart';
 import 'package:tekartik_dev_build_test/vm_service_json_rpc.dart';
 import 'package:test/test.dart';
 
@@ -16,26 +17,33 @@ const _agentPrefix = 'agent: VM service ';
 void main() {
   test('--agent: menu driven over the VM service, stdin closed', () async {
     final script = join('test', 'data', 'menu_console_agent.dart');
-    final process = await Process.start(Platform.resolvedExecutable, [
+    // A background run: no input, its end at once.
+    final stdout = ShellLinesController();
+    final stderr = ShellLinesController();
+    final shell = Shell(
+      stdin: const Stream<List<int>>.empty(),
+      stdout: stdout.sink,
+      stderr: stderr.sink,
+      verbose: false,
+      throwOnError: false,
+    );
+    final agentLine = Completer<String>();
+    final out = <String>[];
+    stdout.stream.listen((line) {
+      out.add(line);
+      if (line.startsWith(_agentPrefix) && !agentLine.isCompleted) {
+        agentLine.complete(line);
+      }
+    });
+    final err = StringBuffer();
+    stderr.stream.listen(err.writeln);
+    final started = Completer<Process>();
+    final done = shell.runExecutableArguments(Platform.resolvedExecutable, [
       'run',
       script,
       '--agent',
-    ]);
-    final agentLine = Completer<String>();
-    final out = <String>[];
-    process.stdout
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen((line) {
-          out.add(line);
-          if (line.startsWith(_agentPrefix) && !agentLine.isCompleted) {
-            agentLine.complete(line);
-          }
-        });
-    final err = StringBuffer();
-    process.stderr.transform(utf8.decoder).listen(err.write);
-    // A background run: nothing to read.
-    await process.stdin.close();
+    ], onProcess: started.complete);
+    final process = await started.future;
     VmServiceJsonRpc? service;
     try {
       final line = await agentLine.future.timeout(
@@ -98,6 +106,9 @@ void main() {
       await service?.close();
       process.kill();
       await process.exitCode;
+      await done;
+      stdout.close();
+      stderr.close();
     }
   }, timeout: const Timeout(Duration(minutes: 3)));
 }

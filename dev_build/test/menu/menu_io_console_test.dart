@@ -4,6 +4,7 @@ library;
 import 'dart:io';
 
 import 'package:path/path.dart';
+import 'package:process_run/shell.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -16,7 +17,15 @@ void main() {
     );
 
     Future<ProcessResult> runMenu(List<String> arguments) =>
-        Process.run(Platform.resolvedExecutable, ['run', script, ...arguments]);
+        Shell(
+          stdin: const Stream<List<int>>.empty(),
+          verbose: false,
+          throwOnError: false,
+        ).runExecutableArguments(Platform.resolvedExecutable, [
+          'run',
+          script,
+          ...arguments,
+        ]);
 
     test('command error reported, menu keeps running', () async {
       var result = await runMenu(['boom', '0', '.']);
