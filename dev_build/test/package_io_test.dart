@@ -340,6 +340,39 @@ void main() {
     expect(list, expected);
   });
 
+  test('scanPubPath reads a few folders at once', () async {
+    // One listing open per folder of a large tree (a home folder) went over
+    // the open files limit (OS Error: Too many open files, errno = 24).
+    var outDir = join('.dart_tool', 'dev_build', 'test', 'scan_pool');
+    await Directory(outDir).prepare();
+    var expected = <String>[];
+    for (var i = 0; i < 100; i++) {
+      var dir = join(outDir, 'pkg_${i.toString().padLeft(3, '0')}');
+      var file = File(join(dir, 'pubspec.yaml'));
+      await file.parent.create(recursive: true);
+      await file.writeAsString(minPubspecYamlContent);
+      expected.add(dir);
+    }
+    var running = 0;
+    var maxRunning = 0;
+    expect(
+      await scanPubPath(
+        [outDir],
+        hook: (dir) async {
+          running++;
+          if (running > maxRunning) {
+            maxRunning = running;
+          }
+          await Future<void>.delayed(const Duration(milliseconds: 5));
+          running--;
+          return const PubPathScanDir();
+        },
+      ),
+      expected,
+    );
+    expect(maxRunning, inInclusiveRange(2, 16));
+  });
+
   test('check isPubPackageRoot', () async {
     // Check dart version boundaries
     var outDir = join('.dart_tool', 'dev_build', 'test', 'is_pub_package_root');

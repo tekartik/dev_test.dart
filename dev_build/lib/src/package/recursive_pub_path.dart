@@ -241,6 +241,12 @@ Future<List<String>> scanPubPath(
   var rootPubDirs = <String>[];
   var subPubDirs = <String>[];
 
+  // The folders are scanned in parallel, a few at a time: one open listing
+  // per folder of a large tree (a home folder) went over the open files limit
+  // (OS Error: Too many open files, errno = 24). The sub folders are scanned
+  // once the slot is released, never while it is held (no deadlock).
+  var pool = Pool(_scanPoolSize);
+
   /// [parents] are the absolute normalized paths of the folders being
   /// scanned above [dir], [dir] included.
   Future<void> scan(
@@ -249,22 +255,28 @@ Future<List<String>> scanPubPath(
     List<String> pubDirs,
     List<String> parents,
   ) async {
-    var scanDir = hook == null ? const PubPathScanDir() : await hook(dir);
-    if (scanDir == null) {
-      return;
-    }
-    if (scanDir.list &&
-        await _checkProjectMatch(
-          dir,
-          dependencies: scanOptions.dependencies,
-          readConfig: scanOptions.readConfig,
-          filterDartProjectOptions: scanOptions.filterDartProjectOptions,
-        )) {
-      pubDirs.add(dir);
-    }
-    if (recursive) {
+    var scanned = await pool.withResource(() async {
+      var scanDir = hook == null ? const PubPathScanDir() : await hook(dir);
+      if (scanDir == null) {
+        return null;
+      }
+      if (scanDir.list &&
+          await _checkProjectMatch(
+            dir,
+            dependencies: scanOptions.dependencies,
+            readConfig: scanOptions.readConfig,
+            filterDartProjectOptions: scanOptions.filterDartProjectOptions,
+          )) {
+        pubDirs.add(dir);
+      }
+      return (
+        scanDir: scanDir,
+        subDirs: recursive ? await _listSubDirs(dir) : const <String>[],
+      );
+    });
+    if (scanned case (:var scanDir, :var subDirs)) {
       await Future.wait([
-        for (final subDir in await _listSubDirs(dir))
+        for (final subDir in subDirs)
           if (normalize(absolute(subDir)) case var subPath
               // A link to a folder being scanned or above: a loop.
               when !parents.any(
@@ -284,6 +296,9 @@ Future<List<String>> scanPubPath(
   }
   return removeDuplicates([...rootPubDirs, ...subPubDirs])..sort();
 }
+
+/// The number of folders [scanPubPath] reads at once.
+const _scanPoolSize = 16;
 
 /// Remove duplicates.
 List<String> removeDuplicates(List<String> dirs) {
