@@ -1,4 +1,4 @@
-## 1.2.2
+## 1.2.2+1
 
 * `run_ci --recursive` (the default) applies `--ignore-sdk-constraints`, `--min-sdk` and `--max-sdk`
   (`PackageRunCiOptions.filterDartProjectOptions`) when selecting the packages, as `--no-recursive` did
@@ -6,6 +6,8 @@
   support (and without `dart_test.yaml`)
 * `recursivePubPath` and `run_ci --recursive` no longer loop forever on a link to a parent folder
 * `recursivePubPath(readConfig: true)` finds the transitive dependencies of a package that had no `pub get` yet
+* `recursivePubPath`, `scanPubPath` and `run_ci --recursive` read 16 folders at a time instead of all at once: a large
+  tree (a home folder) no longer fails with `Too many open files` (errno 24)
 * `VersionBoundaries`: `>=0.5.0 <1.0.0` is no longer written `^0.5.0` (`toString`, `toYamlString`, the
   `dart pub global activate` constraint of `PubGlobalHostedPackageInstall`); `parse` accepts spaces around the
   operators (`>= 3.0.0 < 4.0.0`), such a pubspec is no longer skipped by `run_ci`
